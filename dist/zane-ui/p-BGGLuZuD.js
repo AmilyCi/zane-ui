@@ -1,0 +1,1 @@
+function e(e){requestAnimationFrame((()=>{requestAnimationFrame(e)}))}export{e as n}

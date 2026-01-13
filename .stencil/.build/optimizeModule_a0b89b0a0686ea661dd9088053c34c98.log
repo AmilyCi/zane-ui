@@ -1,0 +1,1 @@
+import{Z as o,d as t}from"./zane-tooltip2.js";const s=o,a=t;export{s as ZaneTooltip,a as defineCustomElement}

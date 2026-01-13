@@ -1,0 +1,11 @@
+.zane-container {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  flex-basis: auto;
+  box-sizing: border-box;
+  min-width: 0;
+}
+.zane-container.is-vertical {
+  flex-direction: column;
+}

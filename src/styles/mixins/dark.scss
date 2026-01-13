@@ -1,0 +1,13 @@
+@use 'bem' as *;
+
+// 暗黑模式混合宏
+// 使用示例：@include dark(button) { ... }
+@mixin dark($block) {
+  // 在暗黑模式下应用样式
+  html.dark,
+  html[data-theme='dark'] {
+    @include b($block) {
+      @content; // 插入内容
+    }
+  }
+}

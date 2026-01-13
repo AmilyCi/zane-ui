@@ -1,0 +1,809 @@
+import { createPopper } from "@popperjs/core";
+import { debounce, uniq } from "lodash-es";
+import { useNamespace } from "../../../hooks";
+import { arrayFrom, div, getOwnerDocument, isIE11, isMouseEvent, normalizeToArray, pushIfUnique, updateTransitionEndListener, } from "../../../utils";
+import { DATASET_PREFIX, defaultProps, mountedInstances, TIPPY_DEFAULT_APPEND_TO, TOUCH_OPTIONS, } from "../constants";
+import { actualContains } from "./actualContains";
+import { currentInput } from "./bindGlobalEventListeners";
+import { evaluateProps } from "./evaluateProps";
+import { getChildren } from "./getChildren";
+import { getExtendedPassedProps } from "./getExtendedPassedProps";
+import { getValueAtIndexOrReturn } from "./getValueAtIndexOrReturn";
+import { invokeWithArgsOrReturn } from "./invokeWithArgsOrReturn";
+import { isCursorOutsideInteractiveBorder } from "./isCursorOutsideInteractiveBorder";
+import { removeUndefinedProps } from "./removeUndefinedProps";
+import { setTransitionDuration } from "./setTransitionDuration";
+import { setVisibilityState } from "./setVisibilityState";
+import { splitBySpaces } from "./splitBySpaces";
+const ns = useNamespace('tooltip');
+let idCounter = 1;
+let mouseMoveListeners = [];
+export function createTippy(reference, passedProps) {
+    const props = evaluateProps(reference, Object.assign(Object.assign({}, defaultProps), getExtendedPassedProps(removeUndefinedProps(passedProps))));
+    // ===========================================================================
+    // 🔒 Private members
+    // ===========================================================================
+    let showTimeout;
+    let hideTimeout;
+    let scheduleHideAnimationFrame;
+    let isVisibleFromClick = false;
+    let didHideDueToDocumentMouseDown = false;
+    let didTouchMove = false;
+    let ignoreOnFirstUpdate = false;
+    let lastTriggerEvent;
+    let currentTransitionEndListener;
+    let onFirstUpdate;
+    let listeners = [];
+    let debouncedOnMouseMove = debounce(onMouseMove, props.interactiveDebounce);
+    let currentTarget;
+    // ===========================================================================
+    // 🔑 Public members
+    // ===========================================================================
+    const id = idCounter++;
+    const popperInstance = null;
+    const plugins = uniq(props.plugins);
+    const state = {
+        // Has the instance been destroyed?
+        isDestroyed: false,
+        // Is the instance currently enabled?
+        isEnabled: true,
+        // Is the tippy currently mounted to the DOM?
+        isMounted: false,
+        // Has the tippy finished transitioning in?
+        isShown: false,
+        // Is the tippy currently showing and not transitioning out?
+        isVisible: false,
+    };
+    const instance = {
+        // methods
+        clearDelayTimeouts,
+        destroy,
+        disable,
+        enable,
+        hide,
+        hideWithInteractivity,
+        // properties
+        id,
+        plugins,
+        popper: div(),
+        popperInstance,
+        props,
+        reference,
+        setContent,
+        setProps,
+        show,
+        state,
+        unmount,
+    };
+    // TODO: Investigate why this early return causes a TDZ error in the tests —
+    // it doesn't seem to happen in the browser
+    /* istanbul ignore if */
+    if (!props.render) {
+        return instance;
+    }
+    // ===========================================================================
+    // Initial mutations
+    // ===========================================================================
+    const { onUpdate, popper } = props.render(instance);
+    popper.setAttribute(`${DATASET_PREFIX}-root`, '');
+    popper.id = `${ns.b()}-${instance.id}`;
+    instance.popper = popper;
+    reference._tippy = instance;
+    popper._tippy = instance;
+    const pluginsHooks = plugins.map((plugin) => plugin.fn(instance));
+    const hasAriaExpanded = reference.hasAttribute('aria-expanded');
+    addListeners();
+    handleAriaExpandedAttribute();
+    handleStyles();
+    invokeHook('onCreate', [instance]);
+    if (props.showOnCreate) {
+        scheduleShow();
+    }
+    // Prevent a tippy with a delay from hiding if the cursor left then returned
+    // before it started hiding
+    popper.addEventListener('mouseenter', () => {
+        if (instance.props.interactive && instance.state.isVisible) {
+            instance.clearDelayTimeouts();
+        }
+    });
+    popper.addEventListener('mouseleave', () => {
+        if (instance.props.interactive &&
+            instance.props.trigger.includes('mouseenter')) {
+            getDocument().addEventListener('mousemove', debouncedOnMouseMove);
+        }
+    });
+    return instance;
+    // ===========================================================================
+    // 🔒 Private methods
+    // ===========================================================================
+    function getNormalizedTouchSettings() {
+        const { touch } = instance.props;
+        return Array.isArray(touch) ? touch : [touch, 0];
+    }
+    function getIsCustomTouchBehavior() {
+        return getNormalizedTouchSettings()[0] === 'hold';
+    }
+    function getIsDefaultRenderFn() {
+        var _a;
+        return !!((_a = instance.props.render) === null || _a === void 0 ? void 0 : _a.$$tippy);
+    }
+    function getCurrentTarget() {
+        return currentTarget || reference;
+    }
+    function getDocument() {
+        const parent = getCurrentTarget().parentNode;
+        return parent ? getOwnerDocument(parent) : document;
+    }
+    function getDefaultTemplateChildren() {
+        return getChildren(popper);
+    }
+    function getDelay(isShow) {
+        // For touch or keyboard input, force `0` delay for UX reasons
+        // Also if the instance is mounted but not visible (transitioning out),
+        // ignore delay
+        if ((instance.state.isMounted && !instance.state.isVisible) ||
+            currentInput.isTouch ||
+            (lastTriggerEvent && lastTriggerEvent.type === 'focus')) {
+            return 0;
+        }
+        return getValueAtIndexOrReturn(instance.props.delay, isShow ? 0 : 1, defaultProps.delay);
+    }
+    function handleStyles(fromHide = false) {
+        popper.style.pointerEvents =
+            instance.props.interactive && !fromHide ? '' : 'none';
+        popper.style.zIndex = `${instance.props.zIndex}`;
+    }
+    function invokeHook(hook, args, shouldInvokePropsHook = true) {
+        var _a, _b;
+        pluginsHooks.forEach((pluginHooks) => {
+            if (pluginHooks[hook]) {
+                pluginHooks[hook](...args);
+            }
+        });
+        if (shouldInvokePropsHook) {
+            (_b = (_a = instance.props)[hook]) === null || _b === void 0 ? void 0 : _b.call(_a, ...args);
+        }
+    }
+    function handleAriaContentAttribute() {
+        const { aria } = instance.props;
+        if (!aria.content) {
+            return;
+        }
+        const attr = `aria-${aria.content}`;
+        const id = popper.id;
+        const nodes = normalizeToArray(instance.props.triggerTarget || reference);
+        nodes.forEach((node) => {
+            const currentValue = node.getAttribute(attr);
+            if (instance.state.isVisible) {
+                node.setAttribute(attr, currentValue ? `${currentValue} ${id}` : id);
+            }
+            else {
+                const nextValue = currentValue && currentValue.replace(id, '').trim();
+                if (nextValue) {
+                    node.setAttribute(attr, nextValue);
+                }
+                else {
+                    node.removeAttribute(attr);
+                }
+            }
+        });
+    }
+    function handleAriaExpandedAttribute() {
+        if (hasAriaExpanded || !instance.props.aria.expanded) {
+            return;
+        }
+        const nodes = normalizeToArray(instance.props.triggerTarget || reference);
+        nodes.forEach((node) => {
+            if (instance.props.interactive) {
+                node.setAttribute('aria-expanded', instance.state.isVisible && node === getCurrentTarget()
+                    ? 'true'
+                    : 'false');
+            }
+            else {
+                node.removeAttribute('aria-expanded');
+            }
+        });
+    }
+    function cleanupInteractiveMouseListeners() {
+        getDocument().removeEventListener('mousemove', debouncedOnMouseMove);
+        mouseMoveListeners = mouseMoveListeners.filter((listener) => listener !== debouncedOnMouseMove);
+    }
+    function onDocumentPress(event) {
+        // Moved finger to scroll instead of an intentional tap outside
+        if (currentInput.isTouch && (didTouchMove || event.type === 'mousedown')) {
+            return;
+        }
+        const actualTarget = (event.composedPath && event.composedPath()[0]) || event.target;
+        // Clicked on interactive popper
+        if (instance.props.interactive &&
+            actualContains(popper, actualTarget)) {
+            return;
+        }
+        // Clicked on the event listeners target
+        if (normalizeToArray(instance.props.triggerTarget || reference).some((el) => actualContains(el, actualTarget))) {
+            if (currentInput.isTouch) {
+                return;
+            }
+            if (instance.state.isVisible &&
+                instance.props.trigger.includes('click')) {
+                return;
+            }
+        }
+        else {
+            invokeHook('onClickOutside', [instance, event]);
+        }
+        if (instance.props.hideOnClick === true) {
+            instance.clearDelayTimeouts();
+            instance.hide();
+            // `mousedown` event is fired right before `focus` if pressing the
+            // currentTarget. This lets a tippy with `focus` trigger know that it
+            // should not show
+            didHideDueToDocumentMouseDown = true;
+            setTimeout(() => {
+                didHideDueToDocumentMouseDown = false;
+            });
+            // The listener gets added in `scheduleShow()`, but this may be hiding it
+            // before it shows, and hide()'s early bail-out behavior can prevent it
+            // from being cleaned up
+            if (!instance.state.isMounted) {
+                removeDocumentPress();
+            }
+        }
+    }
+    function onTouchMove() {
+        didTouchMove = true;
+    }
+    function onTouchStart() {
+        didTouchMove = false;
+    }
+    function addDocumentPress() {
+        const doc = getDocument();
+        doc.addEventListener('mousedown', onDocumentPress, true);
+        doc.addEventListener('touchend', onDocumentPress, TOUCH_OPTIONS);
+        doc.addEventListener('touchstart', onTouchStart, TOUCH_OPTIONS);
+        doc.addEventListener('touchmove', onTouchMove, TOUCH_OPTIONS);
+    }
+    function removeDocumentPress() {
+        const doc = getDocument();
+        doc.removeEventListener('mousedown', onDocumentPress, true);
+        doc.removeEventListener('touchend', onDocumentPress, TOUCH_OPTIONS);
+        doc.removeEventListener('touchstart', onTouchStart, TOUCH_OPTIONS);
+        doc.removeEventListener('touchmove', onTouchMove, TOUCH_OPTIONS);
+    }
+    function onTransitionedOut(duration, callback) {
+        onTransitionEnd(duration, () => {
+            if (!instance.state.isVisible &&
+                popper.parentNode &&
+                popper.parentNode.contains(popper)) {
+                callback();
+            }
+        });
+    }
+    function onTransitionedIn(duration, callback) {
+        onTransitionEnd(duration, callback);
+    }
+    function onTransitionEnd(duration, callback) {
+        const box = getDefaultTemplateChildren().box;
+        function listener(event) {
+            if (event.target === box) {
+                updateTransitionEndListener(box, 'remove', listener);
+                callback();
+            }
+        }
+        // Make callback synchronous if duration is 0
+        // `transitionend` won't fire otherwise
+        if (duration === 0) {
+            return callback();
+        }
+        updateTransitionEndListener(box, 'remove', currentTransitionEndListener);
+        updateTransitionEndListener(box, 'add', listener);
+        currentTransitionEndListener = listener;
+    }
+    function on(eventType, handler, options = false) {
+        const nodes = normalizeToArray(instance.props.triggerTarget || reference);
+        nodes.forEach((node) => {
+            node.addEventListener(eventType, handler, options);
+            listeners.push({ eventType, handler, node, options });
+        });
+    }
+    function addListeners() {
+        if (getIsCustomTouchBehavior()) {
+            on('touchstart', onTrigger, { passive: true });
+            on('touchend', onMouseLeave, { passive: true });
+        }
+        splitBySpaces(instance.props.trigger).forEach((eventType) => {
+            if (eventType === 'manual') {
+                return;
+            }
+            on(eventType, onTrigger);
+            switch (eventType) {
+                case 'focus': {
+                    on(isIE11() ? 'focusout' : 'blur', onBlurOrFocusOut);
+                    break;
+                }
+                case 'focusin': {
+                    on('focusout', onBlurOrFocusOut);
+                    break;
+                }
+                case 'mouseenter': {
+                    on('mouseleave', onMouseLeave);
+                    break;
+                }
+            }
+        });
+    }
+    function removeListeners() {
+        listeners.forEach(({ eventType, handler, node, options }) => {
+            node.removeEventListener(eventType, handler, options);
+        });
+        listeners = [];
+    }
+    function onTrigger(event) {
+        let shouldScheduleClickHide = false;
+        if (!instance.state.isEnabled ||
+            isEventListenerStopped(event) ||
+            didHideDueToDocumentMouseDown) {
+            return;
+        }
+        const wasFocused = (lastTriggerEvent === null || lastTriggerEvent === void 0 ? void 0 : lastTriggerEvent.type) === 'focus';
+        lastTriggerEvent = event;
+        currentTarget = event.currentTarget;
+        handleAriaExpandedAttribute();
+        if (!instance.state.isVisible && isMouseEvent(event)) {
+            // If scrolling, `mouseenter` events can be fired if the cursor lands
+            // over a new target, but `mousemove` events don't get fired. This
+            // causes interactive tooltips to get stuck open until the cursor is
+            // moved
+            mouseMoveListeners.forEach((listener) => listener(event));
+        }
+        // Toggle show/hide when clicking click-triggered tooltips
+        if (event.type === 'click' &&
+            (!instance.props.trigger.includes('mouseenter') || isVisibleFromClick) &&
+            instance.props.hideOnClick !== false &&
+            instance.state.isVisible) {
+            shouldScheduleClickHide = true;
+        }
+        else {
+            scheduleShow(event);
+        }
+        if (event.type === 'click') {
+            isVisibleFromClick = !shouldScheduleClickHide;
+        }
+        if (shouldScheduleClickHide && !wasFocused) {
+            scheduleHide(event);
+        }
+    }
+    function onMouseMove(event) {
+        const target = event.target;
+        const isCursorOverReferenceOrPopper = getCurrentTarget().contains(target) || popper.contains(target);
+        if (event.type === 'mousemove' && isCursorOverReferenceOrPopper) {
+            return;
+        }
+        const popperTreeData = getNestedPopperTree()
+            .concat(popper)
+            .map((popper) => {
+            var _a;
+            const instance = popper._tippy;
+            const state = (_a = instance === null || instance === void 0 ? void 0 : instance.popperInstance) === null || _a === void 0 ? void 0 : _a.state;
+            if (state) {
+                return {
+                    popperRect: popper.getBoundingClientRect(),
+                    popperState: state,
+                    props,
+                };
+            }
+            return null;
+        })
+            .filter(Boolean);
+        if (isCursorOutsideInteractiveBorder(popperTreeData, event)) {
+            cleanupInteractiveMouseListeners();
+            scheduleHide(event);
+        }
+    }
+    function onMouseLeave(event) {
+        const shouldBail = isEventListenerStopped(event) ||
+            (instance.props.trigger.includes('click') && isVisibleFromClick);
+        if (shouldBail) {
+            return;
+        }
+        if (instance.props.interactive) {
+            instance.hideWithInteractivity(event);
+            return;
+        }
+        scheduleHide(event);
+    }
+    function onBlurOrFocusOut(event) {
+        if (!instance.props.trigger.includes('focusin') &&
+            event.target !== getCurrentTarget()) {
+            return;
+        }
+        // If focus was moved to within the popper
+        if (instance.props.interactive &&
+            event.relatedTarget &&
+            popper.contains(event.relatedTarget)) {
+            return;
+        }
+        scheduleHide(event);
+    }
+    function isEventListenerStopped(event) {
+        return currentInput.isTouch
+            ? getIsCustomTouchBehavior() !== event.type.includes('touch')
+            : false;
+    }
+    function createPopperInstance() {
+        destroyPopperInstance();
+        const { getReferenceClientRect, moveTransition, offset, placement, popperOptions, } = instance.props;
+        const arrow = getIsDefaultRenderFn() ? getChildren(popper).arrow : null;
+        const computedReference = getReferenceClientRect
+            ? {
+                contextElement: getReferenceClientRect.contextElement || getCurrentTarget(),
+                getBoundingClientRect: getReferenceClientRect,
+            }
+            : reference;
+        const tippyModifier = {
+            enabled: true,
+            fn({ state }) {
+                if (getIsDefaultRenderFn()) {
+                    const { box } = getDefaultTemplateChildren();
+                    ['placement', 'reference-hidden', 'escaped'].forEach((attr) => {
+                        if (attr === 'placement') {
+                            box.dataset.placement = state.placement;
+                        }
+                        else {
+                            if (state.attributes.popper[`data-popper-${attr}`]) {
+                                box.setAttribute(`data-${attr}`, '');
+                            }
+                            else {
+                                box.removeAttribute(`data-${attr}`);
+                            }
+                        }
+                    });
+                    state.attributes.popper = {};
+                }
+            },
+            name: '$$tippy',
+            phase: 'beforeWrite',
+            requires: ['computeStyles'],
+        };
+        const modifiers = [
+            {
+                name: 'offset',
+                options: {
+                    offset,
+                },
+            },
+            {
+                name: 'preventOverflow',
+                options: {
+                    padding: {
+                        bottom: 2,
+                        left: 5,
+                        right: 5,
+                        top: 2,
+                    },
+                },
+            },
+            {
+                name: 'flip',
+                options: {
+                    padding: 5,
+                },
+            },
+            {
+                name: 'computeStyles',
+                options: {
+                    adaptive: !moveTransition,
+                },
+            },
+            tippyModifier,
+        ];
+        if (getIsDefaultRenderFn() && arrow) {
+            modifiers.push({
+                name: 'arrow',
+                options: {
+                    element: arrow,
+                    padding: 3,
+                },
+            });
+        }
+        modifiers.push(...((popperOptions === null || popperOptions === void 0 ? void 0 : popperOptions.modifiers) || []));
+        instance.popperInstance = createPopper(computedReference, popper, Object.assign(Object.assign({}, popperOptions), { modifiers,
+            onFirstUpdate,
+            placement }));
+    }
+    function destroyPopperInstance() {
+        if (instance.popperInstance) {
+            instance.popperInstance.destroy();
+            instance.popperInstance = null;
+        }
+    }
+    function mount() {
+        const { appendTo } = instance.props;
+        // By default, we'll append the popper to the triggerTargets's parentNode so
+        // it's directly after the reference element so the elements inside the
+        // tippy can be tabbed to
+        // If there are clipping issues, the user can specify a different appendTo
+        // and ensure focus management is handled correctly manually
+        const node = getCurrentTarget();
+        const parentNode = (instance.props.interactive && appendTo === TIPPY_DEFAULT_APPEND_TO) ||
+            appendTo === 'parent'
+            ? node.parentNode
+            : invokeWithArgsOrReturn(appendTo, [node]);
+        // The popper element needs to exist on the DOM before its position can be
+        // updated as Popper needs to read its dimensions
+        if (!parentNode.contains(popper)) {
+            parentNode.append(popper);
+        }
+        instance.state.isMounted = true;
+        createPopperInstance();
+    }
+    function getNestedPopperTree() {
+        return arrayFrom(popper.querySelectorAll(`[${DATASET_PREFIX}-root]`));
+    }
+    function scheduleShow(event) {
+        instance.clearDelayTimeouts();
+        if (event) {
+            invokeHook('onTrigger', [instance, event]);
+        }
+        addDocumentPress();
+        let delay = getDelay(true);
+        const [touchValue, touchDelay] = getNormalizedTouchSettings();
+        if (currentInput.isTouch && touchValue === 'hold' && touchDelay) {
+            delay = touchDelay;
+        }
+        if (delay) {
+            showTimeout = setTimeout(() => {
+                instance.show();
+            }, delay);
+        }
+        else {
+            instance.show();
+        }
+    }
+    function scheduleHide(event) {
+        instance.clearDelayTimeouts();
+        invokeHook('onUntrigger', [instance, event]);
+        if (!instance.state.isVisible) {
+            removeDocumentPress();
+            return;
+        }
+        // For interactive tippies, scheduleHide is added to a document.body handler
+        // from onMouseLeave so must intercept scheduled hides from mousemove/leave
+        // events when trigger contains mouseenter and click, and the tip is
+        // currently shown as a result of a click.
+        if (instance.props.trigger.includes('mouseenter') &&
+            instance.props.trigger.includes('click') &&
+            ['mouseleave', 'mousemove'].includes(event.type) &&
+            isVisibleFromClick) {
+            return;
+        }
+        const delay = getDelay(false);
+        if (delay) {
+            hideTimeout = setTimeout(() => {
+                if (instance.state.isVisible) {
+                    instance.hide();
+                }
+            }, delay);
+        }
+        else {
+            // Fixes a `transitionend` problem when it fires 1 frame too
+            // late sometimes, we don't want hide() to be called.
+            scheduleHideAnimationFrame = requestAnimationFrame(() => {
+                instance.hide();
+            });
+        }
+    }
+    // ===========================================================================
+    // 🔑 Public methods
+    // ===========================================================================
+    function enable() {
+        instance.state.isEnabled = true;
+    }
+    function disable() {
+        // Disabling the instance should also hide it
+        // https://github.com/atomiks/tippy.js-react/issues/106
+        instance.hide();
+        instance.state.isEnabled = false;
+    }
+    function clearDelayTimeouts() {
+        clearTimeout(showTimeout);
+        clearTimeout(hideTimeout);
+        cancelAnimationFrame(scheduleHideAnimationFrame);
+    }
+    function setProps(partialProps) {
+        if (instance.state.isDestroyed) {
+            return;
+        }
+        invokeHook('onBeforeUpdate', [instance, partialProps]);
+        removeListeners();
+        const prevProps = instance.props;
+        const nextProps = evaluateProps(reference, Object.assign(Object.assign(Object.assign({}, prevProps), removeUndefinedProps(partialProps)), { ignoreAttributes: true }));
+        instance.props = nextProps;
+        addListeners();
+        if (prevProps.interactiveDebounce !== nextProps.interactiveDebounce) {
+            cleanupInteractiveMouseListeners();
+            debouncedOnMouseMove = debounce(onMouseMove, nextProps.interactiveDebounce);
+        }
+        // Ensure stale aria-expanded attributes are removed
+        if (prevProps.triggerTarget && !nextProps.triggerTarget) {
+            normalizeToArray(prevProps.triggerTarget).forEach((node) => {
+                node.removeAttribute('aria-expanded');
+            });
+        }
+        else if (nextProps.triggerTarget) {
+            reference.removeAttribute('aria-expanded');
+        }
+        handleAriaExpandedAttribute();
+        handleStyles();
+        if (onUpdate) {
+            onUpdate(prevProps, nextProps);
+        }
+        if (instance.popperInstance) {
+            createPopperInstance();
+            // Fixes an issue with nested tippies if they are all getting re-rendered,
+            // and the nested ones get re-rendered first.
+            // https://github.com/atomiks/tippyjs-react/issues/177
+            // TODO: find a cleaner / more efficient solution(!)
+            getNestedPopperTree().forEach((nestedPopper) => {
+                var _a, _b;
+                // React (and other UI libs likely) requires a rAF wrapper as it flushes
+                // its work in one
+                requestAnimationFrame((_b = (_a = nestedPopper._tippy) === null || _a === void 0 ? void 0 : _a.popperInstance) === null || _b === void 0 ? void 0 : _b.forceUpdate);
+            });
+        }
+        invokeHook('onAfterUpdate', [instance, partialProps]);
+    }
+    function setContent(content) {
+        instance.setProps({ content });
+    }
+    function show() {
+        // Early bail-out
+        const isAlreadyVisible = instance.state.isVisible;
+        const isDestroyed = instance.state.isDestroyed;
+        const isDisabled = !instance.state.isEnabled;
+        const isTouchAndTouchDisabled = currentInput.isTouch && !instance.props.touch;
+        const duration = getValueAtIndexOrReturn(instance.props.duration, 0, defaultProps.duration);
+        if (isAlreadyVisible ||
+            isDestroyed ||
+            isDisabled ||
+            isTouchAndTouchDisabled) {
+            return;
+        }
+        // Normalize `disabled` behavior across browsers.
+        // Firefox allows events on disabled elements, but Chrome doesn't.
+        // Using a wrapper element (i.e. <span>) is recommended.
+        if (getCurrentTarget().hasAttribute('disabled')) {
+            return;
+        }
+        invokeHook('onShow', [instance], false);
+        if (instance.props.onShow(instance) === false) {
+            return;
+        }
+        instance.state.isVisible = true;
+        if (getIsDefaultRenderFn()) {
+            popper.style.visibility = 'visible';
+        }
+        handleStyles();
+        addDocumentPress();
+        if (!instance.state.isMounted) {
+            popper.style.transition = 'none';
+        }
+        // If flipping to the opposite side after hiding at least once, the
+        // animation will use the wrong placement without resetting the duration
+        if (getIsDefaultRenderFn()) {
+            const { box, content } = getDefaultTemplateChildren();
+            setTransitionDuration([box, content], 0);
+        }
+        onFirstUpdate = () => {
+            var _a;
+            if (!instance.state.isVisible || ignoreOnFirstUpdate) {
+                return;
+            }
+            ignoreOnFirstUpdate = true;
+            // reflow
+            void popper.offsetHeight;
+            popper.style.transition = instance.props.moveTransition;
+            if (getIsDefaultRenderFn() && instance.props.animation) {
+                const { box, content } = getDefaultTemplateChildren();
+                setTransitionDuration([box, content], duration);
+                setVisibilityState([box, content], 'visible');
+            }
+            handleAriaContentAttribute();
+            handleAriaExpandedAttribute();
+            pushIfUnique(mountedInstances, instance);
+            // certain modifiers (e.g. `maxSize`) require a second update after the
+            // popper has been positioned for the first time
+            (_a = instance.popperInstance) === null || _a === void 0 ? void 0 : _a.forceUpdate();
+            invokeHook('onMount', [instance]);
+            if (instance.props.animation && getIsDefaultRenderFn()) {
+                onTransitionedIn(duration, () => {
+                    instance.state.isShown = true;
+                    invokeHook('onShown', [instance]);
+                });
+            }
+        };
+        mount();
+    }
+    function hide() {
+        // Early bail-out
+        const isAlreadyHidden = !instance.state.isVisible;
+        const isDestroyed = instance.state.isDestroyed;
+        const isDisabled = !instance.state.isEnabled;
+        const duration = getValueAtIndexOrReturn(instance.props.duration, 1, defaultProps.duration);
+        if (isAlreadyHidden || isDestroyed || isDisabled) {
+            return;
+        }
+        invokeHook('onHide', [instance], false);
+        if (instance.props.onHide(instance) === false) {
+            return;
+        }
+        instance.state.isVisible = false;
+        instance.state.isShown = false;
+        ignoreOnFirstUpdate = false;
+        isVisibleFromClick = false;
+        if (getIsDefaultRenderFn()) {
+            popper.style.visibility = 'hidden';
+        }
+        cleanupInteractiveMouseListeners();
+        removeDocumentPress();
+        handleStyles(true);
+        if (getIsDefaultRenderFn()) {
+            const { box, content } = getDefaultTemplateChildren();
+            if (instance.props.animation) {
+                setTransitionDuration([box, content], duration);
+                setVisibilityState([box, content], 'hidden');
+            }
+        }
+        handleAriaContentAttribute();
+        handleAriaExpandedAttribute();
+        if (instance.props.animation) {
+            if (getIsDefaultRenderFn()) {
+                onTransitionedOut(duration, instance.unmount);
+            }
+        }
+        else {
+            instance.unmount();
+        }
+    }
+    function hideWithInteractivity(event) {
+        getDocument().addEventListener('mousemove', debouncedOnMouseMove);
+        pushIfUnique(mouseMoveListeners, debouncedOnMouseMove);
+        debouncedOnMouseMove(event);
+    }
+    function unmount() {
+        if (instance.state.isVisible) {
+            instance.hide();
+        }
+        if (!instance.state.isMounted) {
+            return;
+        }
+        destroyPopperInstance();
+        // If a popper is not interactive, it will be appended outside the popper
+        // tree by default. This seems mainly for interactive tippies, but we should
+        // find a workaround if possible
+        getNestedPopperTree().forEach((nestedPopper) => {
+            var _a;
+            (_a = nestedPopper._tippy) === null || _a === void 0 ? void 0 : _a.unmount();
+        });
+        if (popper.parentNode) {
+            popper.remove();
+        }
+        const index = mountedInstances.indexOf(instance);
+        if (index !== -1) {
+            mountedInstances.splice(index, 1);
+        }
+        instance.state.isMounted = false;
+        invokeHook('onHidden', [instance]);
+    }
+    function destroy() {
+        if (instance.state.isDestroyed) {
+            return;
+        }
+        instance.clearDelayTimeouts();
+        instance.unmount();
+        removeListeners();
+        delete reference._tippy;
+        instance.state.isDestroyed = true;
+        invokeHook('onDestroy', [instance]);
+    }
+}

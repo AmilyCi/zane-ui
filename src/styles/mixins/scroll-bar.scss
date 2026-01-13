@@ -1,0 +1,43 @@
+@use '../config' as *;
+@use 'function' as *;
+
+// 滚动条样式混合宏
+@mixin scroll-bar {
+  // 定义滚动条颜色变量
+  $scrollbar-thumb-background: getCssVar('text-color', 'disabled');
+  $scrollbar-track-background: getCssVar('fill-color', 'blank');
+
+  // Webkit浏览器滚动条样式
+  &::-webkit-scrollbar {
+    z-index: 11; // 确保滚动条显示在内容上方
+    width: 6px; // 垂直滚动条宽度
+
+    // 水平滚动条样式
+    &:horizontal {
+      height: 6px; // 水平滚动条高度
+    }
+
+    // 滚动条滑块样式
+    &-thumb {
+      border-radius: 5px; // 圆角
+      width: 6px; // 宽度
+      background: $scrollbar-thumb-background; // 背景色
+    }
+
+    // 滚动条角落样式
+    &-corner {
+      background: $scrollbar-track-background; // 背景色
+    }
+
+    // 滚动条轨道样式
+    &-track {
+      background: $scrollbar-track-background; // 背景色
+
+      // 轨道片段样式
+      &-piece {
+        background: $scrollbar-track-background; // 背景色
+        width: 6px; // 宽度
+      }
+    }
+  }
+}

@@ -1,0 +1,1 @@
+import{Z as o,d as s}from"./zane-icon2.js";const a=o,n=s;export{a as ZaneIcon,n as defineCustomElement}

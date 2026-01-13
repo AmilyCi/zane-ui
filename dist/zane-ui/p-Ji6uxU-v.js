@@ -1,0 +1,1 @@
+const o=o=>null!==o&&"object"==typeof o;export{o as i}

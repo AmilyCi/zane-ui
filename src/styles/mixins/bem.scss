@@ -1,0 +1,178 @@
+@use '../config' as *;
+
+$B: null;
+$E: null;
+
+// BEM 块混合宏
+// 使用示例：@include b(button) { ... }
+@mixin b($block) {
+  // 创建全局BEM块变量
+  $B: $namespace + $common-separator + $block !global;
+
+  // 生成块类名
+  .#{$B} {
+    @content; // 插入内容
+  }
+}
+
+// BEM 元素混合宏
+// 使用示例：@include e(icon) { ... }
+@mixin e($element) {
+  // 创建全局元素变量
+  $E: $element !global;
+  $selector: &; // 获取当前选择器
+  $currentSelector: '';
+
+  // 构建元素选择器
+  @each $unit in $element {
+    $currentSelector: #{$currentSelector +
+      '.' +
+      $B +
+      $element-separator +
+      $unit +
+      ','};
+  }
+
+  // 检查是否包含特殊嵌套规则
+  @if hitAllSpecialNestRule($selector) {
+    // 在根级别生成选择器
+    @at-root {
+      #{$selector} {
+        #{$currentSelector} {
+          @content; // 插入内容
+        }
+      }
+    }
+  } @else {
+    // 在根级别生成选择器
+    @at-root {
+      #{$currentSelector} {
+        @content; // 插入内容
+      }
+    }
+  }
+}
+
+// BEM 修饰符混合宏
+// 使用示例：@include m(disabled) { ... }
+@mixin m($modifier) {
+  $selector: &; // 获取当前选择器
+  $currentSelector: '';
+
+  // 构建修饰符选择器
+  @each $unit in $modifier {
+    $currentSelector: #{$currentSelector +
+      $selector +
+      $modifier-separator +
+      $unit +
+      ','};
+  }
+
+  // 在根级别生成选择器
+  @at-root {
+    #{$currentSelector} {
+      @content; // 插入内容
+    }
+  }
+}
+
+// 可配置修饰符混合宏
+@mixin configurable-m($modifier, $E-flag: false) {
+  $selector: &; // 获取当前选择器
+  $interpolation: '';
+
+  // 如果需要元素标志
+  @if $E-flag {
+    $interpolation: $element-separator + $E-flag;
+  }
+
+  // 在根级别生成选择器
+  @at-root {
+    #{$selector} {
+      .#{$B + $interpolation + $modifier-separator + $modifier} {
+        @content; // 插入内容
+      }
+    }
+  }
+}
+
+// 特殊选择器混合宏
+@mixin spec-selector(
+  $specSelector: '',
+  $element: $E,
+  $modifier: false,
+  $block: $B
+) {
+  $modifierCombo: '';
+
+  // 如果有修饰符，添加修饰符组合
+  @if $modifier {
+    $modifierCombo: $modifier-separator + $modifier;
+  }
+
+  // 在根级别生成选择器
+  @at-root {
+    #{&}#{$specSelector}.#{$block
+      + $element-separator
+      + $element
+      + $modifierCombo} {
+      @content; // 插入内容
+    }
+  }
+}
+
+// 元素修饰符块混合宏
+@mixin meb($modifier: false, $element: $E, $block: $B) {
+  $selector: &; // 获取当前选择器
+  $modifierCombo: '';
+
+  // 如果有修饰符，添加修饰符组合
+  @if $modifier {
+    $modifierCombo: $modifier-separator + $modifier;
+  }
+
+  // 在根级别生成选择器
+  @at-root {
+    #{$selector} {
+      .#{$block + $element-separator + $element + $modifierCombo} {
+        @content; // 插入内容
+      }
+    }
+  }
+}
+
+// 状态混合宏
+// 使用示例：@include when(disabled) { ... }
+@mixin when($state) {
+  // 在根级别生成状态类
+  @at-root {
+    &.#{$state-prefix + $state} {
+      @content; // 插入内容
+    }
+  }
+}
+
+// 扩展规则混合宏
+@mixin extend-rule($name) {
+  // 扩展共享规则
+  @extend #{'%shared-' + $name} !optional;
+}
+
+// 共享规则混合宏
+@mixin share-rule($name) {
+  $rule-name: '%shared-' + $name;
+
+  // 在根级别创建共享规则
+  @at-root #{$rule-name} {
+    @content; // 插入内容
+  }
+}
+
+// 伪类混合宏
+// 使用示例：@include pseudo(hover) { ... }
+@mixin pseudo($pseudo) {
+  // 在根级别生成伪类选择器
+  @at-root #{&}#{':#{$pseudo}'} {
+    @content; // 插入内容
+  }
+}

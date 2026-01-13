@@ -1,0 +1,325 @@
+<!doctype html>
+<html dir="ltr" lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0"
+    />
+    <title>Stencil Component Starter</title>
+    <script type="module" src="/build/zaneui.esm.js"></script>
+    <script nomodule src="/build/zaneui.js"></script>
+    <link href="/build/zaneui.css" rel="stylesheet" />
+
+    <style>
+
+      html, body {
+        background-color: var(--zane-bg-color);
+        color: var(--zane-text-color-primary);
+      }
+
+      .tooltip-base-box {
+        width: 600px;
+      }
+      .tooltip-base-box .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .tooltip-base-box .center {
+        justify-content: center;
+      }
+      .tooltip-base-box .box-item {
+        width: 110px;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div style="max-width: 800px; margin: 0 auto; padding: 50px;">
+      <zane-cascader></zane-cascader>
+      <zane-tag type="primary">Tag 1</zane-tag>
+      <zane-tag type="success">Tag 2</zane-tag>
+      <zane-tag type="info">Tag 3</zane-tag>
+      <zane-tag type="warning">Tag 4</zane-tag>
+      <zane-tag type="danger">Tag 5</zane-tag>
+    </div>
+
+    <script>
+      var cascaderEl = document.querySelector('zane-cascader');
+      if (cascaderEl) {
+        const options = [
+          {
+            value: 'guide',
+            label: 'Guide',
+            children: [
+              {
+                value: 'disciplines',
+                label: 'Disciplines',
+                children: [
+                  {
+                    value: 'consistency',
+                    label: 'Consistency',
+                  },
+                  {
+                    value: 'feedback',
+                    label: 'Feedback',
+                  },
+                  {
+                    value: 'efficiency',
+                    label: 'Efficiency',
+                  },
+                  {
+                    value: 'controllability',
+                    label: 'Controllability',
+                  },
+                ],
+              },
+              {
+                value: 'navigation',
+                label: 'Navigation',
+                children: [
+                  {
+                    value: 'side nav',
+                    label: 'Side Navigation',
+                  },
+                  {
+                    value: 'top nav',
+                    label: 'Top Navigation',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            value: 'component',
+            label: 'Component',
+            children: [
+              {
+                value: 'basic',
+                label: 'Basic',
+                children: [
+                  {
+                    value: 'layout',
+                    label: 'Layout',
+                  },
+                  {
+                    value: 'color',
+                    label: 'Color',
+                  },
+                  {
+                    value: 'typography',
+                    label: 'Typography',
+                  },
+                  {
+                    value: 'icon',
+                    label: 'Icon',
+                  },
+                  {
+                    value: 'button',
+                    label: 'Button',
+                  },
+                ],
+              },
+              {
+                value: 'form',
+                label: 'Form',
+                children: [
+                  {
+                    value: 'radio',
+                    label: 'Radio',
+                  },
+                  {
+                    value: 'checkbox',
+                    label: 'Checkbox',
+                  },
+                  {
+                    value: 'input',
+                    label: 'Input',
+                  },
+                  {
+                    value: 'input-number',
+                    label: 'InputNumber',
+                  },
+                  {
+                    value: 'select',
+                    label: 'Select',
+                  },
+                  {
+                    value: 'cascader',
+                    label: 'Cascader',
+                  },
+                  {
+                    value: 'switch',
+                    label: 'Switch',
+                  },
+                  {
+                    value: 'slider',
+                    label: 'Slider',
+                  },
+                  {
+                    value: 'time-picker',
+                    label: 'TimePicker',
+                  },
+                  {
+                    value: 'date-picker',
+                    label: 'DatePicker',
+                  },
+                  {
+                    value: 'datetime-picker',
+                    label: 'DateTimePicker',
+                  },
+                  {
+                    value: 'upload',
+                    label: 'Upload',
+                  },
+                  {
+                    value: 'rate',
+                    label: 'Rate',
+                  },
+                  {
+                    value: 'form',
+                    label: 'Form',
+                  },
+                ],
+              },
+              {
+                value: 'data',
+                label: 'Data',
+                children: [
+                  {
+                    value: 'table',
+                    label: 'Table',
+                  },
+                  {
+                    value: 'tag',
+                    label: 'Tag',
+                  },
+                  {
+                    value: 'progress',
+                    label: 'Progress',
+                  },
+                  {
+                    value: 'tree',
+                    label: 'Tree',
+                  },
+                  {
+                    value: 'pagination',
+                    label: 'Pagination',
+                  },
+                  {
+                    value: 'badge',
+                    label: 'Badge',
+                  },
+                ],
+              },
+              {
+                value: 'notice',
+                label: 'Notice',
+                children: [
+                  {
+                    value: 'alert',
+                    label: 'Alert',
+                  },
+                  {
+                    value: 'loading',
+                    label: 'Loading',
+                  },
+                  {
+                    value: 'message',
+                    label: 'Message',
+                  },
+                  {
+                    value: 'message-box',
+                    label: 'MessageBox',
+                  },
+                  {
+                    value: 'notification',
+                    label: 'Notification',
+                  },
+                ],
+              },
+              {
+                value: 'navigation',
+                label: 'Navigation',
+                children: [
+                  {
+                    value: 'menu',
+                    label: 'Menu',
+                  },
+                  {
+                    value: 'tabs',
+                    label: 'Tabs',
+                  },
+                  {
+                    value: 'breadcrumb',
+                    label: 'Breadcrumb',
+                  },
+                  {
+                    value: 'dropdown',
+                    label: 'Dropdown',
+                  },
+                  {
+                    value: 'steps',
+                    label: 'Steps',
+                  },
+                ],
+              },
+              {
+                value: 'others',
+                label: 'Others',
+                children: [
+                  {
+                    value: 'dialog',
+                    label: 'Dialog',
+                  },
+                  {
+                    value: 'tooltip',
+                    label: 'Tooltip',
+                  },
+                  {
+                    value: 'popover',
+                    label: 'Popover',
+                  },
+                  {
+                    value: 'card',
+                    label: 'Card',
+                  },
+                  {
+                    value: 'carousel',
+                    label: 'Carousel',
+                  },
+                  {
+                    value: 'collapse',
+                    label: 'Collapse',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            value: 'resource',
+            label: 'Resource',
+            children: [
+              {
+                value: 'axure',
+                label: 'Axure Components',
+              },
+              {
+                value: 'sketch',
+                label: 'Sketch Templates',
+              },
+              {
+                value: 'docs',
+                label: 'Design Documentation',
+              },
+            ],
+          },
+        ]
+
+        cascaderEl.options = options
+
+      }
+    </script>
+  </body>
+</html>

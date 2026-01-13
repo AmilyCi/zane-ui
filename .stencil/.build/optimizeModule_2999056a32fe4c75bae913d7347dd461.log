@@ -1,0 +1,1 @@
+import{Z as o,d as s}from"./zane-thumb2.js";const t=o,a=s;export{t as ZaneThumb,a as defineCustomElement}

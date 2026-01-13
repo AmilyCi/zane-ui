@@ -1,0 +1,15 @@
+@use '../../styles/mixins/var' as *;
+@use '../../styles/mixins/function' as *;
+@use '../../styles/mixins/bem' as *;
+@use '../../global/theme/vars/component' as *;
+
+@include b(main) {
+  @include set-component-css-var('main', $main);
+
+  display: block;
+  flex: 1;
+  flex-basis: auto;
+  overflow: auto;
+  box-sizing: border-box;
+  padding: getCssVar('main-padding');
+}

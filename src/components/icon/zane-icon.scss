@@ -1,0 +1,55 @@
+@use '../../styles//mixins/bem' as *;
+
+@include b(icon) {
+  --zane-icon-color: inherit;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  fill: currentColor;
+  color: var(--zane-icon-color);
+  font-size: inherit;
+
+  .icon-empty,
+  .icon-loading,
+  .icon-error,
+  .icon-not-found {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .icon-empty {
+    color: #999;
+    background-color: #f5f5f5;
+  }
+
+  .icon-loading {
+    color: #1890ff;
+    background-color: #e6f7ff;
+  }
+
+  .icon-error {
+    color: #ff4d4f;
+    background-color: #fff2f0;
+  }
+}
+
+@include b(svg) {
+  display: inline-flex;
+  height: 1em;
+  width: 1em;
+
+  @include when(spin) {
+    animation: rotating 2s linear infinite;
+  }
+}
+
+@keyframes rotating {
+  0% {
+    transform: rotateZ(0deg);
+  }
+  100% {
+    transform: rotateZ(360deg);
+  }
+}

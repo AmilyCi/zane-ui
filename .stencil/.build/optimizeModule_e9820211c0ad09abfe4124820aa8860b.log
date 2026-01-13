@@ -1,0 +1,1 @@
+const e="undefined"!=typeof window&&"undefined"!=typeof document;export{e as i}

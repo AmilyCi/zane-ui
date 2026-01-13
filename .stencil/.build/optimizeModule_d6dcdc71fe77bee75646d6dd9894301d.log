@@ -1,0 +1,1 @@
+import{i as r}from"./isNumber.js";import{i}from"./isString.js";function t(t,e="px"){return t?r(t)||(r=>{if(!i(r))return!1;if(0===r.trim().length)return!1;const t=Number(r);return!Number.isNaN(t)})(t)?`${t}${e}`:i(t)?t:void 0:""}export{t as a}

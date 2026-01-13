@@ -1,0 +1,629 @@
+@charset "UTF-8";
+:host {
+  display: inline-block;
+}
+
+/* 隐藏默认的内容slot */
+[slot=content] {
+  display: none;
+}
+
+[data-zane-tooltip-root] {
+  max-width: calc(100vw - 10px);
+}
+
+.zane-tooltip-box {
+  position: relative;
+  background-color: #333;
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: initial;
+  outline: 0;
+  transition-property: transform, visibility, opacity;
+}
+.zane-tooltip-box[data-placement^=top] > .zane-tooltip-arrow {
+  bottom: 0;
+}
+.zane-tooltip-box[data-placement^=top] > .zane-tooltip-arrow::before {
+  bottom: -7px;
+  left: 0;
+  border-width: 8px 8px 0;
+  border-top-color: initial;
+  transform-origin: center top;
+}
+.zane-tooltip-box[data-placement^=bottom] > .zane-tooltip-arrow {
+  top: 0;
+}
+.zane-tooltip-box[data-placement^=bottom] > .zane-tooltip-arrow::before {
+  top: -7px;
+  left: 0;
+  border-width: 0 8px 8px;
+  border-bottom-color: initial;
+  transform-origin: center bottom;
+}
+.zane-tooltip-box[data-placement^=left] > .zane-tooltip-arrow {
+  right: 0;
+}
+.zane-tooltip-box[data-placement^=left] > .zane-tooltip-arrow::before {
+  border-width: 8px 0 8px 8px;
+  border-left-color: initial;
+  right: -7px;
+  transform-origin: center left;
+}
+.zane-tooltip-box[data-placement^=right] > .zane-tooltip-arrow {
+  left: 0;
+}
+.zane-tooltip-box[data-placement^=right] > .zane-tooltip-arrow::before {
+  left: -7px;
+  border-width: 8px 8px 8px 0;
+  border-right-color: initial;
+  transform-origin: center right;
+}
+.zane-tooltip-box[data-placement^=top] > .zane-tooltip-svg-arrow {
+  bottom: 0;
+}
+.zane-tooltip-box[data-placement^=top] > .zane-tooltip-svg-arrow::after,
+.zane-tooltip-box[data-placement^=top] > .zane-tooltip-svg-arrow > svg {
+  top: 16px;
+  transform: rotate(180deg);
+}
+.zane-tooltip-box[data-placement^=bottom] > .zane-tooltip-svg-arrow {
+  top: 0;
+}
+.zane-tooltip-box[data-placement^=bottom] > .zane-tooltip-svg-arrow > svg {
+  bottom: 16px;
+}
+.zane-tooltip-box[data-placement^=left] > .zane-tooltip-svg-arrow {
+  right: 0;
+}
+.zane-tooltip-box[data-placement^=left] > .zane-tooltip-svg-arrow::after,
+.zane-tooltip-box[data-placement^=left] > .zane-tooltip-svg-arrow > svg {
+  transform: rotate(90deg);
+  top: calc(50% - 3px);
+  left: 11px;
+}
+.zane-tooltip-box[data-placement^=right] > .zane-tooltip-svg-arrow {
+  left: 0;
+}
+.zane-tooltip-box[data-placement^=right] > .zane-tooltip-svg-arrow::after,
+.zane-tooltip-box[data-placement^=right] > .zane-tooltip-svg-arrow > svg {
+  transform: rotate(-90deg);
+  top: calc(50% - 3px);
+  right: 11px;
+}
+.zane-tooltip-box[data-inertia][data-state=visible] {
+  transition-timing-function: cubic-bezier(0.54, 1.5, 0.38, 1.11);
+}
+.zane-tooltip-box[data-theme~=light-border] {
+  background-color: white;
+  background-clip: padding-box;
+  border: 1px solid rgba(0, 8, 16, 0.15);
+  color: #333;
+  box-shadow: 0 4px 14px -2px rgba(0, 8, 16, 0.08);
+}
+.zane-tooltip-box[data-theme~=light-border] > .zane-tooltip-backdrop {
+  background-color: white;
+}
+.zane-tooltip-box[data-theme~=light-border] > .zane-tooltip-arrow::after,
+.zane-tooltip-box[data-theme~=light-border] > .zane-tooltip-svg-arrow::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+}
+.zane-tooltip-box[data-theme~=light-border] > .zane-tooltip-arrow::after {
+  border-color: transparent;
+  border-style: solid;
+}
+.zane-tooltip-box[data-theme~=light-border][data-placement^=top] > .zane-tooltip-arrow::before {
+  border-top-color: white;
+}
+.zane-tooltip-box[data-theme~=light-border][data-placement^=top] > .zane-tooltip-arrow::after {
+  border-top-color: rgba(0, 8, 16, 0.2);
+  border-width: 7px 7px 0;
+  top: 17px;
+  left: 1px;
+}
+.zane-tooltip-box[data-theme~=light-border][data-placement^=top] > .zane-tooltip-svg-arrow > svg {
+  top: 16px;
+}
+.zane-tooltip-box[data-theme~=light-border][data-placement^=top] > .zane-tooltip-svg-arrow::after {
+  top: 17px;
+}
+.zane-tooltip-box[data-theme~=light-border][data-placement^=bottom] > .zane-tooltip-arrow::before {
+  border-bottom-color: white;
+  bottom: 16px;
+}
+.zane-tooltip-box[data-theme~=light-border][data-placement^=bottom] > .zane-tooltip-arrow::after {
+  border-bottom-color: rgba(0, 8, 16, 0.2);
+  border-width: 0 7px 7px;
+  bottom: 17px;
+  left: 1px;
+}
+.zane-tooltip-box[data-theme~=light-border][data-placement^=bottom] > .zane-tooltip-svg-arrow > svg {
+  bottom: 16px;
+}
+.zane-tooltip-box[data-theme~=light-border][data-placement^=bottom] > .zane-tooltip-svg-arrow::after {
+  bottom: 17px;
+}
+.zane-tooltip-box[data-theme~=light-border][data-placement^=left] > .zane-tooltip-arrow::before {
+  border-left-color: white;
+}
+.zane-tooltip-box[data-theme~=light-border][data-placement^=left] > .zane-tooltip-arrow::after {
+  border-left-color: rgba(0, 8, 16, 0.2);
+  border-width: 7px 0 7px 7px;
+  left: 17px;
+  top: 1px;
+}
+.zane-tooltip-box[data-theme~=light-border][data-placement^=left] > .zane-tooltip-svg-arrow > svg {
+  left: 11px;
+}
+.zane-tooltip-box[data-theme~=light-border][data-placement^=left] > .zane-tooltip-svg-arrow::after {
+  left: 12px;
+}
+.zane-tooltip-box[data-theme~=light-border][data-placement^=right] > .zane-tooltip-arrow::before {
+  border-right-color: white;
+  right: 16px;
+}
+.zane-tooltip-box[data-theme~=light-border][data-placement^=right] > .zane-tooltip-arrow::after {
+  border-width: 7px 7px 7px 0;
+  right: 17px;
+  top: 1px;
+  border-right-color: rgba(0, 8, 16, 0.2);
+}
+.zane-tooltip-box[data-theme~=light-border][data-placement^=right] > .zane-tooltip-svg-arrow > svg {
+  right: 11px;
+}
+.zane-tooltip-box[data-theme~=light-border][data-placement^=right] > .zane-tooltip-svg-arrow::after {
+  right: 12px;
+}
+.zane-tooltip-box[data-theme~=light-border] > .zane-tooltip-svg-arrow {
+  fill: white;
+}
+.zane-tooltip-box[data-theme~=light-border] > .zane-tooltip-svg-arrow::after {
+  background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iNiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCA2czEuNzk2LS4wMTMgNC42Ny0zLjYxNUM1Ljg1MS45IDYuOTMuMDA2IDggMGMxLjA3LS4wMDYgMi4xNDguODg3IDMuMzQzIDIuMzg1QzE0LjIzMyA2LjAwNSAxNiA2IDE2IDZIMHoiIGZpbGw9InJnYmEoMCwgOCwgMTYsIDAuMikiIC8+PC9zdmc+);
+  background-size: 16px 6px;
+  width: 16px;
+  height: 6px;
+}
+.zane-tooltip-box[data-theme~=light] {
+  color: #26323d;
+  box-shadow: 0 0 20px 4px rgba(154, 161, 177, 0.15), 0 4px 80px -8px rgba(36, 40, 47, 0.25), 0 4px 4px -2px rgba(91, 94, 105, 0.15);
+  background-color: white;
+}
+.zane-tooltip-box[data-theme~=light][data-placement^=top] > .zane-tooltip-arrow::before {
+  border-top-color: white;
+}
+.zane-tooltip-box[data-theme~=light][data-placement^=bottom] > .zane-tooltip-arrow::before {
+  border-bottom-color: white;
+}
+.zane-tooltip-box[data-theme~=light][data-placement^=left] > .zane-tooltip-arrow::before {
+  border-left-color: white;
+}
+.zane-tooltip-box[data-theme~=light][data-placement^=right] > .zane-tooltip-arrow::before {
+  border-right-color: white;
+}
+.zane-tooltip-box[data-theme~=light] > .zane-tooltip-backdrop {
+  background-color: white;
+}
+.zane-tooltip-box[data-theme~=light] > .zane-tooltip-svg-arrow {
+  fill: white;
+}
+.zane-tooltip-box[data-theme~=material] {
+  background-color: #505355;
+  font-weight: 600;
+}
+.zane-tooltip-box[data-theme~=material][data-placement^=top] > .zane-tooltip-arrow::before {
+  border-top-color: #505355;
+}
+.zane-tooltip-box[data-theme~=material][data-placement^=bottom] > .zane-tooltip-arrow::before {
+  border-bottom-color: #505355;
+}
+.zane-tooltip-box[data-theme~=material][data-placement^=left] > .zane-tooltip-arrow::before {
+  border-left-color: #505355;
+}
+.zane-tooltip-box[data-theme~=material][data-placement^=right] > .zane-tooltip-arrow::before {
+  border-right-color: #505355;
+}
+.zane-tooltip-box[data-theme~=material] > .zane-tooltip-backdrop {
+  background-color: #505355;
+}
+.zane-tooltip-box[data-theme~=material] > .zane-tooltip-svg-arrow {
+  fill: #505355;
+}
+.zane-tooltip-box[data-theme~=translucent] {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+.zane-tooltip-box[data-theme~=translucent] > .zane-tooltip-arrow {
+  width: 14px;
+  height: 14px;
+}
+.zane-tooltip-box[data-theme~=translucent] {
+  /**
+  * We use an 8px arrow with 1px overlap by default, since some browsers (at
+  * least they used to) caused a 1px gap between the arrow and the popper.
+  * However, with the translucent theme, this causes darkening since it 
+  * overlaps.
+  */
+}
+.zane-tooltip-box[data-theme~=translucent][data-placement^=top] > .zane-tooltip-arrow::before {
+  border-width: 7px 7px 0;
+  border-top-color: rgba(0, 0, 0, 0.7);
+}
+.zane-tooltip-box[data-theme~=translucent][data-placement^=bottom] > .zane-tooltip-arrow::before {
+  border-width: 0 7px 7px;
+  border-bottom-color: rgba(0, 0, 0, 0.7);
+}
+.zane-tooltip-box[data-theme~=translucent][data-placement^=left] > .zane-tooltip-arrow::before {
+  border-width: 7px 0 7px 7px;
+  border-left-color: rgba(0, 0, 0, 0.7);
+}
+.zane-tooltip-box[data-theme~=translucent][data-placement^=right] > .zane-tooltip-arrow::before {
+  border-width: 7px 7px 7px 0;
+  border-right-color: rgba(0, 0, 0, 0.7);
+}
+.zane-tooltip-box[data-theme~=translucent] > .zane-tooltip-backdrop {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+.zane-tooltip-box[data-theme~=translucent] > .zane-tooltip-svg-arrow {
+  fill: rgba(0, 0, 0, 0.7);
+}
+.zane-tooltip-box[data-animation=fade][data-state=hidden] {
+  opacity: 0;
+}
+.zane-tooltip-box[data-animation=perspective-extreme][data-placement^=top] {
+  transform-origin: bottom;
+}
+.zane-tooltip-box[data-animation=perspective-extreme][data-placement^=top][data-state=visible] {
+  transform: perspective(700px);
+}
+.zane-tooltip-box[data-animation=perspective-extreme][data-placement^=top][data-state=hidden] {
+  transform: perspective(700px) translateY(10px) rotateX(90deg);
+}
+.zane-tooltip-box[data-animation=perspective-extreme][data-placement^=bottom] {
+  transform-origin: top;
+}
+.zane-tooltip-box[data-animation=perspective-extreme][data-placement^=bottom][data-state=visible] {
+  transform: perspective(700px);
+}
+.zane-tooltip-box[data-animation=perspective-extreme][data-placement^=bottom][data-state=hidden] {
+  transform: perspective(700px) translateY(-10px) rotateX(-90deg);
+}
+.zane-tooltip-box[data-animation=perspective-extreme][data-placement^=left] {
+  transform-origin: right;
+}
+.zane-tooltip-box[data-animation=perspective-extreme][data-placement^=left][data-state=visible] {
+  transform: perspective(700px);
+}
+.zane-tooltip-box[data-animation=perspective-extreme][data-placement^=left][data-state=hidden] {
+  transform: perspective(700px) translateX(10px), rotateY(-90deg);
+}
+.zane-tooltip-box[data-animation=perspective-extreme][data-placement^=right] {
+  transform-origin: left;
+}
+.zane-tooltip-box[data-animation=perspective-extreme][data-placement^=right][data-state=visible] {
+  transform: perspective(700px);
+}
+.zane-tooltip-box[data-animation=perspective-extreme][data-placement^=right][data-state=hidden] {
+  transform: perspective(700px) translateX(-10px), rotateY(90deg);
+}
+.zane-tooltip-box[data-animation=perspective-extreme][data-state=hidden] {
+  opacity: 0.5;
+}
+.zane-tooltip-box[data-animation=perspective-subtle][data-placement^=top] {
+  transform-origin: bottom;
+}
+.zane-tooltip-box[data-animation=perspective-subtle][data-placement^=top][data-state=visible] {
+  transform: perspective(700px);
+}
+.zane-tooltip-box[data-animation=perspective-subtle][data-placement^=top][data-state=hidden] {
+  transform: perspective(700px) translateY(5px) rotateX(30deg);
+}
+.zane-tooltip-box[data-animation=perspective-subtle][data-placement^=bottom] {
+  transform-origin: top;
+}
+.zane-tooltip-box[data-animation=perspective-subtle][data-placement^=bottom][data-state=visible] {
+  transform: perspective(700px);
+}
+.zane-tooltip-box[data-animation=perspective-subtle][data-placement^=bottom][data-state=hidden] {
+  transform: perspective(700px) translateY(-5px) rotateX(-30deg);
+}
+.zane-tooltip-box[data-animation=perspective-subtle][data-placement^=left] {
+  transform-origin: right;
+}
+.zane-tooltip-box[data-animation=perspective-subtle][data-placement^=left][data-state=visible] {
+  transform: perspective(700px);
+}
+.zane-tooltip-box[data-animation=perspective-subtle][data-placement^=left][data-state=hidden] {
+  transform: perspective(700px) translateX(5px), rotateY(-30deg);
+}
+.zane-tooltip-box[data-animation=perspective-subtle][data-placement^=right] {
+  transform-origin: left;
+}
+.zane-tooltip-box[data-animation=perspective-subtle][data-placement^=right][data-state=visible] {
+  transform: perspective(700px);
+}
+.zane-tooltip-box[data-animation=perspective-subtle][data-placement^=right][data-state=hidden] {
+  transform: perspective(700px) translateX(-5px), rotateY(30deg);
+}
+.zane-tooltip-box[data-animation=perspective-subtle][data-state=hidden] {
+  opacity: 0;
+}
+.zane-tooltip-box[data-animation=perspective][data-placement^=top] {
+  transform-origin: bottom;
+}
+.zane-tooltip-box[data-animation=perspective][data-placement^=top][data-state=visible] {
+  transform: perspective(700px);
+}
+.zane-tooltip-box[data-animation=perspective][data-placement^=top][data-state=hidden] {
+  transform: perspective(700px) translateY(8px) rotateX(60deg);
+}
+.zane-tooltip-box[data-animation=perspective][data-placement^=bottom] {
+  transform-origin: top;
+}
+.zane-tooltip-box[data-animation=perspective][data-placement^=bottom][data-state=visible] {
+  transform: perspective(700px);
+}
+.zane-tooltip-box[data-animation=perspective][data-placement^=bottom][data-state=hidden] {
+  transform: perspective(700px) translateY(-8px) rotateX(-60deg);
+}
+.zane-tooltip-box[data-animation=perspective][data-placement^=left] {
+  transform-origin: right;
+}
+.zane-tooltip-box[data-animation=perspective][data-placement^=left][data-state=visible] {
+  transform: perspective(700px);
+}
+.zane-tooltip-box[data-animation=perspective][data-placement^=left][data-state=hidden] {
+  transform: perspective(700px) translateX(8px), rotateY(-60deg);
+}
+.zane-tooltip-box[data-animation=perspective][data-placement^=right] {
+  transform-origin: left;
+}
+.zane-tooltip-box[data-animation=perspective][data-placement^=right][data-state=visible] {
+  transform: perspective(700px);
+}
+.zane-tooltip-box[data-animation=perspective][data-placement^=right][data-state=hidden] {
+  transform: perspective(700px) translateX(-8px), rotateY(60deg);
+}
+.zane-tooltip-box[data-animation=perspective][data-state=hidden] {
+  opacity: 0;
+}
+.zane-tooltip-box[data-animation=scale-extreme][data-placement^=top] {
+  transform-origin: bottom;
+}
+.zane-tooltip-box[data-animation=scale-extreme][data-placement^=bottom] {
+  transform-origin: top;
+}
+.zane-tooltip-box[data-animation=scale-extreme][data-placement^=left] {
+  transform-origin: right;
+}
+.zane-tooltip-box[data-animation=scale-extreme][data-placement^=right] {
+  transform-origin: left;
+}
+.zane-tooltip-box[data-animation=scale-extreme][data-state=hidden] {
+  transform: scale(0);
+  opacity: 0.25;
+}
+.zane-tooltip-box[data-animation=scale-subtle][data-placement^=top] {
+  transform-origin: bottom;
+}
+.zane-tooltip-box[data-animation=scale-subtle][data-placement^=bottom] {
+  transform-origin: top;
+}
+.zane-tooltip-box[data-animation=scale-subtle][data-placement^=left] {
+  transform-origin: right;
+}
+.zane-tooltip-box[data-animation=scale-subtle][data-placement^=right] {
+  transform-origin: left;
+}
+.zane-tooltip-box[data-animation=scale-subtle][data-state=hidden] {
+  transform: scale(0.8);
+  opacity: 0;
+}
+.zane-tooltip-box[data-animation=scale][data-placement^=top] {
+  transform-origin: bottom;
+}
+.zane-tooltip-box[data-animation=scale][data-placement^=bottom] {
+  transform-origin: top;
+}
+.zane-tooltip-box[data-animation=scale][data-placement^=left] {
+  transform-origin: right;
+}
+.zane-tooltip-box[data-animation=scale][data-placement^=right] {
+  transform-origin: left;
+}
+.zane-tooltip-box[data-animation=scale][data-state=hidden] {
+  transform: scale(0.5);
+  opacity: 0;
+}
+.zane-tooltip-box[data-animation=shift-away-extreme][data-state=hidden] {
+  opacity: 0;
+}
+.zane-tooltip-box[data-animation=shift-away-extreme][data-state=hidden][data-placement^=top] {
+  transform: translateY(20px);
+}
+.zane-tooltip-box[data-animation=shift-away-extreme][data-state=hidden][data-placement^=bottom] {
+  transform: translateY(-20px);
+}
+.zane-tooltip-box[data-animation=shift-away-extreme][data-state=hidden][data-placement^=left] {
+  transform: translateX(20px);
+}
+.zane-tooltip-box[data-animation=shift-away-extreme][data-state=hidden][data-placement^=right] {
+  transform: translateX(-20px);
+}
+.zane-tooltip-box[data-animation=shift-away-subtle][data-state=hidden] {
+  opacity: 0;
+}
+.zane-tooltip-box[data-animation=shift-away-subtle][data-state=hidden][data-placement^=top] {
+  transform: translateY(5px);
+}
+.zane-tooltip-box[data-animation=shift-away-subtle][data-state=hidden][data-placement^=bottom] {
+  transform: translateY(-5px);
+}
+.zane-tooltip-box[data-animation=shift-away-subtle][data-state=hidden][data-placement^=left] {
+  transform: translateX(5px);
+}
+.zane-tooltip-box[data-animation=shift-away-subtle][data-state=hidden][data-placement^=right] {
+  transform: translateX(-5px);
+}
+.zane-tooltip-box[data-animation=shift-away][data-state=hidden] {
+  opacity: 0;
+}
+.zane-tooltip-box[data-animation=shift-away][data-state=hidden][data-placement^=top] {
+  transform: translateY(10px);
+}
+.zane-tooltip-box[data-animation=shift-away][data-state=hidden][data-placement^=bottom] {
+  transform: translateY(-10px);
+}
+.zane-tooltip-box[data-animation=shift-away][data-state=hidden][data-placement^=left] {
+  transform: translateX(10px);
+}
+.zane-tooltip-box[data-animation=shift-away][data-state=hidden][data-placement^=right] {
+  transform: translateX(-10px);
+}
+.zane-tooltip-box[data-animation=shift-toward-extreme][data-state=hidden] {
+  opacity: 0;
+}
+.zane-tooltip-box[data-animation=shift-toward-extreme][data-state=hidden][data-placement^=top] {
+  transform: translateY(-20px);
+}
+.zane-tooltip-box[data-animation=shift-toward-extreme][data-state=hidden][data-placement^=bottom] {
+  transform: translateY(20px);
+}
+.zane-tooltip-box[data-animation=shift-toward-extreme][data-state=hidden][data-placement^=left] {
+  transform: translateX(-20px);
+}
+.zane-tooltip-box[data-animation=shift-toward-extreme][data-state=hidden][data-placement^=right] {
+  transform: translateX(20px);
+}
+.zane-tooltip-box[data-animation=shift-toward-subtle][data-state=hidden] {
+  opacity: 0;
+}
+.zane-tooltip-box[data-animation=shift-toward-subtle][data-state=hidden][data-placement^=top][data-state=hidden] {
+  transform: translateY(-5px);
+}
+.zane-tooltip-box[data-animation=shift-toward-subtle][data-state=hidden][data-placement^=bottom][data-state=hidden] {
+  transform: translateY(5px);
+}
+.zane-tooltip-box[data-animation=shift-toward-subtle][data-state=hidden][data-placement^=left][data-state=hidden] {
+  transform: translateX(-5px);
+}
+.zane-tooltip-box[data-animation=shift-toward-subtle][data-state=hidden][data-placement^=right][data-state=hidden] {
+  transform: translateX(5px);
+}
+.zane-tooltip-box[data-animation=shift-toward][data-state=hidden] {
+  opacity: 0;
+}
+.zane-tooltip-box[data-animation=shift-toward][data-state=hidden][data-placement^=top] {
+  transform: translateY(-10px);
+}
+.zane-tooltip-box[data-animation=shift-toward][data-state=hidden][data-placement^=bottom] {
+  transform: translateY(10px);
+}
+.zane-tooltip-box[data-animation=shift-toward][data-state=hidden][data-placement^=left] {
+  transform: translateX(-10px);
+}
+.zane-tooltip-box[data-animation=shift-toward][data-state=hidden][data-placement^=right] {
+  transform: translateX(10px);
+}
+.zane-tooltip-box[data-placement^=top] > .zane-tooltip-backdrop {
+  transform-origin: 0% 25%;
+  border-radius: 40% 40% 0 0;
+}
+.zane-tooltip-box[data-placement^=top] > .zane-tooltip-backdrop[data-state=visible] {
+  transform: scale(1) translate(-50%, -55%);
+}
+.zane-tooltip-box[data-placement^=top] > .zane-tooltip-backdrop[data-state=hidden] {
+  transform: scale(0.2) translate(-50%, -45%);
+}
+.zane-tooltip-box[data-placement^=bottom] > .zane-tooltip-backdrop {
+  transform-origin: 0% -50%;
+  border-radius: 0 0 30% 30%;
+}
+.zane-tooltip-box[data-placement^=bottom] > .zane-tooltip-backdrop[data-state=visible] {
+  transform: scale(1) translate(-50%, -45%);
+}
+.zane-tooltip-box[data-placement^=bottom] > .zane-tooltip-backdrop[data-state=hidden] {
+  transform: scale(0.2) translate(-50%, 0);
+}
+.zane-tooltip-box[data-placement^=left] > .zane-tooltip-backdrop {
+  transform-origin: 50% 0%;
+  border-radius: 50% 0 0 50%;
+}
+.zane-tooltip-box[data-placement^=left] > .zane-tooltip-backdrop[data-state=visible] {
+  transform: scale(1) translate(-50%, -50%);
+}
+.zane-tooltip-box[data-placement^=left] > .zane-tooltip-backdrop[data-state=hidden] {
+  transform: scale(0.2) translate(-75%, -50%);
+}
+.zane-tooltip-box[data-placement^=right] > .zane-tooltip-backdrop {
+  transform-origin: -50% 0%;
+  border-radius: 0 50% 50% 0;
+}
+.zane-tooltip-box[data-placement^=right] > .zane-tooltip-backdrop[data-state=visible] {
+  transform: scale(1) translate(-50%, -50%);
+}
+.zane-tooltip-box[data-placement^=right] > .zane-tooltip-backdrop[data-state=hidden] {
+  transform: scale(0.2) translate(-25%, -50%);
+}
+.zane-tooltip-box[data-animatefill] {
+  background-color: transparent !important;
+}
+
+.zane-tooltip-arrow {
+  width: 16px;
+  height: 16px;
+  color: #333;
+}
+.zane-tooltip-arrow::before {
+  content: "";
+  position: absolute;
+  border-color: transparent;
+  border-style: solid;
+}
+
+.zane-tooltip-content {
+  position: relative;
+  padding: 5px 9px;
+  z-index: 1;
+}
+
+.zane-tooltip-backdrop {
+  position: absolute;
+  background-color: #333;
+  border-radius: 50%;
+  width: calc(110% + 32px);
+  left: 50%;
+  top: 50%;
+  z-index: -1;
+  transition: all cubic-bezier(0.46, 0.1, 0.52, 0.98);
+  backface-visibility: hidden;
+}
+.zane-tooltip-backdrop[data-state=hidden] {
+  opacity: 0;
+}
+.zane-tooltip-backdrop::after {
+  content: "";
+  float: left;
+  padding-top: 100%;
+}
+
+.zane-tooltip-svg-arrow {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  fill: #333;
+  text-align: initial;
+}
+.zane-tooltip-svg-arrow > svg {
+  position: absolute;
+}
+
+.zane-tooltip-backdrop + .zane-tooltip-content {
+  transition-property: opacity;
+  will-change: opacity;
+}
+.zane-tooltip-backdrop + .zane-tooltip-content[data-state=hidden] {
+  opacity: 0;
+}

@@ -1,0 +1,1 @@
+const e=4,l={horizontal:{axis:"X",client:"clientX",direction:"left",key:"horizontal",offset:"offsetWidth",scroll:"scrollLeft",scrollSize:"scrollWidth",size:"width"},vertical:{axis:"Y",client:"clientY",direction:"top",key:"vertical",offset:"offsetHeight",scroll:"scrollTop",scrollSize:"scrollHeight",size:"height"}},t=new WeakMap;export{l as B,e as G,t as s}

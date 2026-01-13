@@ -1,0 +1,133 @@
+@use 'sass:math';
+@use 'sass:color';
+@use 'sass:string';
+
+@use '../config' as *;
+
+// 将选择器转换为字符串
+// 示例：.block__element → 'block__element'
+@function selectorToString($selector) {
+  $selector: inspect($selector);
+  $selector: str-slice($selector, 2, -2);
+  @return $selector;
+}
+
+// 检查选择器是否包含修饰符
+// 示例：.block--modifier → true
+@function containsModifier($selector) {
+  $selector: selectorToString($selector);
+  // 检查是否包含修饰符分隔符
+  @if str-index($selector, $modifier-separator) {
+    @return true;
+  } @else {
+    @return false;
+  }
+}
+
+// 检查选择器是否包含状态标志
+// 示例：.is-active → true
+@function containWhenFlag($selector) {
+  $selector: selectorToString($selector);
+
+  // 检查是否包含状态前缀（如.is-）
+  @if str-index($selector, '.' + $state-prefix) {
+    @return true;
+  } @else {
+    @return false;
+  }
+}
+
+// 检查选择器是否包含伪类
+// 示例：:hover → true
+@function containPseudoClass($selector) {
+  $selector: selectorToString($selector);
+
+  // 检查是否包含冒号（伪类标志）
+  @if str-index($selector, ':') {
+    @return true;
+  } @else {
+    @return false;
+  }
+}
+
+// 检查选择器是否包含任何特殊嵌套规则
+// (修饰符、状态标志或伪类)
+@function hitAllSpecialNestRule($selector) {
+  @return containsModifier($selector) or containWhenFlag($selector) or
+    containPseudoClass($selector);
+}
+
+// 连接变量名
+// 示例：joinVarName(('button', 'text-color')) → '--zane-button-text-color'
+@function joinVarName($list) {
+  $name: '--' + $namespace;
+  @each $item in $list {
+    @if $item != '' {
+      $name: $name + '-' + $item;
+    }
+  }
+  @return $name;
+}
+
+// 获取CSS变量名（joinVarName的别名）
+// 示例：getCssVarName('button', 'text-color') → '--zane-button-text-color'
+@function getCssVarName($args...) {
+  @return joinVarName($args);
+}
+
+// 获取CSS变量引用
+// 示例：getCssVar('button', 'text-color') → var(--zane-button-text-color)
+@function getCssVar($args...) {
+  @return var(#{joinVarName($args)});
+}
+
+// 获取带默认值的CSS变量引用
+// 示例：getCssVarWithDefault(('button', 'text-color'), red) → var(--zane-button-text-color, red)
+@function getCssVarWithDefault($args, $default) {
+  @return var(#{joinVarName($args)}, #{$default});
+}
+
+// BEM命名生成器
+// 示例：bem('block', 'element', 'modifier') → 'zane-block__element--modifier'
+@function bem($block, $element: '', $modifier: '') {
+  // 基础块名：命名空间 + 分隔符 + 块名
+  $name: $namespace + $common-separator + $block;
+
+  // 添加元素部分（如果存在）
+  @if $element != '' {
+    $name: $name + $element-separator + $element;
+  }
+
+  // 添加修饰符部分（如果存在）
+  @if $modifier != '' {
+    $name: $name + $modifier-separator + $modifier;
+  }
+
+  @return $name;
+}
+
+@function roundColor($color) {
+  $r: math.round(color.channel($color, 'red'));
+  $g: math.round(color.channel($color, 'green'));
+  $b: math.round(color.channel($color, 'blue'));
+  $a: color.channel($color, 'alpha');
+
+  @return rgba($r, $g, $b, $a);
+}
+
+@function rgb2hex($color) {
+  @return string.unquote('#' + #{string.slice(color.ie-hex-str($color), 4)});
+}
+
+@function mix-overlay-color($upper, $lower) {
+  $opacity: color.alpha($upper);
+
+  $red: color.channel($upper, 'red') * $opacity + color.channel($lower, 'red') *
+    (1 - $opacity);
+  $green: color.channel($upper, 'green') * $opacity +
+    color.channel($lower, 'green') * (1 - $opacity);
+  $blue: color.channel($upper, 'blue') * $opacity +
+    color.channel($lower, 'blue') * (1 - $opacity);
+
+  @return rgb2hex(rgb($red, $green, $blue));
+}

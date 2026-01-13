@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /Users/zane/资料/宗恒/项目/zane-ui -name *.example.tsx -o -name *.demo.tsx)"
+    ]
+  }
+}

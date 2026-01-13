@@ -1,0 +1,13 @@
+@use '../../styles/mixins/var' as *;
+@use '../../styles/mixins/function' as *;
+@use '../../styles/mixins/bem' as *;
+@use '../../global/theme/vars/component' as *;
+
+@include b(header) {
+  @include set-component-css-var('header', $header);
+
+  padding: getCssVar('header-padding');
+  box-sizing: border-box;
+  flex-shrink: 0;
+  height: getCssVar('header-height');
+}

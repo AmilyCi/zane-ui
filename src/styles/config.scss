@@ -1,0 +1,19 @@
+// 定义默认的命名空间前缀（可选）
+// 使用方式：.zane-block {}
+$namespace: 'zane' !default;
+
+// 定义普通连接符（常用于拼接命名空间）
+// 使用示例：$namespace + $common-separator + 'block' → 'zane-block'
+$common-separator: '-' !default;
+
+// 定义元素连接符（BEM规范中的元素分隔符）
+// 使用示例：.block__element {}
+$element-separator: '__' !default;
+
+// 定义修饰符连接符（BEM规范中的修饰符分隔符）
+// 使用示例：.block--modifier {}
+$modifier-separator: '--' !default;
+
+// 定义状态类前缀（常用于表示状态，如：is-active）
+// 使用示例：.is-active 或 .block.is-active
+$state-prefix: 'is-' !default;

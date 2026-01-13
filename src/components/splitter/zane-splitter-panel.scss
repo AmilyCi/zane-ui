@@ -1,0 +1,9 @@
+
+@use '../../styles/mixins/bem' as *;
+
+@include b(splitter-panel) {
+  flex-grow: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  box-sizing: border-box;
+}

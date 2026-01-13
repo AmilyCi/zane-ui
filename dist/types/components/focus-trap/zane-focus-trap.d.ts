@@ -1,0 +1,34 @@
+import { EventEmitter } from '../../stencil-public-runtime';
+export declare class ElFocusTrap {
+    el: HTMLElement;
+    focusStartEl: 'container' | 'first' | HTMLElement;
+    focusTrapEl: HTMLElement;
+    loop: boolean;
+    trapOnFocusIn: boolean;
+    trapped: boolean;
+    zaneFocusAfterReleased: EventEmitter<Event>;
+    zaneFocusAfterTrapped: EventEmitter<Event>;
+    zaneFocusin: EventEmitter<FocusEvent>;
+    zaneFocusout: EventEmitter<FocusEvent>;
+    zaneFocusoutPrevented: EventEmitter<CustomEvent>;
+    zaneReleaseRequested: EventEmitter<Event>;
+    private focusLayer;
+    private focusReason;
+    private lastFocusAfterTrapped;
+    private lastFocusBeforeTrapped;
+    componentDidLoad(): void;
+    disconnectedCallback(): void;
+    focusFirstDescendant: (elements: HTMLElement[], shouldSelect?: boolean) => void;
+    onFocusTrapElChange(): void;
+    onTrappedChange(newValue: boolean, oldValue: boolean): void;
+    render(): any;
+    updateFocusTrap(): Promise<void>;
+    private cleanupEventListeners;
+    private getTrapContainer;
+    private initializeFocusTrap;
+    private onFocusIn;
+    private onFocusOut;
+    private onKeydown;
+    private startTrap;
+    private stopTrap;
+}

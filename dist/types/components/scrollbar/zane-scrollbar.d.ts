@@ -1,0 +1,54 @@
+import type { EventEmitter } from '../../stencil-public-runtime';
+import type { ScrollbarDirection } from '../../types';
+export declare class ZaneScrollbar {
+    always: boolean;
+    distance: number;
+    distanceScrollState: {
+        bottom: boolean;
+        left: boolean;
+        right: boolean;
+        top: boolean;
+    };
+    el: HTMLElement;
+    endReachedEvent: EventEmitter<ScrollbarDirection>;
+    height: number | string;
+    maxHeight: number | string;
+    minSize: number;
+    native: boolean;
+    noresize: boolean;
+    role: string;
+    scrollEvent: EventEmitter<{
+        scrollLeft: number;
+        scrollTop: number;
+    }>;
+    tag: string;
+    viewClass: string;
+    viewStyle: Record<string, string>;
+    wrapClass: string;
+    wrapStyle: Record<string, string>;
+    private barRef;
+    private context;
+    private direction;
+    private resizeRef;
+    private stopResizeListener;
+    private stopResizeObserver;
+    private stopWrapResizeObserver;
+    private wrapRef;
+    private wrapScrollLeft;
+    private wrapScrollTop;
+    componentDidLoad(): void;
+    componentDidUpdate(): void;
+    componentWillLoad(): void;
+    handleScroll(): Promise<void>;
+    render(): any;
+    scrollToCoord(xCoord: number, yCoord?: number): Promise<void>;
+    setScrollLeft(value: number): Promise<void>;
+    setScrollTop(value: number): Promise<void>;
+    update(): Promise<void>;
+    watchHeightHandler(): void;
+    watchNoresizeHandler(): void;
+    private onScrollHandler;
+    private onSizeChangeHandler;
+    private shouldSkipDirection;
+    private updateTriggerStatus;
+}

@@ -1,0 +1,1 @@
+import{Z as o,d as r}from"./zane-scrollbar2.js";const s=o,a=r;export{s as ZaneScrollbar,a as defineCustomElement}

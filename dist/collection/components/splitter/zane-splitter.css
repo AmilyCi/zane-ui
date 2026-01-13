@@ -1,0 +1,134 @@
+.zane-splitter {
+  position: relative;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+.zane-splitter .zane-splitter__mask {
+  position: absolute;
+  z-index: 999;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+.zane-splitter .zane-splitter__mask-horizontal {
+  cursor: ew-resize;
+}
+
+.zane-splitter .zane-splitter__mask-vertical {
+  cursor: ns-resize;
+}
+
+.zane-splitter.zane-splitter__horizontal {
+  flex-direction: row;
+}
+.zane-splitter.zane-splitter__vertical {
+  flex-direction: column;
+}
+
+.zane-splitter-bar {
+  flex: none;
+  position: relative;
+  user-select: none;
+}
+.zane-splitter-bar .zane-splitter-bar__dragger {
+  z-index: 1;
+  position: absolute;
+  background: transparent;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.zane-splitter-bar .zane-splitter-bar__dragger::before, .zane-splitter-bar .zane-splitter-bar__dragger::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--zane-border-color-light);
+}
+.zane-splitter-bar .zane-splitter-bar__dragger:not(.is-lazy)::after {
+  display: none;
+}
+.zane-splitter-bar .zane-splitter-bar__dragger::after {
+  opacity: 0.4;
+}
+.zane-splitter-bar .zane-splitter-bar__dragger:hover:not(.is-disabled)::before {
+  background-color: var(--zane-color-primary-light-5);
+}
+
+.zane-splitter-bar .zane-splitter-bar__dragger-horizontal::before, .zane-splitter-bar .zane-splitter-bar__dragger-horizontal::after {
+  height: 100%;
+  width: 2px;
+}
+
+.zane-splitter-bar .zane-splitter-bar__dragger-vertical::before, .zane-splitter-bar .zane-splitter-bar__dragger-vertical::after {
+  height: 2px;
+  width: 100%;
+}
+
+.zane-splitter-bar .zane-splitter-bar__dragger-active::before, .zane-splitter-bar .zane-splitter-bar__dragger-active::after {
+  background-color: var(--zane-color-primary-light-3);
+}
+.zane-splitter-bar .zane-splitter-bar__dragger-active.zane-splitter-bar__dragger-horizontal::after {
+  transform: translate(calc(-50% + var(--zane-splitter-bar-offset)), -50%);
+}
+.zane-splitter-bar .zane-splitter-bar__dragger-active.zane-splitter-bar__dragger-vertical::after {
+  transform: translate(-50%, calc(-50% + var(--zane-splitter-bar-offset)));
+}
+
+.zane-splitter-bar:hover .zane-splitter-bar__collapse-icon {
+  opacity: 1;
+}
+
+.zane-splitter-bar .zane-splitter-bar__collapse-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  background: var(--zane-border-color-light);
+  border-radius: 2px;
+  cursor: pointer;
+  opacity: 0;
+  z-index: 9;
+}
+.zane-splitter-bar .zane-splitter-bar__collapse-icon:hover {
+  opacity: 1;
+  background-color: var(--zane-color-primary-light-5);
+}
+
+.zane-splitter-bar .zane-splitter-bar__horizontal-collapse-icon-start {
+  left: -12px;
+  top: 50%;
+  height: 24px;
+  width: 16px;
+  transform: translate(-50%, -50%);
+}
+
+.zane-splitter-bar .zane-splitter-bar__horizontal-collapse-icon-end {
+  left: 12px;
+  top: 50%;
+  height: 24px;
+  width: 16px;
+  transform: translate(-50%, -50%);
+}
+
+.zane-splitter-bar .zane-splitter-bar__vertical-collapse-icon-start {
+  top: -12px;
+  right: 50%;
+  height: 16px;
+  width: 24px;
+  transform: translate(50%, -50%);
+}
+
+.zane-splitter-bar .zane-splitter-bar__vertical-collapse-icon-end {
+  top: 12px;
+  right: 50%;
+  height: 16px;
+  width: 24px;
+  transform: translate(50%, -50%);
+}

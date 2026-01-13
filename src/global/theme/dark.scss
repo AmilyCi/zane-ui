@@ -1,0 +1,21 @@
+@use './vars/color/dark' as *;
+@use './vars/component' as *;
+@use '../../styles/mixins/var' as *;
+@use '../../styles/mixins/dark' as *;
+
+html.dark,
+html[data-theme='dark'] {
+
+  @each $type in (primary, success, warning, danger, error, info) {
+    @include set-css-color-type($colors, $type);
+  }
+
+  @include set-component-css-var('box-shadow', $box-shadow);
+  @include set-component-css-var('bg-color', $bg-color);
+  @include set-component-css-var('text-color', $text-color);
+  @include set-component-css-var('border-color', $border-color);
+  @include set-component-css-var('fill-color', $fill-color);
+  @include set-component-css-var('mask-color', $mask-color);
+
+}
+
