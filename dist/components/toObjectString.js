@@ -1,1 +1,0 @@
-const t=t=>Object.prototype.toString.call(t);export{t}

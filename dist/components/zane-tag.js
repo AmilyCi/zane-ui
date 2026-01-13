@@ -1,1 +1,0 @@
-import{Z as a,d as o}from"./zane-tag2.js";const s=a,t=o;export{s as ZaneTag,t as defineCustomElement}

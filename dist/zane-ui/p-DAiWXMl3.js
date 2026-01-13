@@ -1,1 +1,0 @@
-import{i as r}from"./p-AZeyk8Tc.js";import{i as t}from"./p-DCT_etOB.js";function e(e,i="px"){return e?r(e)||(r=>{if(!t(r))return!1;if(0===r.trim().length)return!1;const e=Number(r);return!Number.isNaN(e)})(e)?`${e}${i}`:t(e)?e:void 0:""}export{e as a}

@@ -1,4 +1,0 @@
-@charset "UTF-8";
-:host {
-  display: contents; /* 让组件不产生额外的布局影响 */
-}

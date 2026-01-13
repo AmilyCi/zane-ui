@@ -1,1 +1,0 @@
-function o(o){return Array.from(o.childNodes).filter((o=>{var r;return o.nodeType===Node.ELEMENT_NODE||(o.nodeType===Node.TEXT_NODE?(null===(r=o.textContent)||void 0===r?void 0:r.trim().length)>0:o.nodeType===Node.CDATA_SECTION_NODE||o.nodeType===Node.DOCUMENT_FRAGMENT_NODE)}))}export{o as f}

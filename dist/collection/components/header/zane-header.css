@@ -1,8 +1,0 @@
-.zane-header {
-  --zane-header-padding: 0 20px;
-  --zane-header-height: 60px;
-  padding: var(--zane-header-padding);
-  box-sizing: border-box;
-  flex-shrink: 0;
-  height: var(--zane-header-height);
-}

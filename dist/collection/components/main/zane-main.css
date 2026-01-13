@@ -1,9 +1,0 @@
-.zane-main {
-  --zane-main-padding: 20px;
-  display: block;
-  flex: 1;
-  flex-basis: auto;
-  overflow: auto;
-  box-sizing: border-box;
-  padding: var(--zane-main-padding);
-}

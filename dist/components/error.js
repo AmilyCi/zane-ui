@@ -1,1 +1,0 @@
-import{i as r}from"./isString.js";class s extends Error{constructor(r){super(r),this.name="ZaneJsError"}}function o(r,o){throw new s(`[${r}] ${o}`)}function n(o,n){const t=r(o)?new s(`[${o}] ${n}`):o;console.warn(t)}export{n as d,o as t}

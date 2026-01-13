@@ -1,8 +1,0 @@
-.zane-footer {
-  --zane-footer-padding: 0 20px;
-  --zane-footer-height: 60px;
-  padding: var(--zane-footer-padding);
-  box-sizing: border-box;
-  flex-shrink: 0;
-  height: var(--zane-footer-height);
-}

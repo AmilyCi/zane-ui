@@ -1,1 +1,0 @@
-import{t}from"./toObjectString.js";const o=o=>"[object Number]"===t(o);export{o as i}

@@ -1,1 +1,0 @@
-const a=new WeakMap;export{a as f}

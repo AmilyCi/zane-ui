@@ -1,1 +1,0 @@
-import{i as o}from"./p-DCT_etOB.js";class r extends Error{constructor(o){super(o),this.name="ZaneJsError"}}function s(o,s){throw new r(`[${o}] ${s}`)}function t(s,t){const n=o(s)?new r(`[${s}] ${t}`):s;console.warn(n)}export{t as d,s as t}
