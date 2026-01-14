@@ -1,23 +1,32 @@
-# Zane UI
+# @zanejs/ui
+
+<div align="center">
+  <a href="https://zanejs.com"><img alt="zanejs logo" width="215" src="https://unpkg.com/@zanejs/icons@1.0.1/dist/logo.svg"></a>
 
 [![npm version](https://img.shields.io/npm/v/@zanejs/ui.svg)](https://www.npmjs.com/package/@zanejs/ui)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Stencil](https://img.shields.io/badge/Stencil-4.41.1-blue.svg)](https://stenciljs.com/)
 
-一个基于 [Stencil.js](https://stenciljs.com/) 开发的现代化、轻量级 Web 组件库。支持 Vue、 React 和 Angular 框架，提供完整的 TypeScript 类型支持。
+**English** | [中文](./README.zh-CN.md)
 
-## ✨ 特性
+</div>
 
-- 🚀 **基于 Stencil.js**：使用标准的 Web Components 标准，兼容任何前端框架
-- 🎯 **框架无关**：原生 Web Components，可在任何框架中使用
-- 📦 **轻量级**：按需加载，最小化 bundle 大小
-- 🎨 **现代化设计**：简洁美观的界面设计
-- 🔧 **TypeScript 支持**：完整的类型定义和智能提示
-- 🌏 **国际化**：支持中英文双语
-- 📱 **响应式设计**：适配各种屏幕尺寸
-- 🎭 **可定制主题**：支持主题定制和配置
+## Introduction
 
-## 📦 安装
+A modern, lightweight native Web Components UI library built with [Stencil.js](https://stenciljs.com/). Framework-agnostic, works in JS/Vue/React/Angular projects, and provides complete TypeScript type support.
+
+## Features
+
+- **Built with Stencil.js**: Uses standard Web Components standards, compatible with any frontend framework
+- **Framework-agnostic**: Native Web Components, usable in any framework
+- **Lightweight**: Load on demand, minimized bundle size
+- **Modern Design**: Clean and beautiful interface design
+- **TypeScript Support**: Complete type definitions and intelligent code completion
+- **Internationalization**: Supports both Chinese and English
+- **Responsive Design**: Adapts to various screen sizes
+- **Customizable Theme**: Supports theme customization and configuration
+
+## Installation
 
 ### npm
 
@@ -37,17 +46,17 @@ pnpm add @zanejs/ui
 yarn add @zanejs/ui
 ```
 
-## 🚀 快速开始
+## Quick Start
 
-### 基础使用
+### Basic Usage
 
-在 HTML 文件中直接引入：
+Directly include in HTML file:
 
 ```html
 <!DOCTYPE html>
 <html>
   <head>
-    <script type="module" src="/path/to/@zanejs/ui/dist/index.js"></script>
+    <script src="https://unpkg.com/@zanejs/ui@1.0.1/dist/zane-ui/zane-ui.esm.js"></script>
   </head>
   <body>
     <zane-button type="primary">Hello Zane UI</zane-button>
@@ -55,180 +64,170 @@ yarn add @zanejs/ui
 </html>
 ```
 
-### 在框架中使用
+### Usage in Frameworks
 
-#### React 示例
+#### React Example
 
-```tsx
-import '@zanejs/ui/dist/index.css';
-import '@zanejs/ui/dist/index.js';
+```diff
 import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+import App from './App';
+import registerServiceWorker from './registerServiceWorker';
 
-function App() {
-  return (
-    <div>
-      <zane-button type="primary" onClick={() => alert('Clicked!')}>
-        Click Me
-      </zane-button>
-      <zane-input placeholder="Enter text"></zane-input>
-    </div>
-  );
-}
++ import { defineCustomElements } from '@zanejs/ui/loader';
+
+ReactDOM.render(<App />, document.getElementById('root'));
+registerServiceWorker();
+
++ defineCustomElements();
+
 ```
 
-#### Vue 示例
+#### Vue Example
 
-```vue
-<template>
-  <div>
-    <zane-button type="primary" @click="handleClick">Click Me</zane-button>
-    <zane-input v-model="value" placeholder="Enter text"></zane-input>
-  </div>
-</template>
+```diff
+// src/main.ts
 
-<script setup>
-import '@zanejs/ui/dist/index.css';
-import '@zanejs/ui/dist/index.js';
+import { createApp } from 'vue'
+import App from './App.vue';
++ import { defineCustomElements } from '@zanejs/ui/loader';
 
-const handleClick = () => alert('Clicked!');
-const value = ref('');
-</script>
++ defineCustomElements();
+
+createApp(App).mount('#app')
 ```
 
-#### Angular 示例
+Modify vite.config.js for Vue compilation compatibility with custom elements:
 
-```typescript
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import '@zanejs/ui';
+```diff
+import { defineConfig } from 'vite';
 
-@Component({
-  selector: 'app-root',
-  template: `
-    <zane-button type="primary" (click)="handleClick()">Click Me</zane-button>
-    <zane-input [value]="inputValue"></zane-input>
-  `,
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
-})
-export class AppComponent {
-  inputValue = 'Hello';
-  handleClick() { alert('Clicked!'); }
-}
+export default defineConfig({
+  vue: {
+    template: {
+      compilerOptions: {
++        isCustomElement: tag => tag.startsWith('zane-')
+      },
+    },
+  },
+});
 ```
 
-## 📋 可用组件
+## Available Components
 
-### 基础组件
+### Basic Components
 
-- **[Button](src/components/button/)** - 按钮组件，支持多种样式和状态
-- **[Input](src/components/input/)** - 输入框组件，支持多种类型
-- **[Tag](src/components/tag/)** - 标签组件，用于标记和选择
-- **[Avatar](src/components/avatar/)** - 头像组件
-- **[Icon](src/components/icon/)** - 图标组件
-- **[Link](src/components/link/)** - 链接组件
-- **[Text](src/components/text/)** - 文本组件
+- **[Button](src/components/button/)** - Button component with various styles and states
+- **[Input](src/components/input/)** - Input component supporting multiple types
+- **[Tag](src/components/tag/)** - Tag component for labeling and selection
+- **[Avatar](src/components/avatar/)** - Avatar component
+- **[Icon](src/components/icon/)** - Icon component
+- **[Link](src/components/link/)** - Link component
+- **[Text](src/components/text/)** - Text component
 
-### 表单组件
+### Form Components
 
-- **[Form](src/components/form/)** - 表单组件，提供表单验证
-- **[Autocomplete](src/components/autocomplete/)** - 自动完成组件
-- **[Cascader](src/components/cascader/)** - 级联选择器
+- **[Form](src/components/form/)** - Form component with validation support
+- **[Autocomplete](src/components/autocomplete/)** - Autocomplete component
+- **[Cascader](src/components/cascader/)** - Cascader selector
 
-### 布局组件
+### Layout Components
 
-- **[Container](src/components/container/)** - 容器组件
-- **[Header](src/components/header/)** - 顶部布局
-- **[Footer](src/components/footer/)** - 底部布局
-- **[Main](src/components/main/)** - 主内容区
-- **[Aside](src/components/aside/)** - 侧边栏
-- **[Row](src/components/row/)** - 栅格行
-- **[Col](src/components/col/)** - 栅格列
-- **[Divider](src/components/divider/)** - 分割线
+- **[Container](src/components/container/)** - Container component
+- **[Header](src/components/header/)** - Header layout
+- **[Footer](src/components/footer/)** - Footer layout
+- **[Main](src/components/main/)** - Main content area
+- **[Aside](src/components/aside/)** - Sidebar
+- **[Row](src/components/row/)** - Grid row
+- **[Col](src/components/col/)** - Grid column
+- **[Divider](src/components/divider/)** - Divider
 
-### 反馈组件
+### Feedback Components
 
-- **[Tooltip](src/components/tooltip/)** - 文字提示
-- **[Collapse](src/components/collapse/)** - 折叠面板
+- **[Tooltip](src/components/tooltip/)** - Text tooltip
+- **[Collapse](src/components/collapse/)** - Collapse panel
 
-### 其他组件
+### Other Components
 
-- **[Card](src/components/card/)** - 卡片组件
-- **[Scrollbar](src/components/scrollbar/)** - 自定义滚动条
-- **[Splitter](src/components/splitter/)** - 分割面板
-- **[FocusTrap](src/components/focus-trap/)** - 焦点捕获
+- **[Card](src/components/card/)** - Card component
+- **[Scrollbar](src/components/scrollbar/)** - Custom scrollbar
+- **[Splitter](src/components/splitter/)** - Split panel
+- **[FocusTrap](src/components/focus-trap/)** - Focus trap
 
-## 🛠️ 开发
+## 🛠️ Development
 
-### 环境要求
+### Requirements
 
 - Node.js >= 18.x
 - pnpm >= 8.x
 
-### 安装依赖
+### Install Dependencies
 
 ```bash
 pnpm install
 ```
 
-### 开发模式
+### Development Mode
 
 ```bash
-# 启动开发服务器（支持热重载）
+# Start development server (with hot reload)
 pnpm run dev
 ```
 
-### 构建项目
+### Build Project
 
 ```bash
-# 构建生产版本
+# Build production version
 pnpm run build
 
-# 仅生成文档
+# Generate documentation only
 pnpm run build:docs-only
 
-# 生成组件
+# Generate components
 pnpm run generate
 ```
 
-### 运行测试
+### Run Tests
 
 ```bash
-# 运行所有测试
+# Run all tests
 pnpm run test
 
-# 监听模式运行测试
+# Run tests in watch mode
 pnpm run test.watch
 ```
 
-## 📁 项目结构
+## Project Structure
 
 ```
 zane-ui/
 ├── src/
-│   ├── components/          # 组件源码
-│   │   ├── button/          # 按钮组件
-│   │   ├── input/           # 输入框组件
-│   │   ├── form/            # 表单组件
-│   │   ├── ...              # 其他组件
-│   ├── global/              # 全局配置
-│   │   ├── theme/           # 主题样式
-│   │   └── store.ts         # 全局状态
-│   ├── utils/               # 工具函数
-│   ├── hooks/               # 自定义 Hooks
-│   ├── types/               # TypeScript 类型定义
-│   ├── locale/              # 国际化语言包
-│   └── index.ts             # 入口文件
-├── dist/                    # 构建输出目录
-├── loader/                  # 动态加载器
-├── www/                     # 示例页面
-└── stencil.config.ts        # Stencil 配置文件
+│   ├── components/          # Component source code
+│   │   ├── button/          # Button component
+│   │   ├── input/           # Input component
+│   │   ├── form/            # Form component
+│   │   ├── ...              # Other components
+│   ├── global/              # Global configuration
+│   │   ├── theme/           # Theme styles
+│   │   └── store.ts         # Global state
+│   ├── utils/               # Utility functions
+│   ├── hooks/               # Custom Hooks
+│   ├── types/               # TypeScript type definitions
+│   ├── locale/              # Internationalization language packs
+│   └── index.ts             # Entry file
+├── dist/                    # Build output directory
+├── loader/                  # Dynamic loader
+├── www/                     # Example pages
+└── stencil.config.ts        # Stencil configuration file
 ```
 
-## 🎨 主题定制
+## Theme Customization
 
-项目支持主题定制，您可以通过修改 `src/global/theme/` 目录下的 SCSS 文件来定制主题：
+The project supports theme customization. You can customize themes by modifying SCSS files in the `src/global/theme/` directory:
 
 ```scss
-// 自定义主题变量
+// Custom theme variables
 :root {
   --zane-primary-color: #1890ff;
   --zane-success-color: #52c41a;
@@ -237,9 +236,9 @@ zane-ui/
 }
 ```
 
-## 🌍 国际化
+## Internationalization
 
-项目内置了中英文支持，可以通过 `zane-config-provider` 组件进行全局配置：
+The project has built-in Chinese and English support. You can configure globally using the `zane-config-provider` component:
 
 ```tsx
 <zane-config-provider locale="zh-cn">
@@ -251,34 +250,34 @@ zane-ui/
 </zane-config-provider>
 ```
 
-## 🤝 贡献指南
+## Contribution Guidelines
 
-我们欢迎所有形式的贡献！无论是报告 Bug、提交功能建议还是代码贡献。
+We welcome all forms of contributions! Whether it's reporting bugs, suggesting features, or contributing code.
 
-1. Fork 本项目
-2. 创建您的特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交您的修改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启一个 Pull Request
+1. Fork this project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## 📄 许可证
+## License
 
-本项目基于 [MIT](LICENSE) 许可证开源。
+This project is open-sourced under the [MIT](LICENSE) license.
 
-## 🙏 致谢
+## Acknowledgments
 
-感谢以下开源项目：
+Thanks to the following open-source projects:
 
-- [Stencil.js](https://stenciljs.com/) - 编译器
-- [@ctrl/tinycolor](https://github.com/scttcper/tinycolor) - 颜色处理
-- [@floating-ui/dom](https://floating-ui.com/) - 浮动元素定位
-- [@popperjs/core](https://popper.js.org/) - 工具提示定位
+- [Stencil.js](https://stenciljs.com/) - Compiler
+- [@ctrl/tinycolor](https://github.com/scttcper/tinycolor) - Color handling
+- [@floating-ui/dom](https://floating-ui.com/) - Floating element positioning
+- [@popperjs/core](https://popper.js.org/) - Tooltip positioning
 
-## 📞 联系我们
+## Contact Us
 
-- 提交 Issue：[GitHub Issues](https://github.com/zanejs/zane-ui/issues)
-- 参与讨论：[GitHub Discussions](https://github.com/zanejs/zane-ui/discussions)
+- Submit Issues: [GitHub Issues](https://github.com/zanedeng/zane-ui/issues)
+- Join Discussions: [GitHub Discussions](https://github.com/zanedeng/zane-ui/discussions)
 
 ---
 
-如果这个项目对您有帮助，请给我们一个 ⭐️！
+If this project helps you, please give us a ⭐️!

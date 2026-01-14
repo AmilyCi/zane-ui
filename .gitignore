@@ -52,4 +52,5 @@ vite.config.ts.*
 .history
 
 www
+loader
 .stencil
