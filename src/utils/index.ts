@@ -8,5 +8,6 @@ export * from './func';
 export * from './is';
 export * from './number';
 export * from './object';
+export * from './reactive';
 export * from './string';
 export * from './uuid';

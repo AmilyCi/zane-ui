@@ -1,6 +1,5 @@
-import { ScrollbarContext as IScrollbarContext } from '../../interfaces';
 
-export class ScrollbarContext implements IScrollbarContext {
+export class ScrollbarContext {
   scrollbarElement: HTMLElement;
   wrapElement: HTMLDivElement;
 }

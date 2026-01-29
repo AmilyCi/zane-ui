@@ -26,7 +26,9 @@
  - [zane-avatar](../avatar)
  - [zane-button](../button)
  - [zane-cascader](../cascader)
- - [zane-collapse-item](../collapse-item)
+ - [zane-cascader-menu](../cascader)
+ - [zane-cascader-node](../cascader)
+ - [zane-collapse-item](../collapse)
  - [zane-input](../input)
  - [zane-link](../link)
  - [zane-splitter-bar](../splitter)
@@ -39,6 +41,8 @@ graph TD;
   zane-avatar --> zane-icon
   zane-button --> zane-icon
   zane-cascader --> zane-icon
+  zane-cascader-menu --> zane-icon
+  zane-cascader-node --> zane-icon
   zane-collapse-item --> zane-icon
   zane-input --> zane-icon
   zane-link --> zane-icon

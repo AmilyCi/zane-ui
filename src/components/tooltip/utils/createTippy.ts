@@ -12,7 +12,7 @@ import type {
   ReferenceElement,
 } from '../types';
 
-import { createPopper } from '@popperjs/core';
+import { createPopper } from '@popperjs/core/lib/popper-lite';
 import { debounce, uniq } from 'lodash-es';
 
 import { useNamespace } from '../../../hooks';

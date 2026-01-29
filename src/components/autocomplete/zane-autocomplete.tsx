@@ -1,7 +1,6 @@
 import type { EventEmitter } from '@stencil/core';
 
 import type { AnyNormalFunction, ComponentSize } from '../../types';
-import type { FormContext } from '../form/FormContext';
 import type {
   AutocompleteData,
   AutocompleteFetchFunc,
@@ -28,9 +27,11 @@ import {
   nextFrame,
   NOOP,
   throwError,
+  type ReactiveObject,
 } from '../../utils';
-import { formContexts } from '../form/constants';
 import { debounce, isArray } from 'lodash-es';
+import type { FormContext } from '../form/types';
+import { getFormContext } from '../form/utils';
 
 const ns = useNamespace('autocomplete');
 
@@ -164,18 +165,7 @@ export class ZaneComplete {
 
   @Prop({ attribute: 'tabindex' }) zTabindex: number | string = 0;
 
-  get formContext(): FormContext {
-    let parent = this.el.parentElement;
-    let context = null;
-    while (parent) {
-      if (parent.tagName === 'ZANE-FORM') {
-        context = formContexts.get(parent);
-        break;
-      }
-      parent = parent.parentElement;
-    }
-    return context;
-  }
+  private formContext: ReactiveObject<FormContext>;
 
   private debouncedGetData = debounce(this.getData, this.debounce);
 
@@ -203,6 +193,8 @@ export class ZaneComplete {
     // console.log(this.fetchSuggestions);
     this.hasFooter = !!this.el.querySelector('[slot="footer"]');
     this.hasHeader = !!this.el.querySelector('[slot="header"]');
+
+    this.formContext = getFormContext(this.el);
   }
 
   @Method()
@@ -445,7 +437,7 @@ export class ZaneComplete {
   }
 
   private getInputDisabled() {
-    return this.disabled ?? this.formContext?.disabled ?? false;
+    return this.disabled ?? this.formContext?.value.disabled ?? false;
   }
 
   private getSuggestionContext = () => {

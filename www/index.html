@@ -1,29 +1,21 @@
-<!doctype html><html dir="ltr" lang="en" data-theme="dark"><head> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0"> <title>Stencil Component Starter</title> <script type="module" src="/build/zaneui.esm.js"></script> <script nomodule="" src="/build/zaneui.js"></script> <link href="/build/zaneui.css" rel="stylesheet"> <style>html, body {
+<!doctype html><html dir="ltr" lang="en" data-theme="dark"><head> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0"> <title>Stencil Component Starter</title> <script type="module" src="/build/zane-ui.esm.js" data-stencil></script> <script nomodule="" src="/build/zane-ui.js" data-stencil></script> <link href="/build/zane-ui.css" rel="stylesheet"> <style>html, body {
         background-color: var(--zane-bg-color);
         color: var(--zane-text-color-primary);
       }
 
-      .tooltip-base-box {
-        width: 600px;
-      }
-      .tooltip-base-box .row {
+      .demo-panel {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-      }
-      .tooltip-base-box .center {
         justify-content: center;
-      }
-      .tooltip-base-box .box-item {
-        width: 110px;
-        margin-top: 10px;
-      }</style> </head> <body> <div style="max-width: 800px; margin: 0 auto; padding: 50px;"> <zane-cascader></zane-cascader> <zane-tag type="primary">Tag 1</zane-tag> <zane-tag type="success">Tag 2</zane-tag> <zane-tag type="info">Tag 3</zane-tag> <zane-tag type="warning">Tag 4</zane-tag> <zane-tag type="danger">Tag 5</zane-tag> </div> <script>
+        height: 100%;
+      }</style> </head> <body> <div style="height: 250px; padding: 10px; margin-top: 24px; box-shadow: var(--zane-border-color-light) 0px 0px 10px;"> <div> <zane-radio-group value="radio1"> <zane-radio value="1" size="large">Option 1</zane-radio> <zane-radio value="2" size="large">Option 2</zane-radio> </zane-radio-group> </div> <div> <zane-radio-group value="radio" size="large" fill="#409eff"> <zane-radio-button label="New York" value="New York"></zane-radio-button> <zane-radio-button label="Washington" value="Washington"></zane-radio-button> <zane-radio-button label="Los Angeles" value="Los Angeles"></zane-radio-button> <zane-radio-button label="Chicago" value="Chicago"></zane-radio-button> </zane-radio-group> </div> </div> <div style="height: 250px; padding: 10px; margin-top: 24px; box-shadow: var(--zane-border-color-light) 0px 0px 10px;"> <zane-input-number value="1" min="1" max="10" precision="2" step="0.1" controls-position="right"></zane-input-number> </div> <script>
       var cascaderEl = document.querySelector('zane-cascader');
       if (cascaderEl) {
         const options = [
           {
             value: 'guide',
             label: 'Guide',
+            disabled: true,
             children: [
               {
                 value: 'disciplines',
@@ -290,6 +282,15 @@
         ]
 
         cascaderEl.options = options
-
+        cascaderEl.props = { multiple: true }
       }
-    </script> </body></html>
+    </script> <script>
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  // auto-unregister service worker during dev mode
+  navigator.serviceWorker.getRegistration().then(function(registration) {
+    if (registration) {
+      registration.unregister().then(function() { location.reload(true) });
+    }
+  });
+}
+</script></body></html>

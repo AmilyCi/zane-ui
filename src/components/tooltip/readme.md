@@ -124,6 +124,16 @@ Type: `Promise<void>`
 
 
 
+### `updateTippyInstance() => Promise<void>`
+
+
+
+#### Returns
+
+Type: `Promise<void>`
+
+
+
 
 ## Dependencies
 

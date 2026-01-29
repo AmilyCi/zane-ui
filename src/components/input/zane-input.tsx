@@ -1,5 +1,4 @@
-import type { AnyNormalFunction, ComponentSize } from '../../types';
-import type { FormContext } from '../form/FormContext';
+import type { AnyNormalFunction, ComponentSize } from "../../types";
 
 import {
   Component,
@@ -13,55 +12,61 @@ import {
   Prop,
   State,
   Watch,
-} from '@stencil/core';
+} from "@stencil/core";
 
-import { useCursor, useNamespace } from '../../hooks';
-import { mutable } from '../../types';
+import { useCursor, useNamespace } from "../../hooks";
+import { mutable } from "../../types";
 import {
   calcTextareaHeight,
+  debugWarn,
   isClient,
   isKorean,
   isObject,
   nextFrame,
   normalizeStyle,
-} from '../../utils';
-import { formContexts } from '../form/constants';
+  type ReactiveObject,
+} from "../../utils";
+import type { FormContext, FormItemContext } from "../form/types";
+import { getFormContext, getFormItemContext } from "../form/utils";
+import type { ConfigProviderContext } from "../config-provider/types";
+import { getConfigProviderContext } from "../config-provider/utils";
+import classNames from "classnames";
 
 type TargetElement = HTMLInputElement | HTMLTextAreaElement;
 
-const nsInput = useNamespace('input');
-const nsTextarea = useNamespace('textarea');
+const nsInput = useNamespace("input");
+const nsTextarea = useNamespace("textarea");
 
 @Component({
-  styleUrl: 'zane-input.scss',
-  tag: 'zane-input',
+  styleUrl: "zane-input.scss",
+  tag: "zane-input",
 })
 export class ZaneInput {
   @Prop() ariaLabel: string;
 
-  @Prop() autocomplete: AutoFill = 'off';
+  @Prop() autocomplete: AutoFill = "off";
 
   @Prop() autofocus: boolean;
 
   @Prop() autosize: boolean | { maxRows?: number; minRows?: number } = false;
 
-  @Event({ eventName: 'zBlur' }) blurEvent: EventEmitter<FocusEvent>;
+  @Event({ eventName: "zBlur" }) blurEvent: EventEmitter<FocusEvent>;
 
-  @Event({ eventName: 'zChange' }) changeEvent: EventEmitter<number | string>;
+  @Event({ eventName: "zChange" }) changeEvent: EventEmitter<number | string>;
 
   @Prop() clearable: boolean = false;
 
-  @Event({ eventName: 'zClear' }) clearEvent: EventEmitter<void>;
+  @Event({ eventName: "zClear" }) clearEvent: EventEmitter<void>;
 
-  @Prop() clearIcon: string = 'circle-close';
+  @Prop() clearIcon: string = "circle-close";
 
-  @Event({ eventName: 'zCompositionEnd' })
+  @Event({ eventName: "zCompositionEnd" })
   compositionendEvent: EventEmitter<CompositionEvent>;
 
-  @Event({ eventName: 'zCompositionStart' })
+  @Event({ eventName: "zCompositionStart" })
   compositionstartEvent: EventEmitter<CompositionEvent>;
 
-  @Event({ eventName: 'zCompositionUpdate' })
+  @Event({ eventName: "zCompositionUpdate" })
   compositionupdateEvent: EventEmitter<CompositionEvent>;
 
   @Prop() containerRole: string;
@@ -74,7 +79,7 @@ export class ZaneInput {
 
   @Element() el: HTMLElement;
 
-  @Event({ eventName: 'zFocus' }) focusEvent: EventEmitter<FocusEvent>;
+  @Event({ eventName: "zFocus" }) focusEvent: EventEmitter<FocusEvent>;
 
   @Prop() form: string;
 
@@ -82,7 +87,7 @@ export class ZaneInput {
 
   @State() hovering: boolean = false;
 
-  @Event({ eventName: 'zInput' }) inputEvent: EventEmitter<string>;
+  @Event({ eventName: "zInput" }) inputEvent: EventEmitter<string>;
 
   @Prop() inputStyle: Record<string, string> | string = mutable({} as const);
 
@@ -90,7 +95,7 @@ export class ZaneInput {
 
   @State() isFocused: boolean = false;
 
-  @Event({ eventName: 'zKeyDown' }) keydownEvent: EventEmitter<KeyboardEvent>;
+  @Event({ eventName: "zKeyDown" }) keydownEvent: EventEmitter<KeyboardEvent>;
 
   @Prop() max: number;
 
@@ -100,10 +105,10 @@ export class ZaneInput {
 
   @Prop() minLength: number | string;
 
-  @Event({ eventName: 'zMouseEnter' })
+  @Event({ eventName: "zMouseEnter" })
   mouseEnterEvent: EventEmitter<MouseEvent>;
 
-  @Event({ eventName: 'zMouseLeave' })
+  @Event({ eventName: "zMouseLeave" })
   mouseLeaveEvent: EventEmitter<MouseEvent>;
 
   @Prop() name: string;
@@ -118,7 +123,7 @@ export class ZaneInput {
 
   @Prop() readonly: boolean;
 
-  @Prop() resize: 'both' | 'horizontal' | 'none' | 'vertical';
+  @Prop() resize: "both" | "horizontal" | "none" | "vertical";
 
   @Prop() rows: number = 2;
 
@@ -134,40 +139,55 @@ export class ZaneInput {
 
   @State() textareaCalcStyle: Record<string, string> = {};
 
-  @Prop() type: string = 'text';
+  @Prop() type: string = "text";
 
   @Prop() validateEvent: boolean = true;
 
-  @Prop({ mutable: true }) value: null | number | string | undefined = '';
+  @Prop({ mutable: true }) value: null | number | string | undefined = "";
 
-  @Prop() wordLimitPosition: 'inside' | 'outside' = 'inside';
+  @Prop() wordLimitPosition: "inside" | "outside" = "inside";
 
-  @Prop({ attribute: 'id' }) zId: string;
+  @Prop({ attribute: "id" }) zId: string;
 
-  @Prop({ attribute: 'inputmode' }) zInputMode:
-    | 'decimal'
-    | 'email'
-    | 'none'
-    | 'numeric'
-    | 'search'
-    | 'tel'
-    | 'text'
-    | 'url';
+  @Prop({ attribute: "inputmode" }) zInputMode:
+    | "decimal"
+    | "email"
+    | "none"
+    | "numeric"
+    | "search"
+    | "tel"
+    | "text"
+    | "url";
 
-  @Prop({ attribute: 'tabindex' }) zTabindex: number | string = 0;
+  @Prop({ attribute: "tabindex" }) zTabindex: number | string = 0;
 
-  get formContext(): FormContext {
-    let parent = this.el.parentElement;
-    let context = null;
-    while (parent) {
-      if (parent.tagName === 'ZANE-FORM') {
-        context = formContexts.get(parent);
-        break;
-      }
-      parent = parent.parentElement;
-    }
-    return context;
-  }
+  @State() inputSize: ComponentSize = "";
+
+  @State() inputDisabled: boolean = undefined;
+
+  @State() needStatusIcon: boolean;
+
+  @State() validateState: "" | "error" | "validating" | "success";
+
+  @State() validateIcon: string;
+
+  @State() showClear: boolean;
+
+  @State() showPwdVisible: boolean;
+
+  @State() isWordLimitVisible: boolean;
+
+  @State() textLength: number;
+
+  @State() inputExceed: boolean;
+
+  @State() suffixVisible: boolean;
+
+  private formContext: ReactiveObject<FormContext>;
+
+  private formItemContext: ReactiveObject<FormItemContext>;
+
+  private configProviderContext: ReactiveObject<ConfigProviderContext>;
 
   private hasAppend: boolean;
 
@@ -189,11 +209,11 @@ export class ZaneInput {
 
   @Method()
   async clear() {
-    this.value = '';
+    this.value = "";
     this.setNativeInputValue();
-    this.changeEvent.emit('');
+    this.changeEvent.emit("");
     this.clearEvent.emit();
-    this.inputEvent.emit('');
+    this.inputEvent.emit("");
   }
 
   componentDidLoad() {
@@ -213,7 +233,50 @@ export class ZaneInput {
     this.hasPrepend = !!this.el.querySelector('[slot="prepend"]');
     this.hasSuffix = !!this.el.querySelector('[slot="suffix"]');
 
+    this.formContext = getFormContext(this.el);
+    this.formItemContext = getFormItemContext(this.el);
+    this.configProviderContext = getConfigProviderContext(this.el);
+
+    this.needStatusIcon = this.formContext?.value.statusIcon ?? false;
+    this.validateState = this.formItemContext?.value.validateState || "";
+
+    this.handleUpdateDisabled();
+    this.handleUpdateSize();
+    this.handleUpdateShowClear();
+    this.handleUpdateShowPwdVisible();
+    this.handleUpdateIsWordLimitVisible();
+    this.updateTextLength();
+    this.updateInputExceed();
+    this.updateSuffixVisible();
+    this.handleUpdateValidateIcon();
+
     this.textareaCalcStyle = normalizeStyle(this.inputStyle);
+
+    this.formContext?.change$.subscribe(({ key, value }) => {
+      if (key === "size") {
+        this.handleUpdateSize();
+      }
+
+      if (key === "disabled") {
+        this.handleUpdateDisabled();
+      }
+
+      if (key === "statusIcon") {
+        this.needStatusIcon = value;
+      }
+    });
+
+    this.formItemContext?.change$.subscribe(({ key }) => {
+      if (key === "size") {
+        this.handleUpdateSize();
+      }
+    });
+
+    this.configProviderContext?.change$.subscribe(({ key }) => {
+      if (key === "size") {
+        this.handleUpdateSize();
+      }
+    });
   }
 
   @Method()
@@ -221,37 +284,90 @@ export class ZaneInput {
     return this.inputRef;
   }
 
-  getInputDisabled(): boolean {
-    return this.disabled ?? this.formContext?.disabled ?? false;
+  @Watch("clearable")
+  @Watch('inputDisabled')
+  @Watch('readonly')
+  @Watch('value')
+  @Watch('isFocused')
+  @Watch('hovering')
+  handleUpdateShowClear() {
+    this.showClear =
+      this.clearable &&
+      !this.inputDisabled &&
+      !this.readonly &&
+      !!this.value &&
+      (this.isFocused || this.hovering);
   }
 
-  getInputExceed(): boolean {
-    return (
-      !!this.getIsWordLimitVisible() &&
-      this.getTextLength() > Number(this.maxLength)
+  @Watch("showPassword")
+  @Watch("inputDisabled")
+  @Watch("value")
+  handleUpdateShowPwdVisible() {
+    this.showPwdVisible = this.showPassword && !this.inputDisabled && !!this.value;
+  }
+
+  @Watch('showWordLimit')
+  @Watch('maxLength')
+  @Watch('type')
+  @Watch('inputDisabled')
+  @Watch('readonly')
+  @Watch('showPassword')
+  handleUpdateIsWordLimitVisible() {
+    this.isWordLimitVisible = this.showWordLimit &&
+      !!this.maxLength &&
+      (this.type === "text" || this.type === "textarea") &&
+      !this.inputDisabled &&
+      !this.readonly &&
+      !this.showPassword
+  }
+
+  @Watch("disabled")
+  handleUpdateDisabled() {
+    this.inputDisabled =
+      this.disabled ?? this.formContext?.value.disabled ?? false;
+  }
+
+  @Watch('validateState')
+  handleUpdateValidateIcon() {
+    switch(this.validateState) {
+      case 'error':
+        this.validateIcon = 'circle-close';
+        break;
+      case 'success':
+        this.validateIcon = 'circle-check';
+        break;
+      case 'validating':
+        this.validateIcon = 'loading';
+        break;
+    }
+  }
+
+  @Watch('isWordLimitVisible')
+  @Watch('textLength')
+  @Watch('maxLength')
+  updateInputExceed(): void {
+    this.inputExceed = (
+      !!this.isWordLimitVisible &&
+      this.textLength > Number(this.maxLength)
     );
   }
 
-  getInputSize(): string {
-    return this.size || this.formContext?.size || 'default';
+  @Watch("size")
+  handleUpdateSize() {
+    this.inputSize = (
+      this.size ||
+      this.formItemContext?.value.size ||
+      this.formContext?.value.size ||
+      this.configProviderContext?.value.size ||
+      ""
+    );
   }
 
   getInputType(): string {
     if (this.showPassword) {
-      return this.passwordVisible ? 'text' : 'password';
+      return this.passwordVisible ? "text" : "password";
     }
     return this.type;
-  }
-
-  getIsWordLimitVisible(): boolean {
-    return (
-      this.showWordLimit &&
-      !!this.maxLength &&
-      (this.type === 'text' || this.type === 'textarea') &&
-      !this.getInputDisabled() &&
-      !this.readonly &&
-      !this.showPassword
-    );
   }
 
   getNativeInput(): HTMLInputElement | HTMLTextAreaElement {
@@ -259,34 +375,19 @@ export class ZaneInput {
   }
 
   getNativeInputValue(): string {
-    return this.value === null ? '' : String(this.value);
+    return this.value === null ? "" : String(this.value);
   }
 
-  getShowClear(): boolean {
-    return (
-      this.clearable &&
-      !this.getInputDisabled() &&
-      !this.readonly &&
-      !!this.getNativeInputValue() &&
-      (this.isFocused || this.hovering)
-    );
-  }
-
-  getShowPwdVisible(): boolean {
-    return (
-      this.showPassword &&
-      !this.getInputDisabled() &&
-      !!this.getNativeInputValue()
-    );
-  }
-
-  getSuffixVisible(): boolean {
-    return (
+  @Watch('showClear')
+  @Watch('showPassword')
+  @Watch('isWordLimitVisible')
+  updateSuffixVisible(): void {
+    this.suffixVisible = (
       !!this.hasSuffix ||
       !!this.suffixIcon ||
-      this.getShowClear() ||
+      this.showClear ||
       this.showPassword ||
-      this.getIsWordLimitVisible()
+      this.isWordLimitVisible
     );
   }
 
@@ -298,11 +399,12 @@ export class ZaneInput {
     };
   }
 
-  getTextLength(): number {
-    return this.getNativeInputValue().length;
+  @Watch('value')
+  updateTextLength() {
+    this.textLength = this.getNativeInputValue().length;
   }
 
-  @Watch('type')
+  @Watch("type")
   onTypeChange() {
     setTimeout(() => {
       this.setNativeInputValue();
@@ -310,35 +412,35 @@ export class ZaneInput {
     });
   }
 
-  @Watch('value')
+  @Watch("value")
   onValueChange() {
     this.inputRef.value = this.value as string;
     this.resizeTextarea();
     if (this.validateEvent) {
-      // elFormItem?.validate?.('change').catch((err) => debugWarn(err))
+      this.formItemContext?.value.validate?.('change').catch((err) => debugWarn(err))
     }
   }
 
   render() {
-    const isTextarea = this.type === 'textarea';
+    const isTextarea = this.type === "textarea";
 
     const containerClasses = {
-      [nsInput.b('group')]: this.hasPrepend || this.hasAppend,
-      [nsInput.b('hidden')]: this.type === 'hidden',
+      [nsInput.b("group")]: this.hasPrepend || this.hasAppend,
+      [nsInput.b("hidden")]: this.type === "hidden",
       [nsInput.b()]: !isTextarea,
-      [nsInput.bm('group', 'append')]: this.hasAppend,
-      [nsInput.bm('group', 'prepend')]: this.hasPrepend,
-      [nsInput.bm('suffix', 'password-clear')]:
-        this.getShowClear() && this.getShowPwdVisible(),
-      [nsInput.is('disabled', this.getInputDisabled())]: true,
-      [nsInput.is('exceed', this.getInputExceed())]: true,
-      [nsInput.m('prefix')]: this.hasPrefix || !!this.prefixIcon,
-      [nsInput.m('suffix')]:
+      [nsInput.bm("group", "append")]: this.hasAppend,
+      [nsInput.bm("group", "prepend")]: this.hasPrepend,
+      [nsInput.bm("suffix", "password-clear")]:
+        this.showClear && this.showPwdVisible,
+      [nsInput.is("disabled", this.inputDisabled)]: true,
+      [nsInput.is("exceed", this.inputExceed)]: true,
+      [nsInput.m("prefix")]: this.hasPrefix || !!this.prefixIcon,
+      [nsInput.m("suffix")]:
         this.hasSuffix ||
         !!this.suffixIcon ||
         this.clearable ||
         this.showPassword,
-      [nsInput.m(this.getInputSize())]: true,
+      [nsInput.m(this.inputSize)]: true,
       [nsTextarea.b()]: isTextarea,
     };
 
@@ -348,13 +450,13 @@ export class ZaneInput {
         onMouseEnter={this.handleMouseEnter}
         onMouseLeave={this.handleMouseLeave}
       >
-        {this.type === 'textarea' ? this.renderTextarea() : this.renderInput()}
+        {this.type === "textarea" ? this.renderTextarea() : this.renderInput()}
       </Host>
     );
   }
 
   resizeTextarea = () => {
-    if (!isClient || this.type !== 'textarea' || !this.textareaRef) return;
+    if (!isClient || this.type !== "textarea" || !this.textareaRef) return;
 
     if (this.autosize) {
       const minRows = isObject(this.autosize)
@@ -374,7 +476,7 @@ export class ZaneInput {
       // So we need to hide scrollbar first, and reset it in next tick.
       // see https://github.com/element-plus/element-plus/issues/8825
       this.textareaCalcStyle = {
-        overflowY: 'hidden',
+        overflowY: "hidden",
         ...textareaStyle,
       };
 
@@ -416,13 +518,13 @@ export class ZaneInput {
 
   private handleAfterBlur = () => {
     if (this.validateEvent) {
-      // elFormItem?.validate?.('blur').catch((error) => debugWarn(error));
+      this.formItemContext?.value.validate?.('blur').catch((error) => debugWarn(error));
     }
   };
 
   private handleBlur = (event: FocusEvent) => {
     if (
-      this.getInputDisabled() ||
+      this.inputDisabled ||
       (event.relatedTarget &&
         this.wrapperRef?.contains(event.relatedTarget as Node))
     ) {
@@ -465,12 +567,12 @@ export class ZaneInput {
   private handleCompositionUpdate = (event: CompositionEvent) => {
     this.compositionupdateEvent.emit(event);
     const text = (event.target as HTMLInputElement)?.value;
-    const lastCharacter = text[text.length - 1] || '';
+    const lastCharacter = text[text.length - 1] || "";
     this.isComposing = !isKorean(lastCharacter);
   };
 
   private handleFocus = (event: FocusEvent) => {
-    if (this.getInputDisabled() || this.isFocused) return;
+    if (this.inputDisabled || this.isFocused) return;
 
     this.isFocused = true;
     this.focusEvent.emit(event);
@@ -528,26 +630,26 @@ export class ZaneInput {
 
   private renderInput = () => {
     const wrapperClasses = {
-      [nsInput.e('wrapper')]: true,
-      [nsInput.is('focus', this.isFocused)]: true,
+      [nsInput.e("wrapper")]: true,
+      [nsInput.is("focus", this.isFocused)]: true,
     };
 
     return (
       <Fragment>
         {this.hasPrepend && (
-          <div class={nsInput.be('group', 'prepend')}>
+          <div class={nsInput.be("group", "prepend")}>
             <slot name="prepend" />
           </div>
         )}
 
         <div class={wrapperClasses} ref={(el) => (this.wrapperRef = el)}>
           {(this.hasPrefix || this.prefixIcon) && (
-            <span class={nsInput.e('prefix')}>
-              <span class={nsInput.e('prefix-inner')}>
+            <span class={nsInput.e("prefix")}>
+              <span class={nsInput.e("prefix-inner")}>
                 <slot name="prefix"></slot>
                 {this.prefixIcon && (
                   <zane-icon
-                    class={nsInput.e('icon')}
+                    class={nsInput.e("icon")}
                     name={this.prefixIcon}
                   ></zane-icon>
                 )}
@@ -559,8 +661,8 @@ export class ZaneInput {
             aria-label={this.ariaLabel}
             autocomplete={this.autocomplete}
             autofocus={this.autofocus}
-            class={nsInput.e('inner')}
-            disabled={this.getInputDisabled()}
+            class={nsInput.e("inner")}
+            disabled={this.inputDisabled}
             form={this.form}
             inputmode={this.zInputMode as any}
             max={this.max}
@@ -584,64 +686,76 @@ export class ZaneInput {
             type={this.getInputType()}
           />
 
-          {this.getSuffixVisible() && (
-            <span class={nsInput.e('suffix')}>
-              <span class={nsInput.e('suffix-inner')}>
-                {(!this.getShowClear() ||
-                  !this.getShowPwdVisible() ||
-                  !this.getIsWordLimitVisible()) && (
+          {this.suffixVisible && (
+            <span class={nsInput.e("suffix")}>
+              <span class={nsInput.e("suffix-inner")}>
+                {(!this.showClear ||
+                  !this.showPwdVisible ||
+                  !this.isWordLimitVisible) && (
                   <Fragment>
                     <slot name="suffix"></slot>
                     {this.suffixIcon && (
                       <zane-icon
-                        class={nsInput.e('icon')}
+                        class={nsInput.e("icon")}
                         name={this.suffixIcon}
                       ></zane-icon>
                     )}
                   </Fragment>
                 )}
-                {this.getShowClear() && (
+                {this.showClear && (
                   <zane-icon
                     class={{
-                      [nsInput.e('clear')]: true,
-                      [nsInput.e('icon')]: true,
+                      [nsInput.e("clear")]: true,
+                      [nsInput.e("icon")]: true,
                     }}
                     name={this.clearIcon}
                     onClick={this.handleClear}
                   ></zane-icon>
                 )}
-                {this.getShowPwdVisible() && (
+                {this.showPwdVisible && (
                   <zane-icon
                     class={{
-                      [nsInput.e('icon')]: true,
-                      [nsInput.e('password')]: true,
+                      [nsInput.e("icon")]: true,
+                      [nsInput.e("password")]: true,
                     }}
-                    name="view"
+                    name={this.passwordVisible ? 'view' : 'hide'}
                     onClick={this.handlePasswordVisible}
                   ></zane-icon>
                 )}
-                {this.getIsWordLimitVisible() && (
+                {this.isWordLimitVisible && (
                   <span
                     class={{
-                      [nsInput.e('count')]: true,
+                      [nsInput.e("count")]: true,
                       [nsInput.is(
-                        'outside',
-                        this.wordLimitPosition === 'outside',
+                        "outside",
+                        this.wordLimitPosition === "outside",
                       )]: true,
                     }}
                   >
-                    <span class={nsInput.e('count-inner')}>
-                      {this.getTextLength()} / {this.maxLength}
+                    <span class={nsInput.e("count-inner")}>
+                      {this.textLength} / {this.maxLength}
                     </span>
                   </span>
                 )}
+                {
+                  (this.validateState && this.validateIcon && this.needStatusIcon) && (
+                    <zane-icon
+                      class={classNames(
+                        nsInput.e('icon'),
+                        nsInput.e('validateIcon'),
+                        nsInput.is('loading', this.validateState === 'validating')
+                      )}
+                      name={this.validateIcon}
+                    ></zane-icon>
+                  )
+                }
               </span>
             </span>
           )}
         </div>
 
         {this.hasAppend && (
-          <div class={nsInput.be('group', 'append')}>
+          <div class={nsInput.be("group", "append")}>
             <slot name="append" />
           </div>
         )}
@@ -657,10 +771,10 @@ export class ZaneInput {
           autocomplete={this.autocomplete}
           autofocus={this.autofocus}
           class={{
-            [nsInput.is('focus', this.isFocused)]: true,
-            [nsTextarea.e('inner')]: true,
+            [nsInput.is("focus", this.isFocused)]: true,
+            [nsTextarea.e("inner")]: true,
           }}
-          disabled={this.getInputDisabled()}
+          disabled={this.inputDisabled}
           form={this.form}
           maxlength={this.maxLength}
           minlength={this.minLength}
@@ -680,16 +794,16 @@ export class ZaneInput {
           style={this.getTextareaStyle()}
           tabindex={this.zTabindex}
         />
-        {this.getIsWordLimitVisible() && (
+        {this.isWordLimitVisible && (
           <span
             class={{
-              [nsInput.e('count')]: true,
-              [nsInput.is('outside', this.wordLimitPosition === 'outside')]:
+              [nsInput.e("count")]: true,
+              [nsInput.is("outside", this.wordLimitPosition === "outside")]:
                 true,
             }}
             style={this.countStyle}
           >
-            {this.getTextLength()} / {this.maxLength}
+            {this.textLength} / {this.maxLength}
           </span>
         )}
       </Fragment>

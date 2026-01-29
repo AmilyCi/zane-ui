@@ -1,1 +1,0 @@
-import{r as a,h as e,H as r,a as s}from"./p-B2_qc6fD.js";const t=class{constructor(e){a(this,e)}render(){return e(r,{key:"9a7d73c3ab6367f2cac89722951bf5d64a4e6f32"},e("slot",{key:"0927724a065559b161fd7aa23e954c98ae1aaae3"}))}get el(){return s(this)}};t.style="";export{t as zane_config_provider}

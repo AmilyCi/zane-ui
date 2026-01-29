@@ -1,13 +1,19 @@
-import type { FormContext } from './FormContext';
-import type { FormItemContext } from './FormItemContext';
+import type { ReactiveObject } from "../../utils/reactive/ReactiveObject";
+import type { FormContext, FormItemContext } from "./types";
 
 export const formItemValidateStates = [
-  '',
-  'error',
-  'validating',
-  'success',
+  "",
+  "error",
+  "validating",
+  "success",
 ] as const;
 
-export const formContexts = new WeakMap<HTMLElement, FormContext>();
+export const formContexts = new WeakMap<
+  HTMLElement,
+  ReactiveObject<FormContext>
+>();
 
-export const formItemContexts = new WeakMap<HTMLElement, FormItemContext>();
+export const formItemContexts = new WeakMap<
+  HTMLElement,
+  ReactiveObject<FormItemContext>
+>();

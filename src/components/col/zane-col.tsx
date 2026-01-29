@@ -1,11 +1,13 @@
-import type { ColSize } from '../../types';
+import type { ColSize } from './types';
 
 import { Component, Element, h, Host, Prop, State } from '@stencil/core';
 
-import { rowContexts } from '../../constants';
 import { useNamespace } from '../../hooks';
 import { mutable } from '../../types';
-import { isNumber, isObject } from '../../utils';
+import { isNumber, isObject, type ReactiveObject } from '../../utils';
+import type { RowContext } from '../row/types';
+import { getRowContext } from '../row/utils';
+import classNames from 'classnames';
 
 const ns = useNamespace('col');
 
@@ -45,7 +47,14 @@ export class ZaneRow {
   @Prop()
   xs: ColSize = mutable({} as const);
 
-  get colKls() {
+  private rowContext: ReactiveObject<RowContext>;
+
+  componentWillLoad() {
+    this.rowContext = getRowContext(this.el);
+    this.gutter = this.rowContext?.value.gutter ?? 0;
+  }
+
+  render() {
     const classes: string[] = [];
     const pos = ['span', 'offset', 'pull', 'push'] as const;
 
@@ -76,37 +85,19 @@ export class ZaneRow {
     if (this.gutter) {
       classes.push(ns.is('guttered'));
     }
-    return [ns.b(), ...classes].join(' ');
-  }
 
-  get rowContext() {
-    let parent = this.el.parentElement;
-    let context = null;
-    while (parent) {
-      if (parent.tagName === 'ZANE-ROW') {
-        context = rowContexts.get(parent);
-        break;
-      }
-      parent = parent.parentElement;
-    }
-    return context;
-  }
+    const colKls = classNames(
+      ns.b(),
+      ...classes
+    );
 
-  get style() {
     const styles = {} as Record<string, string>;
     if (this.gutter) {
       styles.paddingLeft = styles.paddingRight = `${this.gutter / 2}px`;
     }
-    return styles;
-  }
 
-  componentWillLoad() {
-    this.gutter = this.rowContext?.gutter ?? 0;
-  }
-
-  render() {
     return (
-      <Host class={this.colKls} style={this.style}>
+      <Host class={colKls} style={styles}>
         <slot />
       </Host>
     );

@@ -1,40 +1,37 @@
-import type { ForwardRefContext } from '../../interfaces';
+import { Component, Element, h, Host, Prop } from "@stencil/core";
 
-import { Component, Element, h, Host, Prop } from '@stencil/core';
+import { useNamespace } from "../../hooks";
+import {
+  debugWarn,
+  findAllLegitChildren,
+  isObject,
+  type ReactiveObject,
+} from "../../utils";
+import type { ForwardRefContext } from "../forward-ref/types";
+import { getForwardRefContext } from "../forward-ref/utils";
 
-import { forwardRefContexts } from '../../constants';
-import { useNamespace } from '../../hooks';
-import { debugWarn, findAllLegitChildren, isObject } from '../../utils';
-
-const NAME = 'ZaneOnlyChild';
+const NAME = "ZaneOnlyChild";
 
 @Component({
   shadow: false,
-  tag: 'zane-only-child',
+  tag: "zane-only-child",
 })
 export class OnlyChild {
+  @Element() el: HTMLElement;
   /**
    * 是否启用调试模式，启用后会输出警告信息
    */
   @Prop() debug: boolean = false;
-  @Element() el: HTMLElement;
 
   /**
    * 是否启用严格模式，启用后如果有多个有效子节点会抛出错误
    */
   @Prop() strict: boolean = false;
 
-  private get forwardRefContext(): ForwardRefContext {
-    let parent = this.el.parentElement;
-    let context = null;
-    while (parent) {
-      if (parent.tagName === 'ZANE-FORWARD-REF') {
-        context = forwardRefContexts.get(parent);
-        break;
-      }
-      parent = parent.parentElement;
-    }
-    return context;
+  private forwardRefContext: ReactiveObject<ForwardRefContext>;
+
+  componentWillLoad() {
+    this.forwardRefContext = getForwardRefContext(this.el);
   }
 
   componentDidLoad() {
@@ -81,15 +78,15 @@ export class OnlyChild {
   private processChildren() {
     const [firstLegitNode, length] = this.findFirstLegitChild(this.el);
     if (!firstLegitNode) {
-      debugWarn(NAME, 'no valid child node found');
+      debugWarn(NAME, "no valid child node found");
       return null;
     }
     if (length > 1) {
-      debugWarn(NAME, 'requires exact only one valid child.');
+      debugWarn(NAME, "requires exact only one valid child.");
     }
-    this.forwardRefContext?.setForwardRef(firstLegitNode);
+    this.forwardRefContext?.value.setForwardRef(firstLegitNode);
     // 清空所有子节点
-    this.el.innerHTML = '';
+    this.el.innerHTML = "";
     this.el.append(firstLegitNode);
   }
 
@@ -97,9 +94,9 @@ export class OnlyChild {
    * 包装文本内容
    */
   private wrapTextContent(content: string): HTMLElement {
-    const ns = useNamespace('only-child');
-    const wrapper = document.createElement('span');
-    wrapper.className = ns.e('content');
+    const ns = useNamespace("only-child");
+    const wrapper = document.createElement("span");
+    wrapper.className = ns.e("content");
     wrapper.textContent = content;
     return wrapper;
   }

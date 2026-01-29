@@ -1,9 +1,10 @@
-import type { RowAlignType, RowJustifyType } from '../../types';
-
 import { Component, Element, h, Host, Prop } from '@stencil/core';
 
-import { rowContexts } from '../../constants';
+import { rowContexts } from './constants';
 import { useNamespace } from '../../hooks';
+import type { RowAlignType, RowContext, RowJustifyType } from './types';
+import { ReactiveObject } from '../../utils';
+import classNames from 'classnames';
 
 const ns = useNamespace('row');
 
@@ -23,31 +24,35 @@ export class ZaneRow {
   @Prop({ attribute: 'justify', reflect: true })
   justify: RowJustifyType = 'start';
 
-  get rowKls() {
-    return [
+  private context: ReactiveObject<RowContext>;
+
+  componentWillLoad() {
+    this.context = new ReactiveObject<RowContext>({
+      gutter: this.gutter
+    });
+    rowContexts.set(this.el, this.context);
+  }
+
+  disconnectedCallback() {
+    rowContexts.delete(this.el);
+  }
+
+  render() {
+    const rowKls = classNames(
       ns.b(),
       ns.is(`justify-${this.justify}`, this.justify !== 'start'),
       ns.is(`align-${this.align}`, !!this.align),
-    ].join(' ');
-  }
+    );
 
-  get style() {
     const styles = {} as Record<string, string>;
     if (!this.gutter) {
       return styles;
     }
 
     styles.marginRight = styles.marginLeft = `-${this.gutter / 2}px`;
-    return styles;
-  }
 
-  componentWillLoad() {
-    rowContexts.set(this.el, { gutter: this.gutter });
-  }
-
-  render() {
     return (
-      <Host class={this.rowKls} style={this.style}>
+      <Host class={rowKls} style={styles}>
         <slot />
       </Host>
     );

@@ -1,11 +1,7 @@
-import type {
-  AnimationType,
-  CSSTransitionInfo,
-  StylePropertiesKey,
-} from '../../../types';
 
-import { ANIMATION, TRANSITION } from '../../../constants';
+import type { AnimationType, CSSTransitionInfo, StylePropertiesKey } from '../../../types';
 import { getTimeout } from './getTimeout';
+import { ANIMATION, TRANSITION } from '../../../constants';
 
 export function getTransitionInfo(
   el: Element,

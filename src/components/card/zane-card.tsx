@@ -1,7 +1,9 @@
 import { Component, Element, h, Host, Prop, State } from '@stencil/core';
 
-import state from '../../global/store';
 import { useNamespace } from '../../hooks';
+import type { ConfigProviderContext } from '../config-provider/types';
+import { getConfigProviderContext } from '../config-provider/utils';
+import type { ReactiveObject } from '../../utils';
 
 const ns = useNamespace('card');
 
@@ -30,12 +32,17 @@ export class ZaneCard {
 
   @Prop() shadow?: 'always' | 'hover' | 'never';
 
+  private configProviderContext: ReactiveObject<ConfigProviderContext>;
+
+
   checkSlotContent() {
     this.hasHeaderContent = !!this.el.querySelector('[slot="header"]');
     this.hasFooterContent = !!this.el.querySelector('[slot="footer"]');
   }
 
   componentWillLoad() {
+    this.configProviderContext = getConfigProviderContext(this.el);
+    
     this.checkSlotContent();
   }
 
@@ -46,7 +53,7 @@ export class ZaneCard {
           class={[
             ns.b(),
             ns.is(
-              `${this.shadow || state.configProviderContext.card.shadow || 'always'}-shadow`,
+              `${this.shadow || this.configProviderContext?.value.card?.shadow || 'always'}-shadow`,
             ),
           ].join(' ')}
         >

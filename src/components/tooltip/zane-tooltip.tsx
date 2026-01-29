@@ -254,9 +254,11 @@ export class ZaneTooltip {
     }
 
     // 如果通过slot传递内容
-    const contentSlot = this.el.querySelector('[slot="content"]');
+    const contentSlot = this.el.querySelector('[slot="content"]') as HTMLElement;
     if (contentSlot) {
       this.slotContentRef = div();
+      this.slotContentRef.className = contentSlot.className;
+      this.slotContentRef.style.cssText = contentSlot.style.cssText;
       // 直接循环 childNodes
       while (contentSlot.firstChild) {
         this.slotContentRef.append(contentSlot.firstChild);
@@ -355,7 +357,8 @@ export class ZaneTooltip {
   }
 
   // 更新Tippy实例
-  private updateTippyInstance() {
+  @Method()
+  async updateTippyInstance() {
     if (!this.tippyInstance) return;
 
     // 更新其他属性

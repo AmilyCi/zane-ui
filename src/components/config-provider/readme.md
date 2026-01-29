@@ -7,12 +7,13 @@
 
 ## Properties
 
-| Property | Attribute | Description | Type                                   | Default     |
-| -------- | --------- | ----------- | -------------------------------------- | ----------- |
-| `button` | --        |             | `ButtonConfigContext`                  | `undefined` |
-| `card`   | --        |             | `CardConfigContext`                    | `undefined` |
-| `locale` | --        |             | `{ el: TranslatePair; name: string; }` | `undefined` |
-| `zIndex` | `z-index` |             | `number`                               | `undefined` |
+| Property       | Attribute        | Description | Type                                                                                              | Default     |
+| -------------- | ---------------- | ----------- | ------------------------------------------------------------------------------------------------- | ----------- |
+| `button`       | --               |             | `{ autoInsertSpace?: boolean; plain?: boolean; round?: boolean; text?: boolean; type?: string; }` | `undefined` |
+| `card`         | --               |             | `{ shadow?: string; }`                                                                            | `undefined` |
+| `locale`       | `locale`         |             | `string`                                                                                          | `undefined` |
+| `size`         | `size`           |             | `"" \| "default" \| "large" \| "small"`                                                           | `undefined` |
+| `valueOnClear` | `value-on-clear` |             | `Function \| boolean \| number \| string`                                                         | `undefined` |
 
 
 ----------------------------------------------

@@ -7,40 +7,26 @@
 
 ## Properties
 
-| Property             | Attribute              | Description | Type                                               | Default     |
-| -------------------- | ---------------------- | ----------- | -------------------------------------------------- | ----------- |
-| `accordion`          | `accordion`            |             | `boolean`                                          | `undefined` |
-| `beforeCollapse`     | --                     |             | `(name: CollapseActiveName) => Awaitable<boolean>` | `undefined` |
-| `expandIconPosition` | `expand-icon-position` |             | `"left" \| "right"`                                | `'right'`   |
-| `value`              | `value`                |             | `CollapseActiveName[] \| number \| string`         | `[]`        |
+| Property   | Attribute  | Description | Type               | Default         |
+| ---------- | ---------- | ----------- | ------------------ | --------------- |
+| `disabled` | `disabled` |             | `boolean`          | `undefined`     |
+| `icon`     | `icon`     |             | `string`           | `'arrow-right'` |
+| `label`    | `title`    |             | `string`           | `''`            |
+| `name`     | `name`     |             | `number \| string` | `undefined`     |
 
 
-## Events
+## Dependencies
 
-| Event     | Description | Type                                                    |
-| --------- | ----------- | ------------------------------------------------------- |
-| `zChange` |             | `CustomEvent<(string \| number)[] \| number \| string>` |
-| `zUpdate` |             | `CustomEvent<(string \| number)[] \| number \| string>` |
+### Depends on
 
+- [zane-icon](../icon)
 
-## Methods
-
-### `setActiveNames(_activeNames: CollapseActiveName[]) => Promise<void>`
-
-
-
-#### Parameters
-
-| Name           | Type                   | Description |
-| -------------- | ---------------------- | ----------- |
-| `_activeNames` | `CollapseActiveName[]` |             |
-
-#### Returns
-
-Type: `Promise<void>`
-
-
-
+### Graph
+```mermaid
+graph TD;
+  zane-collapse-item --> zane-icon
+  style zane-collapse-item fill:#f9f,stroke:#333,stroke-width:4px
+```
 
 ----------------------------------------------
 

@@ -1,7 +1,6 @@
-import type { ButtonGroupContext } from '../../interfaces';
-import type { ButtonNativeType, ButtonType, ComponentSize } from '../../types';
+import type { ComponentSize } from "../../types";
 
-import { TinyColor } from '@ctrl/tinycolor';
+import { TinyColor } from "@ctrl/tinycolor";
 import {
   Component,
   Element,
@@ -12,35 +11,26 @@ import {
   Prop,
   State,
   Watch,
-} from '@stencil/core';
+} from "@stencil/core";
 
-import { buttonGroupContexts } from '../../constants';
-import state from '../../global/store';
-import { useNamespace } from '../../hooks';
-import { darken, findAllLegitChildren } from '../../utils';
+import { useNamespace } from "../../hooks";
+import { darken, findAllLegitChildren, type ReactiveObject } from "../../utils";
+import type { ButtonGroupContext, ButtonNativeType, ButtonType } from "./types";
+import type { ConfigProviderContext } from "../config-provider/types";
+import { getConfigProviderContext } from "../config-provider/utils";
+import { getButtonGroupContext } from "./utils";
+import classNames from "classnames";
 
-const ns = useNamespace('button');
+const ns = useNamespace("button");
 
 @Component({
-  styleUrl: 'zane-button.scss',
-  tag: 'zane-button',
+  styleUrl: "zane-button.scss",
+  tag: "zane-button",
 })
 export class ZaneButton {
-  @State() _disabled: boolean;
-
-  @State() _plain: boolean;
-
-  @State() _round: boolean;
-
-  @State() _size: string;
-
-  @State() _text: boolean;
-
-  @State() _type: string;
-
   @Prop() autofocus: boolean = false;
 
-  @Prop() autoInsertSpace: boolean;
+  @Prop() autoInsertSpace: boolean = undefined;
 
   @Prop() bg: boolean = false;
 
@@ -48,13 +38,13 @@ export class ZaneButton {
 
   @Prop() circle: boolean = false;
 
-  @Event({ eventName: 'zClick' }) clickEvent: EventEmitter<MouseEvent>;
+  @Event({ eventName: "zClick" }) clickEvent: EventEmitter<MouseEvent>;
 
   @Prop() color: string;
 
   @Prop() dark: boolean = false;
 
-  @Prop() disabled: boolean = false;
+  @Prop() disabled: boolean = undefined;
 
   @Element() el: HTMLElement;
 
@@ -64,93 +54,229 @@ export class ZaneButton {
 
   @Prop() loading: boolean = false;
 
-  @Prop() nativeType: ButtonNativeType = 'button';
+  @Prop() nativeType: ButtonNativeType = "button";
 
-  @Prop() plain: boolean;
+  @Prop() plain: boolean = undefined;
 
-  @Prop() round: boolean;
+  @Prop() round: boolean = undefined;
 
   @State() shouldAddSpace: boolean = false;
 
   @Prop() size: ComponentSize;
 
-  @Prop() text: boolean;
+  @Prop() text: boolean = undefined;
 
-  @Prop() type: ButtonType = '';
+  @Prop() type: ButtonType = "";
 
-  get buttonKls() {
-    return [
-      ns.b(),
-      ns.m(this._type),
-      ns.m(this._size),
-      this.el.className,
-      ns.is('disabled', this._disabled),
-      ns.is('loading', this.loading),
-      ns.is('plain', this._plain),
-      ns.is('round', this._round),
-      ns.is('circle', this.circle),
-      ns.is('text', this._text),
-      ns.is('link', this.link),
-      ns.is('has-bg', this.bg),
-    ].join(' ');
-  }
+  @State() actualDisabled: boolean;
 
-  get groupContext(): ButtonGroupContext {
-    let parent = this.el.parentElement;
-    let context = null;
-    while (parent) {
-      if (parent.tagName === 'ZANE-BUTTON-GROUP') {
-        context = buttonGroupContexts.get(parent);
-        break;
-      }
-      parent = parent.parentElement;
-    }
-    return context;
-  }
+  @State() actualPlain: boolean;
 
-  private onGroupUpdateSize: () => void;
+  @State() actualRound: boolean;
 
-  private onGroupUpdateType: () => void;
+  @State() actualSize: string;
+
+  @State() actualText: boolean;
+
+  @State() actualType: string;
+
+  @State() actualAutoInsertSpace: boolean;
+
+  private buttonGroupContext: ReactiveObject<ButtonGroupContext>;
+
+  private configProviderContext: ReactiveObject<ConfigProviderContext>;
 
   componentWillLoad() {
-    this.onGroupUpdateSize = () => {
-      this.updateInternalState();
-    };
-    this.onGroupUpdateType = () => {
-      this.updateInternalState();
-    };
-    this.groupContext?.addSizeChangeListener(this.onGroupUpdateSize);
-    this.groupContext?.addTypeChangeListener(this.onGroupUpdateType);
-    this.updateInternalState();
+    this.buttonGroupContext = getButtonGroupContext(this.el);
+    this.configProviderContext = getConfigProviderContext(this.el);
+
     this.updateCustomStyle();
+
+    this.buttonGroupContext.change$.subscribe((change) => {
+      if (change.key === "disabled") {
+        this.onDisabledChange();
+      }
+      if (change.key === "type") {
+        this.onTypeChange();
+      }
+      if (change.key === "size") {
+        this.onSizeChange();
+      }
+    });
+  }
+
+  @Watch("disabled", { immediate: true })
+  onDisabledChange() {
+    this.actualDisabled =
+      this.disabled ?? this.buttonGroupContext?.value.disabled ?? false;
+  }
+
+  @Watch("plain", { immediate: true })
+  onPlainChange() {
+    this.actualPlain =
+      this.plain ?? this.configProviderContext?.value.button?.plain ?? false;
+  }
+
+  @Watch("round", { immediate: true })
+  onRoundChange() {
+    this.actualRound =
+      this.round ?? this.configProviderContext?.value.button?.plain ?? false;
+  }
+
+  @Watch("text", { immediate: true })
+  onTextChange() {
+    this.actualText =
+      this.text ?? this.configProviderContext?.value.button?.text ?? false;
+  }
+
+  @Watch("type", { immediate: true })
+  onTypeChange() {
+    this.actualType =
+      this.type ||
+      this.buttonGroupContext?.value.type ||
+      this.configProviderContext?.value.button?.type ||
+      "";
+  }
+
+  @Watch("size", { immediate: true })
+  onSizeChange() {
+    this.actualSize =
+      this.size ||
+      this.buttonGroupContext?.value.size ||
+      this.configProviderContext?.value.size ||
+      "";
+  }
+
+  @Watch("autoInsertSpace", { immediate: true })
+  onAutoInsertSpaceChange() {
+    this.actualAutoInsertSpace =
+      this.autoInsertSpace ??
+      this.configProviderContext?.value.button?.autoInsertSpace ??
+      false;
+
+    if (this.actualAutoInsertSpace) {
+      const slot = this.el.querySelector("span");
+      if (slot) {
+        const text = slot.textContent;
+        this.shouldAddSpace = /^\p{Unified_Ideograph}{2}$/u.test(text);
+      }
+    } else this.shouldAddSpace = false;
+  }
+
+  @Watch("color")
+  @Watch("dark")
+  @Watch("actualPlain")
+  @Watch("actualPlain")
+  @Watch("actualDisabled")
+  updateCustomStyle() {
+    let styles: Record<string, string> = {};
+
+    let buttonColor = this.color;
+
+    if (buttonColor) {
+      const match = (buttonColor as string).match(/var\((.*?)\)/);
+      if (match) {
+        buttonColor = window
+          .getComputedStyle(window.document.documentElement)
+          .getPropertyValue(match[1]);
+      }
+      const color = new TinyColor(buttonColor);
+      const activeBgColor = this.dark
+        ? color.tint(20).toString()
+        : darken(color, 20);
+
+      if (this.actualPlain) {
+        styles = ns.cssVarBlock({
+          "active-bg-color": activeBgColor,
+          "active-border-color": activeBgColor,
+          "active-text-color": `var(${ns.cssVarName("color-white")})`,
+          "bg-color": this.dark ? darken(color, 90) : color.tint(90).toString(),
+          "border-color": this.dark
+            ? darken(color, 50)
+            : color.tint(50).toString(),
+          "hover-bg-color": buttonColor,
+          "hover-border-color": buttonColor,
+          "hover-text-color": `var(${ns.cssVarName("color-white")})`,
+          "text-color": buttonColor,
+        });
+
+        if (this.disabled) {
+          styles[ns.cssVarBlockName("disabled-bg-color")] = this.dark
+            ? darken(color, 90)
+            : color.tint(90).toString();
+          styles[ns.cssVarBlockName("disabled-text-color")] = this.dark
+            ? darken(color, 50)
+            : color.tint(50).toString();
+          styles[ns.cssVarBlockName("disabled-border-color")] = this.dark
+            ? darken(color, 80)
+            : color.tint(80).toString();
+        }
+      } else {
+        const hoverBgColor = this.dark
+          ? darken(color, 30)
+          : color.tint(30).toString();
+        const textColor = color.isDark()
+          ? `var(${ns.cssVarName("color-white")})`
+          : `var(${ns.cssVarName("color-black")})`;
+        styles = ns.cssVarBlock({
+          "active-bg-color": activeBgColor,
+          "active-border-color": activeBgColor,
+          "bg-color": buttonColor,
+          "border-color": buttonColor,
+          "hover-bg-color": hoverBgColor,
+          "hover-border-color": hoverBgColor,
+          "hover-text-color": textColor,
+          "text-color": textColor,
+        });
+
+        if (this.disabled) {
+          const disabledButtonColor = this.dark
+            ? darken(color, 50)
+            : color.tint(50).toString();
+          styles[ns.cssVarBlockName("disabled-bg-color")] = disabledButtonColor;
+          styles[ns.cssVarBlockName("disabled-text-color")] = this.dark
+            ? "rgba(255, 255, 255, 0.5)"
+            : `var(${ns.cssVarName("color-white")})`;
+          styles[ns.cssVarBlockName("disabled-border-color")] =
+            disabledButtonColor;
+        }
+      }
+    }
+
+    this.buttonStyle = {
+      ...styles,
+      ...this.el.style,
+    } as any;
   }
 
   handleClick = (evt: MouseEvent) => {
-    if (this.loading || this.disabled) return;
+    if (this.loading || this.actualDisabled) return;
     this.clickEvent.emit(evt);
   };
 
-  @Watch('size')
-  @Watch('type')
-  @Watch('disabled')
-  @Watch('plain')
-  @Watch('round')
-  @Watch('text')
-  @Watch('color')
-  @Watch('dark')
-  onPropChange() {
-    this.updateInternalState();
-    this.updateCustomStyle();
-  }
-
   render() {
     const hasContent = findAllLegitChildren(this.el).length > 0;
+
+    const buttonKls = classNames(
+      ns.b(),
+      ns.m(this.actualType),
+      ns.m(this.actualSize),
+      this.el.className,
+      ns.is("disabled", this.actualDisabled),
+      ns.is("loading", this.loading),
+      ns.is("plain", this.actualPlain),
+      ns.is("round", this.actualRound),
+      ns.is("circle", this.circle),
+      ns.is("text", this.actualText),
+      ns.is("link", this.link),
+      ns.is("has-bg", this.bg)
+    );
     return (
       <Host>
         <button
           autofocus={this.autofocus}
-          class={this.buttonKls}
-          disabled={this.disabled}
+          class={buttonKls}
+          disabled={this.actualDisabled}
           onClick={this.handleClick}
           style={this.buttonStyle}
           type={this.nativeType}
@@ -158,7 +284,7 @@ export class ZaneButton {
           {this.renderIcon()}
 
           {hasContent && (
-            <span class={{ [ns.em('text', 'expand')]: this.shouldAddSpace }}>
+            <span class={{ [ns.em("text", "expand")]: this.shouldAddSpace }}>
               <slot />
             </span>
           )}
@@ -210,114 +336,5 @@ export class ZaneButton {
     return null;
   }
 
-  updateCustomStyle() {
-    let styles: Record<string, string> = {};
-
-    let buttonColor = this.color;
-
-    if (buttonColor) {
-      const match = (buttonColor as string).match(/var\((.*?)\)/);
-      if (match) {
-        buttonColor = window
-          .getComputedStyle(window.document.documentElement)
-          .getPropertyValue(match[1]);
-      }
-      const color = new TinyColor(buttonColor);
-      const activeBgColor = this.dark
-        ? color.tint(20).toString()
-        : darken(color, 20);
-
-      if (this.plain) {
-        styles = ns.cssVarBlock({
-          'active-bg-color': activeBgColor,
-          'active-border-color': activeBgColor,
-          'active-text-color': `var(${ns.cssVarName('color-white')})`,
-          'bg-color': this.dark ? darken(color, 90) : color.tint(90).toString(),
-          'border-color': this.dark
-            ? darken(color, 50)
-            : color.tint(50).toString(),
-          'hover-bg-color': buttonColor,
-          'hover-border-color': buttonColor,
-          'hover-text-color': `var(${ns.cssVarName('color-white')})`,
-          'text-color': buttonColor,
-        });
-
-        if (this.disabled) {
-          styles[ns.cssVarBlockName('disabled-bg-color')] = this.dark
-            ? darken(color, 90)
-            : color.tint(90).toString();
-          styles[ns.cssVarBlockName('disabled-text-color')] = this.dark
-            ? darken(color, 50)
-            : color.tint(50).toString();
-          styles[ns.cssVarBlockName('disabled-border-color')] = this.dark
-            ? darken(color, 80)
-            : color.tint(80).toString();
-        }
-      } else {
-        const hoverBgColor = this.dark
-          ? darken(color, 30)
-          : color.tint(30).toString();
-        const textColor = color.isDark()
-          ? `var(${ns.cssVarName('color-white')})`
-          : `var(${ns.cssVarName('color-black')})`;
-        styles = ns.cssVarBlock({
-          'active-bg-color': activeBgColor,
-          'active-border-color': activeBgColor,
-          'bg-color': buttonColor,
-          'border-color': buttonColor,
-          'hover-bg-color': hoverBgColor,
-          'hover-border-color': hoverBgColor,
-          'hover-text-color': textColor,
-          'text-color': textColor,
-        });
-
-        if (this.disabled) {
-          const disabledButtonColor = this.dark
-            ? darken(color, 50)
-            : color.tint(50).toString();
-          styles[ns.cssVarBlockName('disabled-bg-color')] = disabledButtonColor;
-          styles[ns.cssVarBlockName('disabled-text-color')] = this.dark
-            ? 'rgba(255, 255, 255, 0.5)'
-            : `var(${ns.cssVarName('color-white')})`;
-          styles[ns.cssVarBlockName('disabled-border-color')] =
-            disabledButtonColor;
-        }
-      }
-    }
-
-    this.buttonStyle = {
-      ...styles,
-      ...this.el.style,
-    } as any;
-  }
-
-  updateInternalState() {
-    const globalButtonConfig = state.configProviderContext.button;
-
-    const autoInsertSpace =
-      this.autoInsertSpace ?? globalButtonConfig.autoInsertSpace ?? false;
-
-    this._size = this.size || this.groupContext?.size || state.size || '';
-
-    this._type =
-      this.type || this.groupContext?.type || globalButtonConfig.type || '';
-
-    this._disabled = this.disabled;
-
-    this._plain = this.plain ?? globalButtonConfig.plain ?? false;
-
-    this._round = this.round ?? globalButtonConfig.round ?? false;
-
-    this._text = this.text ?? globalButtonConfig.text ?? false;
-
-    if (autoInsertSpace) {
-      const slot = this.el.querySelector('span');
-      if (slot) {
-        const text = slot.textContent;
-        this.shouldAddSpace = /^\p{Unified_Ideograph}{2}$/u.test(text);
-      }
-    }
-
-    this.shouldAddSpace = false;
-  }
+  
 }

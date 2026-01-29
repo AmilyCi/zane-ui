@@ -1,4 +1,3 @@
-import type { ScrollbarContext } from '../../interfaces/ScrollbarContext';
 
 import {
   Component,
@@ -10,7 +9,8 @@ import {
   State,
 } from '@stencil/core';
 
-import { GAP, scrollbarContexts } from '../../constants';
+import { GAP, scrollbarContexts } from './constants';
+import type { ScrollbarContext } from './scrollbar-context';
 
 @Component({
   tag: 'zane-bar',

@@ -1,9 +1,9 @@
-import type { ForwardRefSetter } from '../../types';
+import type { ForwardRefContext, ForwardRefSetter } from './types';
 
 import { Component, Element, h, Prop } from '@stencil/core';
 
-import { forwardRefContexts } from '../../constants';
-import { ForwardRefContext } from './forwardRefContext';
+import { forwardRefContexts } from './constants';
+import { ReactiveObject } from '../../utils';
 
 @Component({
   shadow: false,
@@ -15,10 +15,13 @@ export class ZaneForwardRef {
   // 接收外部传递的 ref 设置函数
   @Prop() setForwardRef!: ForwardRefSetter;
 
+  private context: ReactiveObject<ForwardRefContext>
+
   componentWillLoad() {
-    const context = new ForwardRefContext();
-    context.setForwardRef = this.setForwardRef;
-    forwardRefContexts.set(this.el, context);
+    this.context = new ReactiveObject<ForwardRefContext>({
+      setForwardRef: this.setForwardRef
+    });
+    forwardRefContexts.set(this.el, this.context);
   }
 
   disconnectedCallback() {

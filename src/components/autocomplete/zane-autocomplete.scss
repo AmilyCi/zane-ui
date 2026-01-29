@@ -103,14 +103,12 @@
   }
 }
 
-$tooltip: #{$namespace}-tooltip;
-
-@include b(tooltip-box) {
-  &[data-theme~='autocomplete'] {
+#{$namespace}-autocomplete {
+  .#{$namespace}-tooltip-box {
     background-color: getCssVar('bg-color', 'overlay');
     border: 1px solid getCssVar('border-color', 'lighter');
-    
-    .#{$tooltip}-content {
+
+    .#{$namespace}-tooltip-content {
       padding: 0;
     }
   }

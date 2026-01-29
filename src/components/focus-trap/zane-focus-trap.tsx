@@ -1,5 +1,4 @@
-import type { FocusLayer } from '../../interfaces';
-import type { FocusStack } from '../../types';
+import type { FocusLayer, FocusStack } from './types';
 
 import {
   Component,
@@ -12,7 +11,7 @@ import {
   Watch,
 } from '@stencil/core';
 
-import { FOCUS_AFTER_RELEASED, FOCUS_AFTER_TRAPPED } from '../../constants';
+import { FOCUS_AFTER_RELEASED, FOCUS_AFTER_TRAPPED } from './constants';
 import { useFocusReason } from '../../hooks';
 import { getVisibleElement, obtainAllFocusableElements } from '../../utils';
 

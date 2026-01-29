@@ -1,14 +1,14 @@
 import type { EventEmitter } from '@stencil/core';
 
 import type { ComponentSize } from '../../types';
-import type { FormContext } from '../form/FormContext';
-import type { FormItemContext } from '../form/FormItemContext';
 
 import { Component, Element, Event, h, Host, Prop } from '@stencil/core';
 
 import state from '../../global/store';
 import { useNamespace } from '../../hooks';
 import { formContexts, formItemContexts } from '../form/constants';
+import type { FormContext, FormItemContext } from '../form/types';
+import type { ReactiveObject } from '../../utils';
 
 const ns = useNamespace('tag');
 
@@ -38,30 +38,13 @@ export class ZaneTag {
   @Prop() type: 'danger' | 'info' | 'primary' | 'success' | 'warning' =
     'primary';
 
-  get formContext(): FormContext {
-    let parent = this.el.parentElement;
-    let context = null;
-    while (parent) {
-      if (parent.tagName === 'ZANE-FORM') {
-        context = formContexts.get(parent);
-        break;
-      }
-      parent = parent.parentElement;
-    }
-    return context;
-  }
+  private formContext: ReactiveObject<FormContext>;
 
-  get formItemContext(): FormItemContext {
-    let parent = this.el.parentElement;
-    let context = null;
-    while (parent) {
-      if (parent.tagName === 'ZANE-FORM-ITEM') {
-        context = formItemContexts.get(parent);
-        break;
-      }
-      parent = parent.parentElement;
-    }
-    return context;
+  private formItemContext: ReactiveObject<FormItemContext>;
+
+  componentWillLoad() {
+    this.formContext = formContexts.get(this.el);
+    this.formItemContext = formItemContexts.get(this.el);
   }
 
   render() {
@@ -101,8 +84,8 @@ export class ZaneTag {
   private getTagSize() {
     return (
       this.size ||
-      this.formItemContext?.size ||
-      this.formContext?.size ||
+      this.formItemContext?.value.size ||
+      this.formContext?.value.size ||
       state.size ||
       ''
     );

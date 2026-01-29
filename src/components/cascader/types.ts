@@ -4,6 +4,11 @@ export type CascaderNodeValue = number | Record<string, any> | string;
 
 export type CascaderNodePathValue = CascaderNodeValue[];
 
+export type CascaderValue =
+  | CascaderNodeValue
+  | CascaderNodePathValue
+  | (CascaderNodeValue | CascaderNodePathValue)[];
+
 export interface CascaderOption extends Record<string, unknown> {
   children?: CascaderOption[];
   disabled?: boolean;
@@ -26,22 +31,29 @@ export type LazyLoad = (
   reject: () => void,
 ) => void;
 
+export interface RenderLabelProps {
+  node: CascaderNode
+  data: CascaderOption
+}
+
+export type RenderLabel = (props: RenderLabelProps) => HTMLElement
+
 export interface CascaderProps {
-  checkOnClickLeaf?: boolean;
-  checkOnClickNode?: boolean;
-  checkStrictly?: boolean;
-  children?: string;
-  disabled?: isDisabled | string;
-  emitPath?: boolean;
-  expandTrigger?: ExpandTrigger;
-  hoverThreshold?: number;
-  label?: string;
-  lazy?: boolean;
-  lazyLoad?: LazyLoad;
-  leaf?: isLeaf | string;
-  multiple?: boolean;
-  showPrefix?: boolean;
-  value?: string;
+  expandTrigger?: ExpandTrigger
+  multiple?: boolean
+  checkStrictly?: boolean
+  emitPath?: boolean
+  lazy?: boolean
+  lazyLoad?: LazyLoad
+  value?: string
+  label?: string
+  children?: string
+  disabled?: string | isDisabled
+  leaf?: string | isLeaf
+  hoverThreshold?: number
+  checkOnClickNode?: boolean
+  checkOnClickLeaf?: boolean
+  showPrefix?: boolean
 }
 
 export type CascaderConfig = Required<CascaderProps>;
@@ -52,4 +64,23 @@ export interface Tag {
   key: number;
   node?: CascaderNode;
   text: string;
+}
+
+export type CascaderPanelContext = {
+  config: CascaderConfig;
+  expandingNode: CascaderNode;
+  checkedNodes: CascaderNode[];
+  isHoverMenu: boolean;
+  initialLoaded: boolean;
+  renderLabel?: RenderLabel;
+  lazyLoad: (
+    node?: CascaderNode,
+    cb?: (dataList: CascaderOption[]) => void
+  ) => void;
+  expandNode?: (node: CascaderNode, silent?: boolean) => void;
+  handleCheckChange: (
+    node: CascaderNode,
+    checked: boolean,
+    emitClose?: boolean
+  ) => void;
 }

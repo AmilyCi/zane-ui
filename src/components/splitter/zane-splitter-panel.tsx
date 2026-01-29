@@ -1,6 +1,6 @@
 import type { EventEmitter } from '@stencil/core';
 
-import type { SplitterRootContext } from './splitter-context';
+import type { PanelItemState, SplitterRootContext } from './types';
 
 import {
   Component,
@@ -8,15 +8,15 @@ import {
   Event,
   h,
   Host,
+  Method,
   Prop,
   State,
   Watch,
 } from '@stencil/core';
 
-import { splitterRootContexts } from '../../constants/splitter';
 import { useNamespace } from '../../hooks';
-import { buildUUID, throwError } from '../../utils';
-import { getPct, getPx, isPct, isPx } from './utils';
+import { buildUUID, ReactiveObject, throwError } from '../../utils';
+import { getCollapsible, getSplitterContext } from './utils';
 
 const ns = useNamespace('splitter-panel');
 
@@ -47,20 +47,39 @@ export class ZaneSplitterPanel {
 
   @Prop({ mutable: true }) uuid: string;
 
-  get splitterContext(): SplitterRootContext {
-    let parent = this.el.parentElement;
-    let context = null;
-    while (parent) {
-      if (parent.tagName === 'ZANE-SPLITTER') {
-        context = splitterRootContexts.get(parent);
-        break;
-      }
-      parent = parent.parentElement;
+  @State() index: number = -1;
+
+  private panel: ReactiveObject<PanelItemState>;
+
+  private splitterContext: ReactiveObject<SplitterRootContext>;
+
+  private setIndex = (val: number) => {
+    this.index = val;
+  };
+
+  @Watch('index')
+  handleIndexChange(val: number) {
+    const panel = this.splitterContext.value.panels[val];
+    if (panel) {
+      this.panelSize = this.splitterContext.value.pxSizes[val] ?? 0;
+    } else {
+      this.panelSize = 0;
     }
-    return context;
+
+    panel.change$.subscribe(({ key, value }) => {
+      if (key === 'size') {
+        this.panelSize = value;
+      }
+    });
+  }
+
+  @Method()
+  async getIndex() {
+    return this.index;
   }
 
   componentWillLoad() {
+    this.splitterContext = getSplitterContext(this.el);
     if (!this.splitterContext)
       throwError(
         COMPONENT_NAME,
@@ -68,29 +87,29 @@ export class ZaneSplitterPanel {
       );
 
     this.uuid = buildUUID();
-    this.splitterContext.addPercentSizesChangeListener(
-      this.onPercentSizesUpdate,
-    );
-    this.splitterContext.registerPanel(this);
+
+    this.panel = new ReactiveObject<PanelItemState>({
+      el: this.el,
+      uuid: this.uuid,
+      max: this.max,
+      min: this.min,
+      resizable: this.resizable,
+      size: this.size,
+      setIndex: this.setIndex,
+      collapsible: getCollapsible(this.collapsible),
+    });
+    this.splitterContext.value.registerPanel(this.panel);
+
+    this.splitterContext.change$.subscribe(({ key, value }) => {
+      if (key === 'pxSizes') {
+        this.panelSize = value[this.index];
+      }
+    });
   }
 
   disconnectedCallback() {
-    this.splitterContext.removePercentSizesChangeListener(
-      this.onPercentSizesUpdate,
-    );
-    this.splitterContext.unregisterPanel(this);
-  }
-
-  @Watch('size')
-  handleSizeChange() {
-    const size = this.sizeToPx(this.size);
-    const maxSize = this.sizeToPx(this.max);
-    const minSize = this.sizeToPx(this.min);
-
-    const finalSize = Math.min(Math.max(size, minSize || 0), maxSize || size);
-
-    this.updateSizeEvent.emit(finalSize);
-    this.panelSize = finalSize;
+    this.splitterContext?.value.unregisterPanel(this.panel);
+    this.panel = null;
   }
 
   render() {
@@ -100,22 +119,4 @@ export class ZaneSplitterPanel {
       </Host>
     );
   }
-
-  private onPercentSizesUpdate = () => {
-    this.update();
-  };
-
-  private sizeToPx(str: number | string | undefined) {
-    if (isPct(str)) {
-      return getPct(str) * this.splitterContext.containerSize || 0;
-    } else if (isPx(str)) {
-      return getPx(str);
-    }
-    return str ?? 0;
-  }
-
-  private update = () => {
-    this.panelSize =
-      this.splitterContext.pxSizes[this.splitterContext.getPanelIndex(this.el)];
-  };
 }

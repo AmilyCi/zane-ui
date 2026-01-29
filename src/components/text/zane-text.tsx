@@ -1,10 +1,12 @@
 import type { ComponentSize } from '../../types';
-import type { FormContext } from '../form/FormContext';
 
 import { Component, Element, h, Host, Prop } from '@stencil/core';
 
 import { useNamespace } from '../../hooks';
-import { formContexts } from '../form/constants';
+import type { FormContext } from '../form/types';
+import type { ReactiveObject } from '../../utils';
+import { getFormContext } from '../form/utils';
+import classNames from 'classnames';
 
 const ns = useNamespace('text');
 
@@ -23,21 +25,10 @@ export class ZaneText {
 
   @Prop() type: '' | 'danger' | 'info' | 'primary' | 'success' | 'warning' = '';
 
-  get formContext(): FormContext {
-    let parent = this.el.parentElement;
-    let context = null;
-    while (parent) {
-      if (parent.tagName === 'ZANE-FORM') {
-        context = formContexts.get(parent);
-        break;
-      }
-      parent = parent.parentElement;
-    }
-    return context;
-  }
+  private formContext: ReactiveObject<FormContext>;
 
-  get textSize() {
-    return this.size || this.formContext?.size || 'default';
+  componentWillLoad() {
+    this.formContext = getFormContext(this.el);
   }
 
   componentDidLoad() {
@@ -49,13 +40,14 @@ export class ZaneText {
   }
 
   render() {
-    const textKls = [
+    const textSize = this.size || this.formContext?.value.size || 'default';
+    const textKls = classNames(
       ns.b(),
       ns.m(this.type),
-      ns.m(this.textSize),
+      ns.m(textSize),
       ns.is('truncated', this.truncated),
       ns.is('line-clamp', this.lineClamp !== undefined),
-    ].join(' ');
+    );
 
     return (
       <Host class={textKls} style={{ '-webkit-line-clamp': this.lineClamp }}>

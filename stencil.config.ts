@@ -35,7 +35,7 @@ export const config: Config = {
   plugins: [sass(), nodePolyfills()],
   rollupConfig: {
     inputOptions: {
-      external: ['@zanejs/icons', '@zanejs/utils'], // 将外部包标记为外部依赖
+      external: ['@zanejs/icons'], // 将外部包标记为外部依赖
     },
   },
   taskQueue: 'async',

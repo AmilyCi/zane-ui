@@ -1,10 +1,10 @@
-import type { ScrollbarContext } from '../../interfaces/ScrollbarContext';
 
 import { Component, Element, h, Host, Prop, State } from '@stencil/core';
 
-import { BAR_MAP, scrollbarContexts } from '../../constants';
+import { BAR_MAP, scrollbarContexts } from './constants';
 import { useNamespace } from '../../hooks';
 import { isClient } from '../../utils';
+import type { ScrollbarContext } from './scrollbar-context';
 
 const ns = useNamespace('scrollbar');
 

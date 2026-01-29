@@ -1,15 +1,38 @@
-import type { ComponentSize } from '../../types';
-import type { FormRules } from './types';
+import type { ComponentSize } from "../../types";
+import type {
+  FormContext,
+  FormItemContext,
+  FormItemProp,
+  FormRules,
+  FormValidateCallback,
+} from "./types";
+import type { Arrayable } from "../../types";
 
-import { Component, Element, h, Host, Prop } from '@stencil/core';
+import {
+  Component,
+  Element,
+  Event,
+  h,
+  Method,
+  Prop,
+  State,
+  Watch,
+  type EventEmitter,
+} from "@stencil/core";
 
-import { useNamespace } from '../../hooks';
+import { useNamespace } from "../../hooks";
+import { formContexts } from "./constants";
+import { debugWarn, isFunction, ReactiveObject } from "../../utils";
+import { filterFields } from "./utils";
+import type { ValidateFieldsError } from "async-validator";
 
-const ns = useNamespace('form');
+const ns = useNamespace("form");
+
+const COMPONENT_NAME = "zane-form";
 
 @Component({
-  styleUrl: 'zane-form.scss',
-  tag: 'zane-form',
+  styleUrl: "zane-form.scss",
+  tag: "zane-form",
 })
 export class ZaneForm {
   @Prop() disabled: boolean;
@@ -22,15 +45,15 @@ export class ZaneForm {
 
   @Prop() inlineMessage: boolean;
 
-  @Prop() labelPosition: 'left' | 'right' | 'top' = 'right';
+  @Prop() labelPosition: "left" | "right" | "top" = "right";
 
-  @Prop() labelSuffix: string = '';
+  @Prop() labelSuffix: string = "";
 
-  @Prop() labelWidth: number | string = '';
+  @Prop() labelWidth: number | string = "";
 
   @Prop() model: Record<string, any>;
 
-  @Prop() requireAsteriskPosition: 'left' | 'right' = 'left';
+  @Prop() requireAsteriskPosition: "left" | "right" = "left";
 
   @Prop() rules: FormRules;
 
@@ -46,22 +69,212 @@ export class ZaneForm {
 
   @Prop() validateOnRuleChange: boolean = true;
 
-  // private formRef: HTMLFormElement;
+  @State() fields: ReactiveObject<FormItemContext>[] = [];
+
+  @State() potentialLabelWidthArr: number[] = [];
+
+  @Event({ eventName: "validate" }) validateEvent: EventEmitter<{
+    prop: FormItemProp;
+    isValid: boolean;
+    message: string;
+  }>;
+
+  private formRef: HTMLFormElement;
+
+  private context: ReactiveObject<FormContext>;
+
+  private getLabelWidthIndex = (width: number) => {
+    const index = this.potentialLabelWidthArr.indexOf(width);
+    if (index === -1 && !this.potentialLabelWidthArr.length) {
+      debugWarn(COMPONENT_NAME, `unexpected width ${width}`);
+    }
+    return index;
+  };
+
+  private registerLabelWidth = (val: number, oldVal: number) => {
+    if (val && oldVal) {
+      const index = this.getLabelWidthIndex(oldVal);
+      this.potentialLabelWidthArr.splice(index, 1, val);
+    } else if (val) {
+      this.potentialLabelWidthArr.push(val);
+    }
+  };
+
+  private deregisterLabelWidth = (val: number) => {
+    const index = this.getLabelWidthIndex(val);
+    if (index > -1) {
+      this.potentialLabelWidthArr.splice(index, 1);
+    }
+  };
+
+  private resetFields = (properties = []) => {
+    if (!this.model) {
+      debugWarn(COMPONENT_NAME, "model is required for resetFields to work.");
+      return;
+    }
+    filterFields(this.fields, properties).forEach((field) =>
+      field.value.resetField()
+    );
+  };
+
+  private clearValidate = (props = []) => {
+    filterFields(this.fields, props).forEach((field) => field.value.clearValidate());
+  };
+
+  private getField = (prop) => {
+    return filterFields(this.fields, [prop])[0];
+  };
+
+  private addField = (field) => {
+    this.fields.push(field);
+  };
+
+  private removeField = (field) => {
+    if (field.prop) {
+      this.fields.splice(this.fields.indexOf(field), 1);
+    }
+  };
+
+  componentWillLoad() {
+    this.context = new ReactiveObject<FormContext>({
+      disabled: this.disabled,
+      model: this.model,
+      size: this.size,
+      rules: this.rules,
+      labelPosition: this.labelPosition,
+      requireAsteriskPosition: this.requireAsteriskPosition,
+      labelWidth: this.labelWidth,
+      labelSuffix: this.labelSuffix,
+      inline: this.inline,
+      inlineMessage: this.inlineMessage,
+      statusIcon: this.statusIcon,
+      showMessage: this.showMessage,
+      validateOnRuleChange: this.validateOnRuleChange,
+      hideRequiredAsterisk: this.hideRequiredAsterisk,
+      scrollToError: this.scrollToError,
+      scrollIntoViewOptions: this.scrollIntoViewOptions,
+      validateEvent: this.validateEvent,
+      autoLabelWidth: '0',
+      registerLabelWidth: this.registerLabelWidth,
+      deregisterLabelWidth: this.deregisterLabelWidth,
+      resetFields: this.resetFields,
+      clearValidate: this.clearValidate,
+      validateField: this.validateField,
+      getField: this.getField,
+      addField: this.addField,
+      removeField: this.removeField,
+    });
+
+    formContexts.set(this.el, this.context);
+  }
+
+  disconnectedCallback() {
+    formContexts.delete(this.el);
+  }
+
+  @Watch("rules")
+  onRulesChange() {
+    if (this.validateOnRuleChange) {
+      this.validate();
+    }
+  }
+
+  @Method()
+  async validate(callback?: FormValidateCallback) {
+    return this.validateField(undefined, callback);
+  }
+
+  @Method()
+  async validateField(
+    modelProps?: string | string[] | undefined,
+    callback?: FormValidateCallback
+  ) {
+    let result = false;
+    const shouldThrow = !isFunction(callback);
+    try {
+      result = await this.doValidateField(modelProps);
+      if (result === true) {
+        await callback?.(result);
+      }
+      return result;
+    } catch (error) {
+      if (error instanceof Error) throw error;
+
+      const invalidFields = error as ValidateFieldsError;
+      if (this.scrollToError) {
+        if (this.formRef) {
+          const formItem = this.formRef.querySelector(
+            `.${ns.b()}-item.is-error`
+          );
+          formItem?.scrollIntoView(this.scrollIntoViewOptions);
+        }
+      }
+      !result && (await callback?.(false, invalidFields));
+      return shouldThrow && Promise.reject(invalidFields);
+    }
+  }
+
+  private isValidatable = () => {
+    const hasModel = !!this.model;
+    if (!hasModel) {
+      debugWarn(COMPONENT_NAME, "model is required for validate to work.");
+    }
+    return hasModel;
+  };
+
+  private obtainValidateFields = (props: Arrayable<FormItemProp>) => {
+    if (this.fields.length === 0) return [];
+
+    const filteredFields = filterFields(this.fields, props);
+    if (!filteredFields.length) {
+      debugWarn(COMPONENT_NAME, "please pass correct props!");
+      return [];
+    }
+    return filteredFields;
+  };
+
+  private doValidateField = async (
+    props: Arrayable<FormItemProp> = []
+  ): Promise<boolean> => {
+    if (this.isValidatable()) {
+      return false;
+    }
+
+    const fields = this.obtainValidateFields(props);
+    if (fields.length === 0) {
+      return true;
+    }
+
+    let validationErrors: ValidateFieldsError = {};
+    for (const field of fields) {
+      try {
+        await field.value.validate("");
+        if (field.value.validateState === "error" && !field.value.error) {
+          field.value.resetField();
+        }
+      } catch (fields) {
+        validationErrors = {
+          ...validationErrors,
+          ...(fields as ValidateFieldsError),
+        };
+      }
+    }
+    if (Object.keys(validationErrors).length === 0) return true;
+    return Promise.reject(validationErrors);
+  };
 
   render() {
     const formClasses = {
       [ns.b()]: true,
-      [ns.m('inline')]: this.inline,
-      [ns.m(`label-${this.labelPosition}`)]: this.labelPosition,
-      [ns.m(this.size || 'default')]: true,
+      [ns.m("inline")]: this.inline,
+      [ns.m(`label-${this.labelPosition}`)]: !!this.labelPosition,
+      [ns.m(this.size || "default")]: true,
     };
 
     return (
-      <Host className={formClasses}>
-        <form>
-          <slot />
-        </form>
-      </Host>
+      <form ref={(el) => (this.formRef = el)} class={formClasses}>
+        <slot />
+      </form>
     );
   }
 }

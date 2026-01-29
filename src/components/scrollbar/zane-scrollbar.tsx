@@ -1,6 +1,6 @@
 import type { ComponentInterface, EventEmitter } from '@stencil/core';
 
-import type { ScrollbarDirection } from '../../types';
+import type { ScrollbarDirection } from './types';
 
 import {
   Component,
@@ -14,7 +14,7 @@ import {
   Watch,
 } from '@stencil/core';
 
-import { scrollbarContexts } from '../../constants';
+import { scrollbarContexts } from './constants';
 import { useEventListener, useNamespace, useResizeObserver } from '../../hooks';
 import {
   addUnit,

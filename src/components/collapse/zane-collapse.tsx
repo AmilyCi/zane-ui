@@ -1,9 +1,9 @@
 import type {
-  Awaitable,
   CollapseActiveName,
+  CollapseContext,
   CollapseIconPositionType,
   CollapseModelValue,
-} from '../../types';
+} from './types';
 
 import {
   Component,
@@ -18,16 +18,17 @@ import {
   Watch,
 } from '@stencil/core';
 
-import { collapseContexts } from '../../constants';
+import { collapseContexts } from './constants';
 import { useNamespace } from '../../hooks';
 import {
-  castArray,
   debugWarn,
   isBoolean,
   isPromise,
   throwError,
+  ReactiveObject,
 } from '../../utils';
-import { CollapseContext } from './collapse-context';
+import type { Awaitable } from '../../types';
+import { castArray} from 'lodash-es';
 
 const ns = useNamespace('collapse');
 
@@ -39,8 +40,6 @@ const SCOPE = 'zane-collapse';
 })
 export class ZaneCollapse {
   @Prop() accordion: boolean;
-
-  @State() activeNames: (number | string)[];
 
   @Prop() beforeCollapse: (name: CollapseActiveName) => Awaitable<boolean>;
 
@@ -56,16 +55,23 @@ export class ZaneCollapse {
   @Event({ eventName: 'zUpdate' })
   zaneUpdate: EventEmitter<(number | string)[] | number | string>;
 
+  @State() activeNames: (number | string)[];
+
+  private context: ReactiveObject<CollapseContext>;
+
   get rootKls() {
     return [ns.b(), ns.b(`icon-position-${this.expandIconPosition}`)].join(' ');
   }
 
   componentWillLoad() {
     this.activeNames = castArray(this.value);
-    const context = new CollapseContext();
-    context.handleItemClick = this.handleItemClick;
-    context.updateActiveNames(this.activeNames);
-    collapseContexts.set(this.el, context);
+
+    this.context = new ReactiveObject({
+      handleItemClick: this.handleItemClick,
+      activeNames: this.activeNames,
+    });
+
+    collapseContexts.set(this.el, this.context);
   }
 
   disconnectedCallback() {
@@ -124,7 +130,7 @@ export class ZaneCollapse {
   @Watch('value')
   onModelValueChange() {
     this.activeNames = castArray(this.value);
-    collapseContexts.get(this.el)?.updateActiveNames(this.activeNames);
+    this.context.value.activeNames = this.activeNames;
   }
 
   render() {
@@ -141,6 +147,7 @@ export class ZaneCollapse {
     const value = this.accordion ? this.activeNames[0] : this.activeNames;
     this.zaneUpdate.emit(value);
     this.zaneChange.emit(value);
-    collapseContexts.get(this.el)?.updateActiveNames(this.activeNames);
+
+    this.context.value.activeNames = this.activeNames;
   }
 }

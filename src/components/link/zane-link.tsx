@@ -9,6 +9,7 @@ import {
 } from '@stencil/core';
 
 import { useNamespace } from '../../hooks';
+import classNames from 'classnames';
 
 const ns = useNamespace('link');
 
@@ -41,13 +42,13 @@ export class ZaneLink {
   @Prop() underline: 'always' | 'hover' | 'never' | boolean;
 
   render() {
-    const linkKls = [
+    const linkKls = classNames(
       ns.b(),
       ns.m(this.type ?? 'default'),
       ns.is('disabled', this.disabled),
       ns.is('underline', this.underline === 'always'),
       ns.is('hover-underline', this.underline === 'hover' && !this.disabled),
-    ].join(' ');
+    );
 
     const hasIcon = this.icon || this.el.querySelector('[slot="icon"]');
 

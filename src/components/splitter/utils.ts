@@ -1,9 +1,9 @@
-import type { ZaneSplitterPanel } from './zane-splitter-panel';
-
-import { isObject, isString } from '../../utils';
+import { isObject, isString, type ReactiveObject } from "../../utils";
+import { splitterRootContexts } from "./constants";
+import type { PanelItemState, SplitterRootContext } from "./types";
 
 export function getCollapsible(
-  collapsible: boolean | { end?: boolean; start?: boolean },
+  collapsible: boolean | { end?: boolean; start?: boolean }
 ) {
   if (collapsible && isObject(collapsible)) {
     return collapsible;
@@ -15,10 +15,10 @@ export function getCollapsible(
 }
 
 export function isCollapsible(
-  panel: null | undefined | ZaneSplitterPanel,
+  panel: null | undefined | PanelItemState,
   size: number,
-  nextPanel: null | undefined | ZaneSplitterPanel,
-  nextSize: number,
+  nextPanel: null | undefined | PanelItemState,
+  nextSize: number
 ) {
   if (getCollapsible(panel?.collapsible).end && size > 0) {
     return true;
@@ -36,15 +36,15 @@ export function isCollapsible(
 }
 
 export function isPct(
-  itemSize: number | string | undefined,
+  itemSize: number | string | undefined
 ): itemSize is string {
-  return isString(itemSize) && itemSize.endsWith('%');
+  return isString(itemSize) && itemSize.endsWith("%");
 }
 
 export function isPx(
-  itemSize: number | string | undefined,
+  itemSize: number | string | undefined
 ): itemSize is string {
-  return isString(itemSize) && itemSize.endsWith('px');
+  return isString(itemSize) && itemSize.endsWith("px");
 }
 
 export function getPx(str: string) {
@@ -54,3 +54,16 @@ export function getPx(str: string) {
 export function getPct(str: string) {
   return Number(str.slice(0, -1)) / 100;
 }
+
+export const getSplitterContext = (el: HTMLElement): ReactiveObject<SplitterRootContext> => {
+  let parent = el.parentElement;
+  let context = null;
+  while (parent) {
+    if (parent.tagName === "ZANE-SPLITTER") {
+      context = splitterRootContexts.get(parent);
+      break;
+    }
+    parent = parent.parentElement;
+  }
+  return context;
+};

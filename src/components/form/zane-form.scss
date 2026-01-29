@@ -1,0 +1,26 @@
+@use '../../styles/config.scss' as *;
+@use '../../styles/mixins/var' as *;
+@use '../../styles/mixins/function' as *;
+@use '../../styles/mixins/bem' as *;
+@use '../../global/theme/vars/component' as *;
+
+@include b(form) {
+  @include set-component-css-var('form', $form);
+
+  @include m(inline) {
+    .#{$namespace}-form-item {
+      display: inline-flex;
+      vertical-align: middle;
+      margin-right: 32px;
+    }
+
+    &.#{$namespace}-form--label-top {
+      display: flex;
+      flex-wrap: wrap;
+
+      .#{$namespace}-form-item {
+        display: block;
+      }
+    }
+  }
+}

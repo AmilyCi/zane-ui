@@ -1,14 +1,13 @@
-import type { ConfigProviderContext, IdInjectionContext } from '../interfaces';
+import { initI18n, type I18nAPI } from '../i18n';
+import type { IdInjectionContext } from '../interfaces';
 import type { ComponentSize } from '../types';
 
 import { createStore } from '@stencil/store';
 
-import { zhCn } from '../locale';
-
 export interface ZaneUiStore {
-  configProviderContext: ConfigProviderContext;
   idInjection: IdInjectionContext;
   size: ComponentSize;
+  i18n: I18nAPI;
 }
 
 const defaultIdInjection = {
@@ -16,27 +15,22 @@ const defaultIdInjection = {
   prefix: Math.floor(Math.random() * 10_000),
 };
 
+// 初始化国际化
+const i18n = initI18n({
+  defaultLang: 'zh-CN',
+  fallbackLang: 'en',
+  debug: process.env.NODE_ENV === 'development'
+});
+
+
 const initialState: ZaneUiStore = {
-  configProviderContext: {
-    button: {},
-    card: {},
-    locale: zhCn,
-  },
   idInjection: defaultIdInjection,
   size: '',
+  i18n,
 };
 
 const { onChange, state } = createStore<ZaneUiStore>(initialState);
 
-const getGlobalConfig = (
-  key?: keyof ConfigProviderContext,
-  defaultValue = undefined,
-) => {
-  return key
-    ? (state.configProviderContext[key] ?? defaultValue)
-    : state.configProviderContext;
-};
-
 export default state;
 
-export { getGlobalConfig, onChange };
+export { onChange };

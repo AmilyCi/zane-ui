@@ -24,6 +24,19 @@
 | `updateSize` |             | `CustomEvent<number>` |
 
 
+## Methods
+
+### `getIndex() => Promise<number>`
+
+
+
+#### Returns
+
+Type: `Promise<number>`
+
+
+
+
 ----------------------------------------------
 
 *Built with [StencilJS](https://stenciljs.com/)*
