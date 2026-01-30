@@ -222,8 +222,8 @@ export class ZaneSplitterBar {
       <zane-icon
         name={
           this.layout === 'horizontal'
-            ? 'arrow-right'
-            : 'arrow-down'
+            ? 'arrow-right-s-line'
+            : 'arrow-down-s-line'
         }
         size="12px"
       ></zane-icon>
@@ -235,8 +235,8 @@ export class ZaneSplitterBar {
       <zane-icon
         name={
           this.layout === 'horizontal'
-            ? 'arrow-left'
-            : 'arrow-up'
+            ? 'arrow-left-s-line'
+            : 'arrow-up-s-line'
         }
         size="12px"
       ></zane-icon>

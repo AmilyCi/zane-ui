@@ -466,7 +466,7 @@ export class ZaneCascader {
                       ns.is("reverse", this.popperVisible),
                     ].join(" ")}
                     key="arrow-down"
-                    name="arrow-down"
+                    name="arrow-down-s-line"
                   ></zane-icon>
                 )}
               </div>
@@ -621,7 +621,7 @@ export class ZaneCascader {
                             onClick={() => this.handleSuggestionClick(item)}
                           >
                             <span>{item.text}</span>
-                            {item.checked && <zane-icon name="check"></zane-icon>}
+                            {item.checked && <zane-icon name="check-line"></zane-icon>}
                           </div>
                         )
                       )

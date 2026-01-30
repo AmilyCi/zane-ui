@@ -1,19 +1,26 @@
-import { Component, h, Host, Prop } from '@stencil/core';
-import classNameFun from 'classnames';
+import { Component, h, Host, Prop, State, Watch } from '@stencil/core';
 
 import { useNamespace } from '../../hooks/useNamespace';
+
+import classNames from 'classnames';
 
 import '@zanejs/icons';
 
 const ns = useNamespace('icon');
+
+const SVG_END_WITH_FLAG = '|svg'
 
 @Component({
   styleUrl: 'zane-icon.scss',
   tag: 'zane-icon',
 })
 export class ZaneIcon {
-  @Prop() classNames: string = '';
+  @Prop() iconClass: string = '';
+
   @Prop() color: string;
+
+  @Prop() prefix: string;
+
   @Prop() name: string;
 
   @Prop() rotate: number;
@@ -23,6 +30,17 @@ export class ZaneIcon {
   @Prop() spin: boolean;
 
   @Prop() styles: object;
+
+  @State() isSvgIcon: boolean = false;
+
+  @Watch('name', { immediate: true })
+  watchNameHandler(name: string) {
+    this.isSvgIcon = name?.endsWith(SVG_END_WITH_FLAG) ?? false;
+  }
+
+  componentWillLoad() {
+
+  }
 
   render() {
     const style = Object.assign(
@@ -44,15 +62,25 @@ export class ZaneIcon {
       style.transform = `rotate(${this.rotate}deg)`;
     }
 
+    if (this.isSvgIcon) {
+      const symbolId = `#${this.prefix ? `${this.prefix}-` : ''}${this.name}`;
+      return (
+        <svg
+          class={classNames(ns.b(), this.iconClass, ns.is('spin', this.spin))}
+          style={style}
+        >
+          <use xlinkHref={symbolId}></use>
+        </svg>
+      );
+    }
+
     const IconName = this.name ? `zane-icon-${this.name}` : 'slot';
 
     return (
-      <Host class={ns.b()}>
         <IconName
-          class={classNameFun(this.classNames, ns.is('spin', this.spin))}
+          class={classNames(ns.b(), this.iconClass, ns.is('spin', this.spin))}
           style={style}
-        />
-      </Host>
+        ></IconName>
     );
   }
 }

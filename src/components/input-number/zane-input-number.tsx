@@ -543,7 +543,7 @@ export class ZaneInputNumber {
             onClick={this.handleDecrease}
           >
             <slot name="decrease-icon">
-              <zane-icon name={this.controlsAtRight ? 'arrow-down' : 'minus'}></zane-icon>
+              <zane-icon name={this.controlsAtRight ? 'arrow-down-s-line' : 'subtract-line'}></zane-icon>
             </slot>
           </span>
         )}
@@ -558,7 +558,7 @@ export class ZaneInputNumber {
             onClick={this.handleIncrease}
           >
             <slot name="increase-icon">
-              <zane-icon name={this.controlsAtRight ? 'arrow-up' : 'plus'}></zane-icon>
+              <zane-icon name={this.controlsAtRight ? 'arrow-up-s-line' : 'add-line'}></zane-icon>
             </slot>
           </span>
         )}

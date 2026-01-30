@@ -411,7 +411,7 @@ export class ZaneComplete {
                       ) : (
                         <zane-icon
                           class={ns.is('loading')}
-                          name="loading"
+                          name="loader-2-line"
                           spin={true}
                         ></zane-icon>
                       )}

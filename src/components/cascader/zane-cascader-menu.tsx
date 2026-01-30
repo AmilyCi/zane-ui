@@ -120,7 +120,7 @@ export class ZaneCascaderMenu {
           <div class={ns.e("empty-text")}>
             <zane-icon
               class={ns.is("loading")}
-              name="loading"
+              name="loader-2-line"
               size="14"
             ></zane-icon>
             {t("cascader.loading")}

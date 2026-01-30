@@ -180,7 +180,7 @@ export class ZaneCascaderNode {
         ) : (
           this.node.isLeaf &&
           this.node.checked && (
-            <zane-icon name="check" class={ns.e("prefix")}></zane-icon>
+            <zane-icon name="check-line" class={ns.e("prefix")}></zane-icon>
           )
         )}
 
@@ -192,12 +192,12 @@ export class ZaneCascaderNode {
           (this.node.loading ? (
             <zane-icon
               class={classNames(ns.is("loading"), ns.e("postfix"))}
-              name="loading"
+              name="loader-2-line"
             ></zane-icon>
           ) : (
             <zane-icon
               class={classNames("arrow-right", ns.e("postfix"))}
-              name="arrow-right"
+              name="arrow-right-s-line"
             ></zane-icon>
           ))}
       </Host>

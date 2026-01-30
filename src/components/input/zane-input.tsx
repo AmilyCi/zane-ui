@@ -331,13 +331,13 @@ export class ZaneInput {
   handleUpdateValidateIcon() {
     switch(this.validateState) {
       case 'error':
-        this.validateIcon = 'circle-close';
+        this.validateIcon = 'close-circle-line';
         break;
       case 'success':
-        this.validateIcon = 'circle-check';
+        this.validateIcon = 'checkbox-circle-line';
         break;
       case 'validating':
-        this.validateIcon = 'loading';
+        this.validateIcon = 'loader-2-line';
         break;
     }
   }
@@ -718,7 +718,7 @@ export class ZaneInput {
                       [nsInput.e("icon")]: true,
                       [nsInput.e("password")]: true,
                     }}
-                    name={this.passwordVisible ? 'view' : 'hide'}
+                    name={this.passwordVisible ? 'eye-line' : 'eye-off-line'}
                     onClick={this.handlePasswordVisible}
                   ></zane-icon>
                 )}

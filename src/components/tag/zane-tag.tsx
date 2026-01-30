@@ -71,9 +71,9 @@ export class ZaneTag {
             <button
               class={ns.e('close')}
               onClick={this.handleClose}
-              type="botton"
+              type="button"
             >
-              <zane-icon name="close"></zane-icon>
+              <zane-icon name="close-line"></zane-icon>
             </button>
           )}
         </span>
