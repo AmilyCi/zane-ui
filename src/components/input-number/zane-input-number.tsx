@@ -478,6 +478,27 @@ export class ZaneInputNumber {
     this.handleUpdateSize();
     this.handleUpdateControlsAtRight();
     this.handleValueChange();
+
+    this.formContext?.change$.subscribe(({key}) => {
+      if (key === 'disabled') {
+        this.handleUpdateDisabled();
+      }
+      if (key === 'size') {
+        this.handleUpdateSize();
+      }
+    });
+
+    this.formItemContext?.change$.subscribe(({key}) => {
+      if (key === 'size') {
+        this.handleUpdateSize();
+      }
+    });
+
+    this.configProviderContext?.change$.subscribe(({key}) => {
+      if (key === 'size') {
+        this.handleUpdateSize();
+      }
+    });
   }
 
   componentDidLoad() {

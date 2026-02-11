@@ -27,7 +27,34 @@
     </style>
   </head>
   <body>
-    <div style="height: 250px; padding: 10px; margin-top: 24px; box-shadow: var(--zane-border-color-light) 0px 0px 10px">
+    <div style="height: 250px; padding: 10px; margin-top: 24px; border: 1px solid var(--zane-border-color-light);">
+      <zane-select
+        multiple
+        collapse-tags
+        collapse-tags-tooltip
+        max-collapse-tags="3"
+        filterable
+        style="width: 240px"
+      ></zane-select>
+    </div>
+    <div style="height: 250px; padding: 10px; margin-top: 24px; border: 1px solid var(--zane-border-color-light);">
+      <zane-rate value="3" clearable allow-half show-score></zane-rate>
+      <zane-rate value="3" size="small" clearable allow-half show-score></zane-rate>
+    </div>
+    <div style="height: 250px; padding: 10px; margin-top: 24px; border: 1px solid var(--zane-border-color-light);">
+      <zane-mention
+        value="@"
+        style="width: 320px"
+        placeholder="Please input"
+      />
+    </div>
+    <div style="height: 250px; padding: 10px; margin-top: 24px; border: 1px solid var(--zane-border-color-light);">
+      <zane-input-tag
+        placeholder="Please input"
+        aria-label="Please click the Enter key after input"
+      ></zane-input-tag>
+    </div>
+    <div style="height: 250px; padding: 10px; margin-top: 24px; border: 1px solid var(--zane-border-color-light);">
       <div>
         <zane-radio-group value="radio1">
           <zane-radio value="1" size="large">Option 1</zane-radio>
@@ -44,7 +71,7 @@
         </zane-radio-group>
       </div>
     </div>
-    <div style="height: 250px; padding: 10px; margin-top: 24px; box-shadow: var(--zane-border-color-light) 0px 0px 10px">
+    <div style="height: 250px; padding: 10px; margin-top: 24px; border: 1px solid var(--zane-border-color-light);">
       <zane-input-number value="1" min="1" max="10" precision="2" step="0.1" controls-position="right"></zane-input-number>
     </div>
 
@@ -323,6 +350,38 @@
 
         cascaderEl.options = options
         cascaderEl.props = { multiple: true }
+      }
+
+      var mentionEl = document.querySelector('zane-mention');
+      if (mentionEl) {
+        mentionEl.options = [
+          {
+            label: 'Fuphoenixes',
+            value: 'Fuphoenixes',
+          },
+          {
+            label: 'kooriookami',
+            value: 'kooriookami',
+          },
+          {
+            label: 'Jeremy',
+            value: 'Jeremy',
+          },
+          {
+            label: 'btea',
+            value: 'btea',
+          },
+        ];
+      }
+
+      var selectEl = document.querySelector('zane-select');
+      if (selectEl) {
+        const initials = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+        const options = Array.from({ length: 1000 }).map((_, idx) => ({
+          value: `Option ${idx + 1}`,
+          label: `${initials[idx % 10]}${idx}`,
+        }));
+        selectEl.options = options;
       }
     </script>
   </body>

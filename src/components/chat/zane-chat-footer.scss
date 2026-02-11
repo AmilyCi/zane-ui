@@ -1,0 +1,16 @@
+.zane-chat-footer {
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--zane-chat-footer-color);
+  color: var(--zane-chat-footer-text-color);
+  font-size: var(--zane-chat-footer-font-size);
+  padding: var(--zane-chat-footer-padding);
+  box-sizing: border-box;
+}
+
+.zane-chat-footer * {
+  box-sizing: border-box;
+}

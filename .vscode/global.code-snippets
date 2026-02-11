@@ -11,4 +11,25 @@
     "body": ["export * from '$1';"],
     "description": "Export a module",
   },
+  "stencil-component": {
+    "scope": "javascript,typescript",
+    "prefix": "@Comp",
+    "body": [
+      "import { Component, h, Host, Prop } from '@stencil/core';",
+      "",
+      "@Component({",
+      "  styleUrl: '$1.scss'",
+      "  tag: '$1',",
+      "})",
+      "export class $1 {",
+      "",
+      "  render() {",
+      "    return (",
+      "      <Host></Host>",
+      "    );",
+      "  }",
+      "}"
+    ],
+    "description": "tencil component"
+  }
 }

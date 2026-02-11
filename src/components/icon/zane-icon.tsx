@@ -1,4 +1,4 @@
-import { Component, h, Host, Prop, State, Watch } from '@stencil/core';
+import { Component, h, Prop, State, Watch } from '@stencil/core';
 
 import { useNamespace } from '../../hooks/useNamespace';
 
@@ -19,7 +19,7 @@ export class ZaneIcon {
 
   @Prop() color: string;
 
-  @Prop() prefix: string;
+  @Prop({attribute: 'prefix'}) zPrefix: string;
 
   @Prop() name: string;
 
@@ -36,10 +36,6 @@ export class ZaneIcon {
   @Watch('name', { immediate: true })
   watchNameHandler(name: string) {
     this.isSvgIcon = name?.endsWith(SVG_END_WITH_FLAG) ?? false;
-  }
-
-  componentWillLoad() {
-
   }
 
   render() {
@@ -63,7 +59,7 @@ export class ZaneIcon {
     }
 
     if (this.isSvgIcon) {
-      const symbolId = `#${this.prefix ? `${this.prefix}-` : ''}${this.name}`;
+      const symbolId = `#${this.zPrefix ? `${this.zPrefix}-` : ''}${this.name}`;
       return (
         <svg
           class={classNames(ns.b(), this.iconClass, ns.is('spin', this.spin))}

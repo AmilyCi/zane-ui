@@ -1,0 +1,1 @@
+export const BORDER_HORIZONTAL_WIDTH = 2;

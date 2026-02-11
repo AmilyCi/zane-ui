@@ -13,5 +13,19 @@ export const en_US: I18nResource = {
   inputNumber: {
     decrease: 'decrease number',
     increase: 'increase number',
+  },
+  mention: {
+    loading: 'Loading',
+  },
+  select: {
+    loading: 'Loading',
+    noMatch: 'No matching data',
+    noData: 'No data',
+    placeholder: 'Please select',
+  },
+  slider: {
+    defaultLabel: 'slider between {min} and {max}',
+    defaultRangeStartLabel: 'pick start value',
+    defaultRangeEndLabel: 'pick end value',
   }
 };

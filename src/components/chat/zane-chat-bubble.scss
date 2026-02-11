@@ -1,0 +1,97 @@
+:host {
+  display:block;
+}
+
+:host * {
+  box-sizing: border-box;
+}
+
+:host .zane-chat-bubble {
+  display: flex;
+  position: relative;
+  width: 100%;
+  gap: 10px;
+}
+
+:host .zane-chat-bubble__avatar {
+  display: flex;
+  height: fit-content;
+  font-size: var(--zane-chat-bubble-avatar-size);
+  padding: var(--zane-chat-bubble-avatar-padding);
+  margin: var(--zane-chat-bubble-avatar-margin);
+  border-radius: var(--zane-chat-bubble-avatar-border-radius);
+  box-shadow: var(--zane-chat-bubble-avatar-box-shadow);
+  border-style: solid;
+  border-width: var(--zane-chat-bubble-avatar-border-size);
+  border-color: var(--zane-chat-bubble-avatar-border-color);
+}
+
+:host .zane-chat-bubble__content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: var(--zane-chat-bubble-margin);
+  max-width: calc(100% - 42px);
+}
+
+:host .zane-chat-bubble__content_message {
+  display: flex;
+  flex-direction: column;
+  padding: var(--zane-chat-bubble-padding);
+  border-radius: var(--zane-chat-bubble-border-radius);
+  box-shadow: var(--zane-chat-bubble-box-shadow);
+  border-style: solid;
+  border-width: var(--zane-chat-bubble-border-size);
+  border-color: var(--zane-chat-bubble-border-color);
+  backdrop-filter: var(--zane-chat-bubble-backdrop-filter);
+}
+
+:host .zane-chat-bubble__content_message pre {
+  margin: 0;
+  white-space: break-spaces;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+:host .zane-chat-bubble.send .zane-chat-bubble__content_message {
+  background: var(--zane-chat-bubble-send-color);
+  color: var(--zane-chat-bubble-send-text-color);
+}
+
+:host .zane-chat-bubble.receive .zane-chat-bubble__content_message {
+  background: var(--zane-chat-bubble-respond-color);
+  color: var(--zane-chat-bubble-respond-text-color);
+}
+
+:host .zane-chat-bubble.align-left {
+  flex: none !important;
+  height: auto !important;
+  justify-content: start;
+}
+
+:host .zane-chat-bubble.align-left.align-horizontal {
+  flex-direction: row;
+}
+
+:host .zane-chat-bubble.align-left.align-vertical {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+:host .zane-chat-bubble.align-right {
+  flex: none !important;
+  height: auto !important;
+  justify-content: end;
+}
+
+:host .zane-chat-bubble.align-right.align-horizontal {
+  flex-direction: row-reverse;
+}
+
+:host .zane-chat-bubble.align-right.align-vertical {
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+:host .zane-chat-bubble.align-horizontal {
+  width: 100%;
+}

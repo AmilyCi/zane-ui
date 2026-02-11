@@ -35,7 +35,7 @@
     width: 0;
     height: 0;
     cursor: pointer;
-    border-radius: inherit;
+    border-radius: getCssVar('border-radius-small');
     background-color: var(
       #{getCssVarName('scrollbar-bg-color')},
       map.get($scrollbar, 'bg-color')

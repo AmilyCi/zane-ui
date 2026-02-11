@@ -11,6 +11,7 @@ import { Element, Event } from "@stencil/core";
 import { ButtonNativeType, ButtonType } from "./components/button/types";
 import { CascaderNode } from "./components/cascader/node";
 import { CascaderNodePathValue, CascaderNodeValue, CascaderOption, CascaderProps, CascaderValue, RenderLabel, Tag } from "./components/cascader/types";
+import { ChatBodyThemes, ChatBubbleThemes, ChatFooterThemes, ChatHeaderThemes, ChatInputThemes, ThemeTokens } from "./components/chat/types";
 import { CheckboxOption, CheckboxOptionProps } from "./components/checkbox/types";
 import { ColSize } from "./components/col/types";
 import { CollapseActiveName, CollapseIconPositionType, CollapseModelValue } from "./components/collapse/types";
@@ -18,16 +19,22 @@ import { ButtonConfig, CardConfig } from "./components/config-provider/types";
 import { FormItemProp, FormItemRule, FormItemValidateState, FormRules, FormValidateCallback, FormValidateFailure } from "./components/form/types";
 import { ValidateFieldsError } from "async-validator";
 import { ForwardRefSetter } from "./components/forward-ref/types";
+import { InputAutoSize, InputMode, InputModelModifiers, InputType } from "./components/input/types";
+import { MentionOption, MentionOptionProps } from "./components/mention/types";
+import { Placement } from "@popperjs/core";
+import { Content, GetReferenceClientRect, Instance, Placement as Placement1, Plugin, PopperElement, PopperOptions, PopperRect, Props as Props1 } from "./components/tooltip/types";
 import { RadioOption, RadioOptionProp } from "./components/radio/types";
 import { RowAlignType, RowJustifyType } from "./components/row/types";
 import { ScrollbarDirection } from "./components/scrollbar/types";
-import { Content, GetReferenceClientRect, Instance, Placement, Plugin, PopperElement, PopperOptions, PopperRect, Props } from "./components/tooltip/types";
+import { Option, OptionType, Props } from "./components/select/types";
+import { Alignment, GridItemKeyGetter, Indices, ItemSize } from "./components/virtual-list/types";
 export { AutocompleteData, AutocompleteFetchFunc, AutocompleteFetchSuggestions } from "./components/autocomplete/types";
 export { AnyNormalFunction, Arrayable, Awaitable, ComponentSize } from "./types";
 export { Element, Event } from "@stencil/core";
 export { ButtonNativeType, ButtonType } from "./components/button/types";
 export { CascaderNode } from "./components/cascader/node";
 export { CascaderNodePathValue, CascaderNodeValue, CascaderOption, CascaderProps, CascaderValue, RenderLabel, Tag } from "./components/cascader/types";
+export { ChatBodyThemes, ChatBubbleThemes, ChatFooterThemes, ChatHeaderThemes, ChatInputThemes, ThemeTokens } from "./components/chat/types";
 export { CheckboxOption, CheckboxOptionProps } from "./components/checkbox/types";
 export { ColSize } from "./components/col/types";
 export { CollapseActiveName, CollapseIconPositionType, CollapseModelValue } from "./components/collapse/types";
@@ -35,10 +42,15 @@ export { ButtonConfig, CardConfig } from "./components/config-provider/types";
 export { FormItemProp, FormItemRule, FormItemValidateState, FormRules, FormValidateCallback, FormValidateFailure } from "./components/form/types";
 export { ValidateFieldsError } from "async-validator";
 export { ForwardRefSetter } from "./components/forward-ref/types";
+export { InputAutoSize, InputMode, InputModelModifiers, InputType } from "./components/input/types";
+export { MentionOption, MentionOptionProps } from "./components/mention/types";
+export { Placement } from "@popperjs/core";
+export { Content, GetReferenceClientRect, Instance, Placement as Placement1, Plugin, PopperElement, PopperOptions, PopperRect, Props as Props1 } from "./components/tooltip/types";
 export { RadioOption, RadioOptionProp } from "./components/radio/types";
 export { RowAlignType, RowJustifyType } from "./components/row/types";
 export { ScrollbarDirection } from "./components/scrollbar/types";
-export { Content, GetReferenceClientRect, Instance, Placement, Plugin, PopperElement, PopperOptions, PopperRect, Props } from "./components/tooltip/types";
+export { Option, OptionType, Props } from "./components/select/types";
+export { Alignment, GridItemKeyGetter, Indices, ItemSize } from "./components/virtual-list/types";
 export namespace Components {
     interface ZaneA2ui {
         /**
@@ -414,6 +426,102 @@ export namespace Components {
         "scrollToExpandingNode": () => Promise<void>;
         "value": CascaderValue | null;
     }
+    interface ZaneChat {
+        /**
+          * @default {}
+         */
+        "theme": Partial<ThemeTokens>;
+    }
+    interface ZaneChatBody {
+        /**
+          * @default {}
+         */
+        "theme": Partial<ChatBodyThemes>;
+    }
+    interface ZaneChatBubble {
+        /**
+          * 气泡左对齐
+         */
+        "isLeftAlign": boolean;
+        /**
+          * 是否发送气泡靠左排版
+         */
+        "isSendLeft": boolean;
+        /**
+          * 气泡中的文本和头像的布局方式（上下布局、左右布局）
+         */
+        "isVertical": boolean;
+        /**
+          * 消息数据
+         */
+        "message": string;
+        /**
+          * 消息气泡美容的渲染方法，默认为: markdown
+          * @default 'markdown'
+         */
+        "renderer": string;
+        /**
+          * 消息状态（加载中、运行中、完成）
+          * @default 'loading'
+         */
+        "status": 'loading' | 'running' | 'finish';
+        /**
+          * @default {}
+         */
+        "theme": Partial<ChatBubbleThemes>;
+        /**
+          * 聊天气泡类型（发送气泡、接收气泡）
+          * @default 'send'
+         */
+        "type": 'send' | 'receive';
+    }
+    interface ZaneChatFooter {
+        /**
+          * @default {}
+         */
+        "theme": Partial<ChatFooterThemes>;
+    }
+    interface ZaneChatHeader {
+        /**
+          * 主标题, 当使用 title 插槽时该参数无效
+         */
+        "cTitle": string;
+        /**
+          * 额外的文本信息，当使用 extra 插槽时该参数无效
+         */
+        "extra": string;
+        /**
+          * 是否显示返回按钮
+          * @default false
+         */
+        "showBack": boolean;
+        /**
+          * 副标题, 当使用 subtitle 插槽时该参数无效
+         */
+        "subtitle": string;
+        /**
+          * @default {}
+         */
+        "theme": Partial<ChatHeaderThemes>;
+    }
+    interface ZaneChatInput {
+        "disabled": boolean;
+        /**
+          * @default '输入问题'
+         */
+        "placeholder": string;
+        /**
+          * @default true
+         */
+        "sendOnEnter": boolean;
+        /**
+          * @default {}
+         */
+        "theme": Partial<ChatInputThemes>;
+    }
+    interface ZaneChatRendererMarkdown {
+        "content": string;
+    }
     interface ZaneCheckbox {
         "ariaControls": string;
         "ariaLabel": string;
@@ -719,28 +827,29 @@ export namespace Components {
         "height": string;
     }
     interface ZaneIcon {
+        "color": string;
         /**
           * @default ''
          */
-        "classNames": string;
-        "color": string;
+        "iconClass": string;
         "name": string;
         "rotate": number;
         "size": string;
         "spin": boolean;
         "styles": object;
+        "zPrefix": string;
     }
     interface ZaneInput {
         "ariaLabel": string;
         /**
           * @default "off"
          */
-        "autocomplete": AutoFill;
+        "autocomplete": HTMLInputElement['autocomplete'];
         "autofocus": boolean;
         /**
           * @default false
          */
-        "autosize": boolean | { maxRows?: number; minRows?: number };
+        "autosize": InputAutoSize;
         "clear": () => Promise<void>;
         /**
           * @default "circle-close"
@@ -757,8 +866,9 @@ export namespace Components {
          */
         "disabled": boolean;
         "form": string;
-        "formatter": AnyNormalFunction<any, string>;
+        "formatter": Function;
         "getInput": () => Promise<HTMLInputElement>;
+        "getTextarea": () => Promise<HTMLTextAreaElement>;
         /**
           * @default mutable({} as const)
          */
@@ -772,7 +882,7 @@ export namespace Components {
         "min": number;
         "minLength": number | string;
         "name": string;
-        "parser": AnyNormalFunction<any, any>;
+        "parser": Function;
         "placeholder": string;
         "prefixIcon": string;
         "readonly": boolean;
@@ -790,7 +900,7 @@ export namespace Components {
         /**
           * @default "text"
          */
-        "type": string;
+        "type": InputType;
         /**
           * @default true
          */
@@ -806,14 +916,7 @@ export namespace Components {
         "zBlur": () => Promise<void>;
         "zFocus": () => Promise<void>;
         "zId": string;
-        "zInputMode": | "decimal"
-    | "email"
-    | "none"
-    | "numeric"
-    | "search"
-    | "tel"
-    | "text"
-    | "url";
+        "zInputMode": InputMode;
         /**
           * @default 0
          */
@@ -883,6 +986,75 @@ export namespace Components {
     | "text"
     | "url";
     }
+    interface ZaneInputTag {
+        "ariaLabel": string;
+        /**
+          * @default 'off'
+         */
+        "autocomplete": HTMLInputElement['autocomplete'];
+        "autofocus": boolean;
+        /**
+          * @default 'close-circle-line'
+         */
+        "clearIcon": string;
+        "clearable": boolean;
+        "collapseTags": boolean;
+        "collapseTagsTooltip": boolean;
+        /**
+          * @default ''
+         */
+        "delimiter": string | RegExp;
+        /**
+          * @default undefined
+         */
+        "disabled": boolean;
+        "getInput": () => Promise<HTMLInputElement>;
+        "max": number;
+        /**
+          * @default 1
+         */
+        "maxCollapseTags": number;
+        "maxLength": number | string;
+        "minLength": number | string;
+        "placeholder": string;
+        "readonly": boolean;
+        /**
+          * @default true
+         */
+        "saveOnBlur": boolean;
+        "size": ComponentSize;
+        /**
+          * @default 'light'
+         */
+        "tagEffect": 'light' | 'dark' | 'plain';
+        /**
+          * @default 'info'
+         */
+        "tagType": 'success' | 'primary' | 'info' | 'warning';
+        /**
+          * @default ''
+         */
+        "tooltipTheme": string;
+        /**
+          * @default 'Enter'
+         */
+        "trigger": 'Enter' | 'Space';
+        /**
+          * @default true
+         */
+        "validateEvent": boolean;
+        "value": string[];
+        "wrapperClass": string;
+        "wrapperStyle": Record<string, string>;
+        "zBlur": () => Promise<void>;
+        "zDraggable": boolean;
+        "zFocus": () => Promise<void>;
+        "zId": string;
+        /**
+          * @default 0
+         */
+        "zTabindex": number;
+    }
     interface ZaneLink {
         "disabled": boolean;
         /**
@@ -903,6 +1075,146 @@ export namespace Components {
         "underline": 'always' | 'hover' | 'never' | boolean;
     }
     interface ZaneMain {
+    }
+    interface ZaneMention {
+        "ariaLabel": string;
+        /**
+          * @default "off"
+         */
+        "autocomplete": HTMLInputElement['autocomplete'];
+        "autofocus": boolean;
+        /**
+          * @default false
+         */
+        "autosize": InputAutoSize;
+        "checkIsWhole": (pattern: string, prefix: string) => boolean;
+        /**
+          * @default 'close-circle-line'
+         */
+        "clearIcon": string;
+        "clearable": boolean;
+        /**
+          * @default undefined
+         */
+        "containerRole": string;
+        /**
+          * @default undefined
+         */
+        "disabled": boolean;
+        /**
+          * @default filterOption
+         */
+        "filterOption": (typeof filterOption);
+        "form": string;
+        "formatter": Function;
+        /**
+          * @default {}
+         */
+        "inputStyle": Record<string, string>;
+        "loading": boolean;
+        "maxLength": string | number;
+        "minLength": string | number;
+        /**
+          * @default {}
+         */
+        "modelModifiers": InputModelModifiers;
+        "name": string;
+        /**
+          * @default [0, 0]
+         */
+        "offset": | (({
+        placement,
+        popper,
+        reference,
+      }: {
+        placement: Placement;
+        popper: PopperRect;
+        reference: PopperRect;
+      }) => [number, number])
+    | [number, number];
+        /**
+          * @default []
+         */
+        "options": MentionOption[];
+        "parser": Function;
+        "placeholder": string;
+        /**
+          * @default 'bottom'
+         */
+        "placement": 'bottom' | 'top';
+        /**
+          * @default {}
+         */
+        "popperOptions": Partial<PopperOptions>;
+        "popperTheme": string;
+        "prefixIcon": string;
+        /**
+          * @default {     value: 'value',     label: 'label',     disabled: 'disabled'   }
+         */
+        "props": MentionOptionProps;
+        "readonly": boolean;
+        "resize": 'none' | 'both' | 'horizontal' | 'vertical';
+        /**
+          * @default 2
+         */
+        "rows": number;
+        /**
+          * @default false
+         */
+        "showArrow": boolean;
+        "showPassword": boolean;
+        "showWordLimit": boolean;
+        "size": ComponentSize;
+        /**
+          * @default ' '
+         */
+        "split": string;
+        "suffixIcon": string;
+        /**
+          * @default 'text'
+         */
+        "type": InputType;
+        /**
+          * @default true
+         */
+        "validateEvent": boolean;
+        "value": string;
+        "whole": boolean;
+        /**
+          * @default 'inside'
+         */
+        "wordLimitPosition": 'inside' | 'outside';
+        /**
+          * @default undefined
+         */
+        "zId": string;
+        /**
+          * @default undefined
+         */
+        "zInputmode": InputMode;
+        /**
+          * @default '@'
+         */
+        "zPrefix": string | string[];
+        /**
+          * @default 0
+         */
+        "zTabindex": string | number;
+    }
+    interface ZaneMentionDropdown {
+        "ariaLabel": string;
+        "disabled": boolean;
+        /**
+          * @default -1
+         */
+        "hoveringIndex": number;
+        "loading": boolean;
+        "navigateOptions": (direction: "next" | "prev") => Promise<void>;
+        /**
+          * @default []
+         */
+        "options": MentionOption[];
+        "selectHoverOption": () => Promise<void>;
     }
     interface ZaneOnlyChild {
         /**
@@ -1007,6 +1319,75 @@ export namespace Components {
          */
         "zId": string;
     }
+    interface ZaneRate {
+        "allowHalf": boolean;
+        "ariaLabel": string;
+        "clearable": boolean;
+        /**
+          * @default ['', '', '']
+         */
+        "colors": string[] | Record<number, string>;
+        /**
+          * @default undefined
+         */
+        "disabled": boolean;
+        /**
+          * @default ''
+         */
+        "disabledVoidColor": string;
+        /**
+          * @default 'star-fill'
+         */
+        "disabledVoidIcon": string;
+        /**
+          * @default 4
+         */
+        "highThreshold": number;
+        /**
+          * @default ['star-fill', 'star-fill', 'star-fill']
+         */
+        "icons": string[] | Record<number, string>;
+        "label": string;
+        /**
+          * @default 2
+         */
+        "lowThreshold": number;
+        /**
+          * @default 5
+         */
+        "max": number;
+        /**
+          * @default '{value}'
+         */
+        "scoreTemplate": string;
+        "showScore": boolean;
+        "showText": boolean;
+        "size": ComponentSize;
+        /**
+          * @default ''
+         */
+        "textColor": string;
+        /**
+          * @default ['Extremely bad', 'Disappointed', 'Fair', 'Satisfied', 'Surprise']
+         */
+        "texts": string[];
+        /**
+          * @default 0
+         */
+        "value": number;
+        /**
+          * @default ''
+         */
+        "voidColor": string;
+        /**
+          * @default 'star-line'
+         */
+        "voidIcon": string;
+        /**
+          * @default undefined
+         */
+        "zId": string;
+    }
     interface ZaneRow {
         "align"?: RowAlignType;
         /**
@@ -1064,6 +1445,265 @@ export namespace Components {
           * @default {}
          */
         "wrapStyle": Record<string, string>;
+    }
+    interface ZaneSelect {
+        "allowCreate": boolean;
+        "ariaLabel": string;
+        /**
+          * @default 'none'
+         */
+        "autocomplete": 'none' | 'list' | 'both' | 'inline';
+        "automaticDropdown": boolean;
+        /**
+          * @default 'close-circle-line'
+         */
+        "clearIcon": string;
+        "clearable": boolean;
+        "collapseTags": boolean;
+        "collapseTagsTooltip": boolean;
+        /**
+          * @default 300
+         */
+        "debounce": number;
+        "defaultFirstOption": boolean;
+        /**
+          * @default undefined
+         */
+        "disabled": boolean;
+        "emptyValues": any[];
+        /**
+          * @default undefined
+         */
+        "estimatedOptionHeight": number;
+        "filterMethod": (query: string) => boolean;
+        "filterable": boolean;
+        /**
+          * @default true
+         */
+        "fitInputWidth": boolean | number;
+        /**
+          * @default 274
+         */
+        "height": number;
+        /**
+          * @default 34
+         */
+        "itemHeight": number;
+        "label": string;
+        "loading": boolean;
+        "loadingText": string;
+        /**
+          * @default 1
+         */
+        "maxCollapseTags": number;
+        "multiple": boolean;
+        /**
+          * @default 0
+         */
+        "multipleLimit": number;
+        "name": string;
+        "noDataText": string;
+        "noMatchText": string;
+        /**
+          * @default [0, 0]
+         */
+        "offset": | (({
+        placement,
+        popper,
+        reference,
+      }: {
+        placement: Placement;
+        popper: PopperRect;
+        reference: PopperRect;
+      }) => [number, number])
+    | [number, number];
+        "options": OptionType[];
+        "placeholder": string;
+        /**
+          * @default 'bottom-start'
+         */
+        "placement": Placement;
+        /**
+          * @default {}
+         */
+        "popperOptions": Partial<PopperOptions>;
+        "popperTheme": string;
+        /**
+          * @default {     label: 'label',     value: 'value',     disabled: 'disabled',     options: 'options'   }
+         */
+        "props": Props;
+        "remote": boolean;
+        "remoteMethod": (query: string) => any;
+        "remoteShowSuffix": boolean;
+        /**
+          * @default true
+         */
+        "reserveKeyword": boolean;
+        "scrollbarAlwaysOn": boolean;
+        /**
+          * @default false
+         */
+        "showArrow": boolean;
+        "size": ComponentSize;
+        /**
+          * @default 'arrow-down-s-line'
+         */
+        "suffixIcon": string;
+        /**
+          * @default 'light'
+         */
+        "tagEffect": 'dark' | 'light' | 'plain';
+        "tagLabelRender": (label: string, value: string, index: number) => HTMLElement;
+        "tagRender": () => HTMLElement;
+        /**
+          * @default 'info'
+         */
+        "tagType": 'primary' | 'success' | 'warning' | 'danger' | 'info';
+        /**
+          * @default true
+         */
+        "validateEvent": boolean;
+        /**
+          * @default undefined
+         */
+        "value": any[] | string | number | Record<string, any> | any;
+        /**
+          * @default 'value'
+         */
+        "valueKey": string;
+        /**
+          * @default undefined
+         */
+        "valueOnClear": any;
+        "zBlur": () => Promise<void>;
+        "zFocus": () => Promise<void>;
+        "zId": string;
+        /**
+          * @default 0
+         */
+        "zTabindex": number;
+    }
+    interface ZaneSelectGroupItem {
+        "item": any;
+        "zHeight": number;
+        "zStyle": Record<string, any>;
+    }
+    interface ZaneSelectMenu {
+        "ariaLabel": string;
+        "data": any[];
+        "getIsSized": () => Promise<boolean>;
+        "getListRef": () => Promise<HTMLZaneVirtualListElement>;
+        "hoveringIndex": number;
+        "isItemDisabled": (value: any, selected: any) => Promise<boolean>;
+        "isItemHovering": (target: any) => Promise<boolean>;
+        "isItemSelected": (value: any, target: any) => Promise<any>;
+        "loading": boolean;
+        "resetScrollTop": () => Promise<void>;
+        "width": number;
+        "zId": string;
+        "zScrollToItem": (index: number) => Promise<void>;
+    }
+    interface ZaneSelectOptionItem {
+        "created": boolean;
+        "data": any[];
+        "disabled": boolean;
+        "hovering": boolean;
+        "index": number;
+        "item": Option;
+        "optionRender": (item: Option, index: number, disabled: boolean) => HTMLElement;
+        "selected": boolean;
+        "zStyle": Record<string, any>;
+    }
+    interface ZaneSlider {
+        /**
+          * @default undefined
+         */
+        "ariaLabel": string;
+        /**
+          * @default undefined
+         */
+        "disabled": boolean;
+        "formatTooltip": (value: number) => number | string;
+        /**
+          * @default undefined
+         */
+        "formatValueText": (value: number) => string;
+        "height": string;
+        /**
+          * @default ''
+         */
+        "inputSize": ComponentSize;
+        "label": string;
+        "marks": Record<number, string | { style: Record<string, any>; label: string }>;
+        /**
+          * @default 100
+         */
+        "max": number;
+        /**
+          * @default 0
+         */
+        "min": number;
+        /**
+          * @default 'top'
+         */
+        "placement": Placement;
+        "range": boolean;
+        /**
+          * @default undefined
+         */
+        "rangeEndLabel": string;
+        /**
+          * @default undefined
+         */
+        "rangeStartLabel": string;
+        "showInput": boolean;
+        /**
+          * @default true
+         */
+        "showInputControls": boolean;
+        "showStops": boolean;
+        /**
+          * @default true
+         */
+        "showTooltip": boolean;
+        /**
+          * @default ''
+         */
+        "size": ComponentSize;
+        /**
+          * @default 1
+         */
+        "step": number;
+        /**
+          * @default undefined
+         */
+        "tooltipClass": string;
+        /**
+          * @default true
+         */
+        "validateEvent": boolean;
+        /**
+          * @default 0
+         */
+        "value": number | number[];
+        "vertical": boolean;
+        "zId": string;
+    }
+    interface ZaneSliderButton {
+        "isDragging": () => Promise<boolean>;
+        "isHovering": () => Promise<boolean>;
+        "onButtonDown": (e: MouseEvent) => Promise<void>;
+        "onKeyDown": (e: KeyboardEvent) => Promise<void>;
+        /**
+          * @default 'top'
+         */
+        "placement": Placement;
+        "setPosition": (newPosition: number) => Promise<void>;
+        /**
+          * @default 0
+         */
+        "value": number;
+        "vertical": boolean;
     }
     interface ZaneSplitter {
         /**
@@ -1224,7 +1864,7 @@ export namespace Components {
         popper,
         reference,
       }: {
-        placement: Placement;
+        placement: Placement1;
         popper: PopperRect;
         reference: PopperRect;
       }) => [number, number])
@@ -1232,7 +1872,7 @@ export namespace Components {
         /**
           * @default 'top'
          */
-        "placement": Placement;
+        "placement": Placement1;
         /**
           * @default []
          */
@@ -1259,7 +1899,7 @@ export namespace Components {
          */
         "theme": string;
         "tippyRender": | ((instance: Instance) => {
-        onUpdate?: (prevProps: Props, nextProps: Props) => void;
+        onUpdate?: (prevProps: Props1, nextProps: Props1) => void;
         popper: PopperElement;
       })
     | null;
@@ -1280,6 +1920,203 @@ export namespace Components {
           * @default 9999
          */
         "zIndex": number;
+    }
+    interface ZaneVirtualGrid {
+        /**
+          * @default 2
+         */
+        "columnCache": number;
+        "columnWidth": number | ItemSize;
+        /**
+          * @default 'div'
+         */
+        "containerElement": string;
+        /**
+          * @default []
+         */
+        "data": any[];
+        /**
+          * @default 'ltr'
+         */
+        "direction": 'ltr' | 'rtl';
+        "estimatedColumnWidth": number;
+        "estimatedRowHeight": number;
+        "getInnerRef": () => Promise<HTMLElement>;
+        "getItemStyleCache": () => Promise<any>;
+        "getStates": () => Promise<{ isScrolling: boolean; scrollLeft: number; scrollTop: number; updateRequested: boolean; xAxisScrollDir: string; yAxisScrollDir: string; }>;
+        "getTouchStartX": () => Promise<number>;
+        "getTouchStartY": () => Promise<number>;
+        "getWindowRef": () => Promise<HTMLElement>;
+        /**
+          * @default 6
+         */
+        "hScrollbarSize": number;
+        "handleTouchMove": (event: TouchEvent) => Promise<void>;
+        "handleTouchStart": (event: TouchEvent) => Promise<void>;
+        "height": string | number;
+        /**
+          * @default 0
+         */
+        "initScrollLeft": number;
+        /**
+          * @default 0
+         */
+        "initScrollTop": number;
+        /**
+          * @default 'div'
+         */
+        "innerElement": string;
+        /**
+          * @default {}
+         */
+        "innerProps": Record<string, unknown>;
+        "isSized": boolean;
+        /**
+          * @default ({columnIndex, rowIndex}) => `${columnIndex}-${rowIndex}`
+         */
+        "itemKey": GridItemKeyGetter;
+        "itemRender": (
+    data: {
+      columnIndex: number,
+      data: any[],
+      isScrolling: boolean,
+      style: Record<string, string>,
+      rowIndex: number,
+      key: string | number,
+    }
+  ) => HTMLElement;
+        /**
+          * @default true
+         */
+        "perfMode": boolean;
+        "resetAfter": ({ columnIndex, rowIndex }: Indices, forceUpdate?: boolean) => Promise<void>;
+        "resetAfterColumnIndex": (columnIndex: number, forceUpdate: boolean) => Promise<void>;
+        "resetAfterRowIndex": (rowIndex: number, forceUpdate: boolean) => Promise<void>;
+        "role": string;
+        /**
+          * @default 2
+         */
+        "rowCache": number;
+        "rowHeight": number | ItemSize;
+        "scrollbarAlwaysOn": boolean;
+        /**
+          * @default 2
+         */
+        "scrollbarEndGap": number;
+        /**
+          * @default 0
+         */
+        "scrollbarStartGap": number;
+        "totalColumn": number;
+        "totalRow": number;
+        "useIsScrolling": boolean;
+        /**
+          * @default 6
+         */
+        "vScrollbarSize": number;
+        "width": number | string;
+        /**
+          * @default ''
+         */
+        "wrapperClass": string;
+        "wrapperStyle": Record<string, string>;
+        "zScrollTo": ({ scrollLeft, scrollTop }: { scrollLeft?: number; scrollTop?: number; }) => Promise<void>;
+        "zScrollToItem": (rowIndex?: number, columnIdx?: number, alignment?: Alignment) => Promise<void>;
+    }
+    interface ZaneVirtualList {
+        /**
+          * @default 2
+         */
+        "cache": number;
+        /**
+          * @default 'div'
+         */
+        "containerElement": string;
+        /**
+          * @default []
+         */
+        "data": any[];
+        /**
+          * @default 'ltr'
+         */
+        "direction": 'ltr' | 'rtl';
+        "estimatedItemSize": number;
+        "getInnerRef": () => Promise<HTMLElement>;
+        "getItemStyleCache": () => Promise<any>;
+        "getStates": () => Promise<{ isScrolling: boolean; scrollDir: string; scrollOffset: number; updateRequested: boolean; isScrollbarDragging: boolean; scrollbarAlwaysOn: boolean; }>;
+        "getWindowRef": () => Promise<HTMLElement>;
+        "height": string | number;
+        /**
+          * @default 0
+         */
+        "initScrollOffset": number;
+        /**
+          * @default 'div'
+         */
+        "innerElement": string;
+        /**
+          * @default {}
+         */
+        "innerProps": Record<string, unknown>;
+        "isSized": boolean;
+        "itemRender": (
+    data: {
+      data: any[],
+      index: number,
+      isScrolling: boolean,
+      style: Record<string, any>
+    }
+  ) => HTMLElement;
+        "itemSize": number | ItemSize;
+        /**
+          * @default 'vertical'
+         */
+        "layout": 'horizontal' | 'vertical';
+        /**
+          * @default true
+         */
+        "perfMode": boolean;
+        "resetScrollTop": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "scrollbarAlwaysOn": boolean;
+        "total": number;
+        "useIsScrolling": boolean;
+        "width": number | string;
+        /**
+          * @default ''
+         */
+        "wrapperClass": string;
+        "wrapperStyle": Record<string, string>;
+        "zScrollTo": (offset: number) => Promise<void>;
+        "zScrollToItem": (idx: number, alignment?: Alignment) => Promise<void>;
+    }
+    interface ZaneVirtualScrollbar {
+        "alwaysOn": boolean;
+        "clientSize": number;
+        /**
+          * @default 2
+         */
+        "endGap": number;
+        /**
+          * @default 'vertical'
+         */
+        "layout": 'horizontal' | 'vertical';
+        "onZMouseUp": () => Promise<void>;
+        "ratio": number;
+        "scrollFrom": number;
+        /**
+          * @default 6
+         */
+        "scrollbarSize": number;
+        /**
+          * @default 0
+         */
+        "startGap": number;
+        "total": number;
+        "visible": boolean;
+        "wrapperClass": string;
     }
 }
 export interface ZaneAutocompleteCustomEvent<T> extends CustomEvent<T> {
@@ -1305,6 +2142,14 @@ export interface ZaneCascaderNodeCustomEvent<T> extends CustomEvent<T> {
 export interface ZaneCascaderPanelCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLZaneCascaderPanelElement;
+}
+export interface ZaneChatHeaderCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneChatHeaderElement;
+}
+export interface ZaneChatInputCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneChatInputElement;
 }
 export interface ZaneCheckboxCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -1338,9 +2183,21 @@ export interface ZaneInputNumberCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLZaneInputNumberElement;
 }
+export interface ZaneInputTagCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneInputTagElement;
+}
 export interface ZaneLinkCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLZaneLinkElement;
+}
+export interface ZaneMentionCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneMentionElement;
+}
+export interface ZaneMentionDropdownCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneMentionDropdownElement;
 }
 export interface ZaneRadioCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -1354,9 +2211,29 @@ export interface ZaneRadioGroupCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLZaneRadioGroupElement;
 }
+export interface ZaneRateCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneRateElement;
+}
 export interface ZaneScrollbarCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLZaneScrollbarElement;
+}
+export interface ZaneSelectCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneSelectElement;
+}
+export interface ZaneSelectOptionItemCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneSelectOptionItemElement;
+}
+export interface ZaneSliderCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneSliderElement;
+}
+export interface ZaneSliderButtonCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneSliderButtonElement;
 }
 export interface ZaneSplitterCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -1373,6 +2250,18 @@ export interface ZaneTagCustomEvent<T> extends CustomEvent<T> {
 export interface ZaneTooltipCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLZaneTooltipElement;
+}
+export interface ZaneVirtualGridCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneVirtualGridElement;
+}
+export interface ZaneVirtualListCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneVirtualListElement;
+}
+export interface ZaneVirtualScrollbarCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneVirtualScrollbarElement;
 }
 declare global {
     interface HTMLZaneA2uiElement extends Components.ZaneA2ui, HTMLStencilElement {
@@ -1534,6 +2423,70 @@ declare global {
     var HTMLZaneCascaderPanelElement: {
         prototype: HTMLZaneCascaderPanelElement;
         new (): HTMLZaneCascaderPanelElement;
+    };
+    interface HTMLZaneChatElement extends Components.ZaneChat, HTMLStencilElement {
+    }
+    var HTMLZaneChatElement: {
+        prototype: HTMLZaneChatElement;
+        new (): HTMLZaneChatElement;
+    };
+    interface HTMLZaneChatBodyElement extends Components.ZaneChatBody, HTMLStencilElement {
+    }
+    var HTMLZaneChatBodyElement: {
+        prototype: HTMLZaneChatBodyElement;
+        new (): HTMLZaneChatBodyElement;
+    };
+    interface HTMLZaneChatBubbleElement extends Components.ZaneChatBubble, HTMLStencilElement {
+    }
+    var HTMLZaneChatBubbleElement: {
+        prototype: HTMLZaneChatBubbleElement;
+        new (): HTMLZaneChatBubbleElement;
+    };
+    interface HTMLZaneChatFooterElement extends Components.ZaneChatFooter, HTMLStencilElement {
+    }
+    var HTMLZaneChatFooterElement: {
+        prototype: HTMLZaneChatFooterElement;
+        new (): HTMLZaneChatFooterElement;
+    };
+    interface HTMLZaneChatHeaderElementEventMap {
+        "back": any;
+    }
+    interface HTMLZaneChatHeaderElement extends Components.ZaneChatHeader, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneChatHeaderElementEventMap>(type: K, listener: (this: HTMLZaneChatHeaderElement, ev: ZaneChatHeaderCustomEvent<HTMLZaneChatHeaderElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneChatHeaderElementEventMap>(type: K, listener: (this: HTMLZaneChatHeaderElement, ev: ZaneChatHeaderCustomEvent<HTMLZaneChatHeaderElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneChatHeaderElement: {
+        prototype: HTMLZaneChatHeaderElement;
+        new (): HTMLZaneChatHeaderElement;
+    };
+    interface HTMLZaneChatInputElementEventMap {
+        "send": any;
+    }
+    interface HTMLZaneChatInputElement extends Components.ZaneChatInput, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneChatInputElementEventMap>(type: K, listener: (this: HTMLZaneChatInputElement, ev: ZaneChatInputCustomEvent<HTMLZaneChatInputElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneChatInputElementEventMap>(type: K, listener: (this: HTMLZaneChatInputElement, ev: ZaneChatInputCustomEvent<HTMLZaneChatInputElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneChatInputElement: {
+        prototype: HTMLZaneChatInputElement;
+        new (): HTMLZaneChatInputElement;
+    };
+    interface HTMLZaneChatRendererMarkdownElement extends Components.ZaneChatRendererMarkdown, HTMLStencilElement {
+    }
+    var HTMLZaneChatRendererMarkdownElement: {
+        prototype: HTMLZaneChatRendererMarkdownElement;
+        new (): HTMLZaneChatRendererMarkdownElement;
     };
     interface HTMLZaneCheckboxElementEventMap {
         "zChange": any;
@@ -1760,6 +2713,37 @@ declare global {
         prototype: HTMLZaneInputNumberElement;
         new (): HTMLZaneInputNumberElement;
     };
+    interface HTMLZaneInputTagElementEventMap {
+        "zFocus": FocusEvent;
+        "zBlur": FocusEvent;
+        "zChange": string[];
+        "zAddTag": string | string[];
+        "zRemoveTag": {index: number, item: string};
+        "zDragTag": {
+    draggingIndex: number,
+    dropIndex: number,
+    draggedItem: string
+  };
+        "zInput": string;
+        "zCompositionEnd": CompositionEvent;
+        "zCompositionStart": CompositionEvent;
+        "zCompositionUpdate": CompositionEvent;
+        "zClear": void;
+    }
+    interface HTMLZaneInputTagElement extends Components.ZaneInputTag, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneInputTagElementEventMap>(type: K, listener: (this: HTMLZaneInputTagElement, ev: ZaneInputTagCustomEvent<HTMLZaneInputTagElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneInputTagElementEventMap>(type: K, listener: (this: HTMLZaneInputTagElement, ev: ZaneInputTagCustomEvent<HTMLZaneInputTagElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneInputTagElement: {
+        prototype: HTMLZaneInputTagElement;
+        new (): HTMLZaneInputTagElement;
+    };
     interface HTMLZaneLinkElementEventMap {
         "zClick": MouseEvent;
     }
@@ -1782,6 +2766,54 @@ declare global {
     var HTMLZaneMainElement: {
         prototype: HTMLZaneMainElement;
         new (): HTMLZaneMainElement;
+    };
+    interface HTMLZaneMentionElementEventMap {
+        "zInput": string;
+        "zSelect": {
+    item: MentionOption,
+    prefix: string,
+  };
+        "zSearch": {
+    pattern: string;
+    prefix: string;
+  };
+        "zWholeRemove": {
+    pattern: string;
+    prefix: string;
+  };
+        "zFocus": FocusEvent;
+        "zBlur": FocusEvent;
+    }
+    interface HTMLZaneMentionElement extends Components.ZaneMention, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneMentionElementEventMap>(type: K, listener: (this: HTMLZaneMentionElement, ev: ZaneMentionCustomEvent<HTMLZaneMentionElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneMentionElementEventMap>(type: K, listener: (this: HTMLZaneMentionElement, ev: ZaneMentionCustomEvent<HTMLZaneMentionElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneMentionElement: {
+        prototype: HTMLZaneMentionElement;
+        new (): HTMLZaneMentionElement;
+    };
+    interface HTMLZaneMentionDropdownElementEventMap {
+        "zSelect": MentionOption;
+    }
+    interface HTMLZaneMentionDropdownElement extends Components.ZaneMentionDropdown, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneMentionDropdownElementEventMap>(type: K, listener: (this: HTMLZaneMentionDropdownElement, ev: ZaneMentionDropdownCustomEvent<HTMLZaneMentionDropdownElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneMentionDropdownElementEventMap>(type: K, listener: (this: HTMLZaneMentionDropdownElement, ev: ZaneMentionDropdownCustomEvent<HTMLZaneMentionDropdownElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneMentionDropdownElement: {
+        prototype: HTMLZaneMentionDropdownElement;
+        new (): HTMLZaneMentionDropdownElement;
     };
     interface HTMLZaneOnlyChildElement extends Components.ZaneOnlyChild, HTMLStencilElement {
     }
@@ -1840,6 +2872,23 @@ declare global {
         prototype: HTMLZaneRadioGroupElement;
         new (): HTMLZaneRadioGroupElement;
     };
+    interface HTMLZaneRateElementEventMap {
+        "zChange": number;
+    }
+    interface HTMLZaneRateElement extends Components.ZaneRate, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneRateElementEventMap>(type: K, listener: (this: HTMLZaneRateElement, ev: ZaneRateCustomEvent<HTMLZaneRateElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneRateElementEventMap>(type: K, listener: (this: HTMLZaneRateElement, ev: ZaneRateCustomEvent<HTMLZaneRateElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneRateElement: {
+        prototype: HTMLZaneRateElement;
+        new (): HTMLZaneRateElement;
+    };
     interface HTMLZaneRowElement extends Components.ZaneRow, HTMLStencilElement {
     }
     var HTMLZaneRowElement: {
@@ -1866,6 +2915,98 @@ declare global {
     var HTMLZaneScrollbarElement: {
         prototype: HTMLZaneScrollbarElement;
         new (): HTMLZaneScrollbarElement;
+    };
+    interface HTMLZaneSelectElementEventMap {
+        "zChange": any;
+        "zRemoveTag": any;
+        "zClear": any;
+        "zFocus": FocusEvent;
+        "zBlur": FocusEvent;
+        "zCompositionEnd": CompositionEvent;
+        "zCompositionStart": CompositionEvent;
+        "zCompositionUpdate": CompositionEvent;
+    }
+    interface HTMLZaneSelectElement extends Components.ZaneSelect, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneSelectElementEventMap>(type: K, listener: (this: HTMLZaneSelectElement, ev: ZaneSelectCustomEvent<HTMLZaneSelectElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneSelectElementEventMap>(type: K, listener: (this: HTMLZaneSelectElement, ev: ZaneSelectCustomEvent<HTMLZaneSelectElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneSelectElement: {
+        prototype: HTMLZaneSelectElement;
+        new (): HTMLZaneSelectElement;
+    };
+    interface HTMLZaneSelectGroupItemElement extends Components.ZaneSelectGroupItem, HTMLStencilElement {
+    }
+    var HTMLZaneSelectGroupItemElement: {
+        prototype: HTMLZaneSelectGroupItemElement;
+        new (): HTMLZaneSelectGroupItemElement;
+    };
+    interface HTMLZaneSelectMenuElement extends Components.ZaneSelectMenu, HTMLStencilElement {
+    }
+    var HTMLZaneSelectMenuElement: {
+        prototype: HTMLZaneSelectMenuElement;
+        new (): HTMLZaneSelectMenuElement;
+    };
+    interface HTMLZaneSelectOptionItemElementEventMap {
+        "zHover": number;
+        "zSelect": {
+    value: Option,
+    index: number
+  };
+    }
+    interface HTMLZaneSelectOptionItemElement extends Components.ZaneSelectOptionItem, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneSelectOptionItemElementEventMap>(type: K, listener: (this: HTMLZaneSelectOptionItemElement, ev: ZaneSelectOptionItemCustomEvent<HTMLZaneSelectOptionItemElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneSelectOptionItemElementEventMap>(type: K, listener: (this: HTMLZaneSelectOptionItemElement, ev: ZaneSelectOptionItemCustomEvent<HTMLZaneSelectOptionItemElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneSelectOptionItemElement: {
+        prototype: HTMLZaneSelectOptionItemElement;
+        new (): HTMLZaneSelectOptionItemElement;
+    };
+    interface HTMLZaneSliderElementEventMap {
+        "zChange": number | number[];
+        "zInput": number | number[];
+    }
+    interface HTMLZaneSliderElement extends Components.ZaneSlider, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneSliderElementEventMap>(type: K, listener: (this: HTMLZaneSliderElement, ev: ZaneSliderCustomEvent<HTMLZaneSliderElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneSliderElementEventMap>(type: K, listener: (this: HTMLZaneSliderElement, ev: ZaneSliderCustomEvent<HTMLZaneSliderElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneSliderElement: {
+        prototype: HTMLZaneSliderElement;
+        new (): HTMLZaneSliderElement;
+    };
+    interface HTMLZaneSliderButtonElementEventMap {
+        "zChange": number;
+    }
+    interface HTMLZaneSliderButtonElement extends Components.ZaneSliderButton, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneSliderButtonElementEventMap>(type: K, listener: (this: HTMLZaneSliderButtonElement, ev: ZaneSliderButtonCustomEvent<HTMLZaneSliderButtonElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneSliderButtonElementEventMap>(type: K, listener: (this: HTMLZaneSliderButtonElement, ev: ZaneSliderButtonCustomEvent<HTMLZaneSliderButtonElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneSliderButtonElement: {
+        prototype: HTMLZaneSliderButtonElement;
+        new (): HTMLZaneSliderButtonElement;
     };
     interface HTMLZaneSplitterElementEventMap {
         "collapse": {
@@ -1954,11 +3095,11 @@ declare global {
         new (): HTMLZaneThumbElement;
     };
     interface HTMLZaneTooltipElementEventMap {
-        "zClickOutside": Instance<Props>;
-        "zHidden": Instance<Props>;
-        "zHide": Instance<Props>;
-        "zMount": Instance<Props>;
-        "zShow": Instance<Props>;
+        "zClickOutside": Instance<Props1>;
+        "zHidden": Instance<Props1>;
+        "zHide": Instance<Props1>;
+        "zMount": Instance<Props1>;
+        "zShow": Instance<Props1>;
     }
     interface HTMLZaneTooltipElement extends Components.ZaneTooltip, HTMLStencilElement {
         addEventListener<K extends keyof HTMLZaneTooltipElementEventMap>(type: K, listener: (this: HTMLZaneTooltipElement, ev: ZaneTooltipCustomEvent<HTMLZaneTooltipElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -1974,6 +3115,88 @@ declare global {
         prototype: HTMLZaneTooltipElement;
         new (): HTMLZaneTooltipElement;
     };
+    interface HTMLZaneVirtualGridElementEventMap {
+        "zItemRendered": {
+    columnCacheStart: number;
+    columnCacheEnd: number;
+    columnVisibleStart: number;
+    columnVisibleEnd: number;
+    rowCacheStart: number;
+    rowCacheEnd: number;
+    rowVisibleStart: number;
+    rowVisibleEnd: number;
+  };
+        "zScroll": {
+    scrollLeft: number;
+    scrollTop: number;
+    updateRequested: boolean;
+    xAxisScrollDir: string;
+    yAxisScrollDir: string;
+  };
+    }
+    interface HTMLZaneVirtualGridElement extends Components.ZaneVirtualGrid, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneVirtualGridElementEventMap>(type: K, listener: (this: HTMLZaneVirtualGridElement, ev: ZaneVirtualGridCustomEvent<HTMLZaneVirtualGridElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneVirtualGridElementEventMap>(type: K, listener: (this: HTMLZaneVirtualGridElement, ev: ZaneVirtualGridCustomEvent<HTMLZaneVirtualGridElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneVirtualGridElement: {
+        prototype: HTMLZaneVirtualGridElement;
+        new (): HTMLZaneVirtualGridElement;
+    };
+    interface HTMLZaneVirtualListElementEventMap {
+        "zItemRendered": {
+    cacheStart: number;
+    cacheEnd: number;
+    visibleStart: number;
+    visibleEnd: number;
+  };
+        "zScroll": {
+    scrollDir: string;
+    scrollOffset: number;
+    updateRequested: boolean;
+  };
+    }
+    interface HTMLZaneVirtualListElement extends Components.ZaneVirtualList, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneVirtualListElementEventMap>(type: K, listener: (this: HTMLZaneVirtualListElement, ev: ZaneVirtualListCustomEvent<HTMLZaneVirtualListElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneVirtualListElementEventMap>(type: K, listener: (this: HTMLZaneVirtualListElement, ev: ZaneVirtualListCustomEvent<HTMLZaneVirtualListElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneVirtualListElement: {
+        prototype: HTMLZaneVirtualListElement;
+        new (): HTMLZaneVirtualListElement;
+    };
+    interface HTMLZaneVirtualScrollbarElementEventMap {
+        "zScroll": {
+    distance: number;
+    totalSteps: number
+  };
+        "zStartMove": void;
+        "zStopMove": void;
+    }
+    interface HTMLZaneVirtualScrollbarElement extends Components.ZaneVirtualScrollbar, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneVirtualScrollbarElementEventMap>(type: K, listener: (this: HTMLZaneVirtualScrollbarElement, ev: ZaneVirtualScrollbarCustomEvent<HTMLZaneVirtualScrollbarElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneVirtualScrollbarElementEventMap>(type: K, listener: (this: HTMLZaneVirtualScrollbarElement, ev: ZaneVirtualScrollbarCustomEvent<HTMLZaneVirtualScrollbarElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneVirtualScrollbarElement: {
+        prototype: HTMLZaneVirtualScrollbarElement;
+        new (): HTMLZaneVirtualScrollbarElement;
+    };
     interface HTMLElementTagNameMap {
         "zane-a2ui": HTMLZaneA2uiElement;
         "zane-aside": HTMLZaneAsideElement;
@@ -1988,6 +3211,13 @@ declare global {
         "zane-cascader-node": HTMLZaneCascaderNodeElement;
         "zane-cascader-node-content": HTMLZaneCascaderNodeContentElement;
         "zane-cascader-panel": HTMLZaneCascaderPanelElement;
+        "zane-chat": HTMLZaneChatElement;
+        "zane-chat-body": HTMLZaneChatBodyElement;
+        "zane-chat-bubble": HTMLZaneChatBubbleElement;
+        "zane-chat-footer": HTMLZaneChatFooterElement;
+        "zane-chat-header": HTMLZaneChatHeaderElement;
+        "zane-chat-input": HTMLZaneChatInputElement;
+        "zane-chat-renderer-markdown": HTMLZaneChatRendererMarkdownElement;
         "zane-checkbox": HTMLZaneCheckboxElement;
         "zane-checkbox-button": HTMLZaneCheckboxButtonElement;
         "zane-checkbox-group": HTMLZaneCheckboxGroupElement;
@@ -2007,14 +3237,24 @@ declare global {
         "zane-icon": HTMLZaneIconElement;
         "zane-input": HTMLZaneInputElement;
         "zane-input-number": HTMLZaneInputNumberElement;
+        "zane-input-tag": HTMLZaneInputTagElement;
         "zane-link": HTMLZaneLinkElement;
         "zane-main": HTMLZaneMainElement;
+        "zane-mention": HTMLZaneMentionElement;
+        "zane-mention-dropdown": HTMLZaneMentionDropdownElement;
         "zane-only-child": HTMLZaneOnlyChildElement;
         "zane-radio": HTMLZaneRadioElement;
         "zane-radio-button": HTMLZaneRadioButtonElement;
         "zane-radio-group": HTMLZaneRadioGroupElement;
+        "zane-rate": HTMLZaneRateElement;
         "zane-row": HTMLZaneRowElement;
         "zane-scrollbar": HTMLZaneScrollbarElement;
+        "zane-select": HTMLZaneSelectElement;
+        "zane-select-group-item": HTMLZaneSelectGroupItemElement;
+        "zane-select-menu": HTMLZaneSelectMenuElement;
+        "zane-select-option-item": HTMLZaneSelectOptionItemElement;
+        "zane-slider": HTMLZaneSliderElement;
+        "zane-slider-button": HTMLZaneSliderButtonElement;
         "zane-splitter": HTMLZaneSplitterElement;
         "zane-splitter-bar": HTMLZaneSplitterBarElement;
         "zane-splitter-panel": HTMLZaneSplitterPanelElement;
@@ -2022,6 +3262,9 @@ declare global {
         "zane-text": HTMLZaneTextElement;
         "zane-thumb": HTMLZaneThumbElement;
         "zane-tooltip": HTMLZaneTooltipElement;
+        "zane-virtual-grid": HTMLZaneVirtualGridElement;
+        "zane-virtual-list": HTMLZaneVirtualListElement;
+        "zane-virtual-scrollbar": HTMLZaneVirtualScrollbarElement;
     }
 }
 declare namespace LocalJSX {
@@ -2405,6 +3648,104 @@ declare namespace LocalJSX {
         "renderLabel"?: RenderLabel;
         "value"?: CascaderValue | null;
     }
+    interface ZaneChat {
+        /**
+          * @default {}
+         */
+        "theme"?: Partial<ThemeTokens>;
+    }
+    interface ZaneChatBody {
+        /**
+          * @default {}
+         */
+        "theme"?: Partial<ChatBodyThemes>;
+    }
+    interface ZaneChatBubble {
+        /**
+          * 气泡左对齐
+         */
+        "isLeftAlign": boolean;
+        /**
+          * 是否发送气泡靠左排版
+         */
+        "isSendLeft": boolean;
+        /**
+          * 气泡中的文本和头像的布局方式（上下布局、左右布局）
+         */
+        "isVertical": boolean;
+        /**
+          * 消息数据
+         */
+        "message": string;
+        /**
+          * 消息气泡美容的渲染方法，默认为: markdown
+          * @default 'markdown'
+         */
+        "renderer"?: string;
+        /**
+          * 消息状态（加载中、运行中、完成）
+          * @default 'loading'
+         */
+        "status"?: 'loading' | 'running' | 'finish';
+        /**
+          * @default {}
+         */
+        "theme"?: Partial<ChatBubbleThemes>;
+        /**
+          * 聊天气泡类型（发送气泡、接收气泡）
+          * @default 'send'
+         */
+        "type"?: 'send' | 'receive';
+    }
+    interface ZaneChatFooter {
+        /**
+          * @default {}
+         */
+        "theme"?: Partial<ChatFooterThemes>;
+    }
+    interface ZaneChatHeader {
+        /**
+          * 主标题, 当使用 title 插槽时该参数无效
+         */
+        "cTitle": string;
+        /**
+          * 额外的文本信息，当使用 extra 插槽时该参数无效
+         */
+        "extra": string;
+        "onBack"?: (event: ZaneChatHeaderCustomEvent<any>) => void;
+        /**
+          * 是否显示返回按钮
+          * @default false
+         */
+        "showBack"?: boolean;
+        /**
+          * 副标题, 当使用 subtitle 插槽时该参数无效
+         */
+        "subtitle": string;
+        /**
+          * @default {}
+         */
+        "theme"?: Partial<ChatHeaderThemes>;
+    }
+    interface ZaneChatInput {
+        "disabled": boolean;
+        "onSend"?: (event: ZaneChatInputCustomEvent<any>) => void;
+        /**
+          * @default '输入问题'
+         */
+        "placeholder"?: string;
+        /**
+          * @default true
+         */
+        "sendOnEnter"?: boolean;
+        /**
+          * @default {}
+         */
+        "theme"?: Partial<ChatInputThemes>;
+    }
+    interface ZaneChatRendererMarkdown {
+        "content"?: string;
+    }
     interface ZaneCheckbox {
         "ariaControls"?: string;
         "ariaLabel"?: string;
@@ -2719,28 +4060,29 @@ declare namespace LocalJSX {
         "height"?: string;
     }
     interface ZaneIcon {
+        "color"?: string;
         /**
           * @default ''
          */
-        "classNames"?: string;
-        "color"?: string;
+        "iconClass"?: string;
         "name"?: string;
         "rotate"?: number;
         "size"?: string;
         "spin"?: boolean;
         "styles"?: object;
+        "zPrefix"?: string;
     }
     interface ZaneInput {
         "ariaLabel"?: string;
         /**
           * @default "off"
          */
-        "autocomplete"?: AutoFill;
+        "autocomplete"?: HTMLInputElement['autocomplete'];
         "autofocus"?: boolean;
         /**
           * @default false
          */
-        "autosize"?: boolean | { maxRows?: number; minRows?: number };
+        "autosize"?: InputAutoSize;
         /**
           * @default "circle-close"
          */
@@ -2756,7 +4098,7 @@ declare namespace LocalJSX {
          */
         "disabled"?: boolean;
         "form"?: string;
-        "formatter"?: AnyNormalFunction<any, string>;
+        "formatter"?: Function;
         /**
           * @default mutable({} as const)
          */
@@ -2781,7 +4123,7 @@ declare namespace LocalJSX {
         "onZKeyDown"?: (event: ZaneInputCustomEvent<KeyboardEvent>) => void;
         "onZMouseEnter"?: (event: ZaneInputCustomEvent<MouseEvent>) => void;
         "onZMouseLeave"?: (event: ZaneInputCustomEvent<MouseEvent>) => void;
-        "parser"?: AnyNormalFunction<any, any>;
+        "parser"?: Function;
         "placeholder"?: string;
         "prefixIcon"?: string;
         "readonly"?: boolean;
@@ -2798,7 +4140,7 @@ declare namespace LocalJSX {
         /**
           * @default "text"
          */
-        "type"?: string;
+        "type"?: InputType;
         /**
           * @default true
          */
@@ -2812,14 +4154,7 @@ declare namespace LocalJSX {
          */
         "wordLimitPosition"?: "inside" | "outside";
         "zId"?: string;
-        "zInputMode"?: | "decimal"
-    | "email"
-    | "none"
-    | "numeric"
-    | "search"
-    | "tel"
-    | "text"
-    | "url";
+        "zInputMode"?: InputMode;
         /**
           * @default 0
          */
@@ -2891,6 +4226,87 @@ declare namespace LocalJSX {
     | "text"
     | "url";
     }
+    interface ZaneInputTag {
+        "ariaLabel"?: string;
+        /**
+          * @default 'off'
+         */
+        "autocomplete"?: HTMLInputElement['autocomplete'];
+        "autofocus"?: boolean;
+        /**
+          * @default 'close-circle-line'
+         */
+        "clearIcon"?: string;
+        "clearable"?: boolean;
+        "collapseTags"?: boolean;
+        "collapseTagsTooltip"?: boolean;
+        /**
+          * @default ''
+         */
+        "delimiter"?: string | RegExp;
+        /**
+          * @default undefined
+         */
+        "disabled"?: boolean;
+        "max"?: number;
+        /**
+          * @default 1
+         */
+        "maxCollapseTags"?: number;
+        "maxLength"?: number | string;
+        "minLength"?: number | string;
+        "onZAddTag"?: (event: ZaneInputTagCustomEvent<string | string[]>) => void;
+        "onZBlur"?: (event: ZaneInputTagCustomEvent<FocusEvent>) => void;
+        "onZChange"?: (event: ZaneInputTagCustomEvent<string[]>) => void;
+        "onZClear"?: (event: ZaneInputTagCustomEvent<void>) => void;
+        "onZCompositionEnd"?: (event: ZaneInputTagCustomEvent<CompositionEvent>) => void;
+        "onZCompositionStart"?: (event: ZaneInputTagCustomEvent<CompositionEvent>) => void;
+        "onZCompositionUpdate"?: (event: ZaneInputTagCustomEvent<CompositionEvent>) => void;
+        "onZDragTag"?: (event: ZaneInputTagCustomEvent<{
+    draggingIndex: number,
+    dropIndex: number,
+    draggedItem: string
+  }>) => void;
+        "onZFocus"?: (event: ZaneInputTagCustomEvent<FocusEvent>) => void;
+        "onZInput"?: (event: ZaneInputTagCustomEvent<string>) => void;
+        "onZRemoveTag"?: (event: ZaneInputTagCustomEvent<{index: number, item: string}>) => void;
+        "placeholder"?: string;
+        "readonly"?: boolean;
+        /**
+          * @default true
+         */
+        "saveOnBlur"?: boolean;
+        "size"?: ComponentSize;
+        /**
+          * @default 'light'
+         */
+        "tagEffect"?: 'light' | 'dark' | 'plain';
+        /**
+          * @default 'info'
+         */
+        "tagType"?: 'success' | 'primary' | 'info' | 'warning';
+        /**
+          * @default ''
+         */
+        "tooltipTheme"?: string;
+        /**
+          * @default 'Enter'
+         */
+        "trigger"?: 'Enter' | 'Space';
+        /**
+          * @default true
+         */
+        "validateEvent"?: boolean;
+        "value"?: string[];
+        "wrapperClass"?: string;
+        "wrapperStyle"?: Record<string, string>;
+        "zDraggable"?: boolean;
+        "zId"?: string;
+        /**
+          * @default 0
+         */
+        "zTabindex"?: number;
+    }
     interface ZaneLink {
         "disabled"?: boolean;
         /**
@@ -2912,6 +4328,160 @@ declare namespace LocalJSX {
         "underline"?: 'always' | 'hover' | 'never' | boolean;
     }
     interface ZaneMain {
+    }
+    interface ZaneMention {
+        "ariaLabel"?: string;
+        /**
+          * @default "off"
+         */
+        "autocomplete"?: HTMLInputElement['autocomplete'];
+        "autofocus"?: boolean;
+        /**
+          * @default false
+         */
+        "autosize"?: InputAutoSize;
+        "checkIsWhole"?: (pattern: string, prefix: string) => boolean;
+        /**
+          * @default 'close-circle-line'
+         */
+        "clearIcon"?: string;
+        "clearable"?: boolean;
+        /**
+          * @default undefined
+         */
+        "containerRole"?: string;
+        /**
+          * @default undefined
+         */
+        "disabled"?: boolean;
+        /**
+          * @default filterOption
+         */
+        "filterOption"?: (typeof filterOption);
+        "form"?: string;
+        "formatter"?: Function;
+        /**
+          * @default {}
+         */
+        "inputStyle"?: Record<string, string>;
+        "loading"?: boolean;
+        "maxLength"?: string | number;
+        "minLength"?: string | number;
+        /**
+          * @default {}
+         */
+        "modelModifiers"?: InputModelModifiers;
+        "name"?: string;
+        /**
+          * @default [0, 0]
+         */
+        "offset"?: | (({
+        placement,
+        popper,
+        reference,
+      }: {
+        placement: Placement;
+        popper: PopperRect;
+        reference: PopperRect;
+      }) => [number, number])
+    | [number, number];
+        "onZBlur"?: (event: ZaneMentionCustomEvent<FocusEvent>) => void;
+        "onZFocus"?: (event: ZaneMentionCustomEvent<FocusEvent>) => void;
+        "onZInput"?: (event: ZaneMentionCustomEvent<string>) => void;
+        "onZSearch"?: (event: ZaneMentionCustomEvent<{
+    pattern: string;
+    prefix: string;
+  }>) => void;
+        "onZSelect"?: (event: ZaneMentionCustomEvent<{
+    item: MentionOption,
+    prefix: string,
+  }>) => void;
+        "onZWholeRemove"?: (event: ZaneMentionCustomEvent<{
+    pattern: string;
+    prefix: string;
+  }>) => void;
+        /**
+          * @default []
+         */
+        "options"?: MentionOption[];
+        "parser"?: Function;
+        "placeholder"?: string;
+        /**
+          * @default 'bottom'
+         */
+        "placement"?: 'bottom' | 'top';
+        /**
+          * @default {}
+         */
+        "popperOptions"?: Partial<PopperOptions>;
+        "popperTheme"?: string;
+        "prefixIcon"?: string;
+        /**
+          * @default {     value: 'value',     label: 'label',     disabled: 'disabled'   }
+         */
+        "props"?: MentionOptionProps;
+        "readonly"?: boolean;
+        "resize"?: 'none' | 'both' | 'horizontal' | 'vertical';
+        /**
+          * @default 2
+         */
+        "rows"?: number;
+        /**
+          * @default false
+         */
+        "showArrow"?: boolean;
+        "showPassword"?: boolean;
+        "showWordLimit"?: boolean;
+        "size"?: ComponentSize;
+        /**
+          * @default ' '
+         */
+        "split"?: string;
+        "suffixIcon"?: string;
+        /**
+          * @default 'text'
+         */
+        "type"?: InputType;
+        /**
+          * @default true
+         */
+        "validateEvent"?: boolean;
+        "value"?: string;
+        "whole"?: boolean;
+        /**
+          * @default 'inside'
+         */
+        "wordLimitPosition"?: 'inside' | 'outside';
+        /**
+          * @default undefined
+         */
+        "zId"?: string;
+        /**
+          * @default undefined
+         */
+        "zInputmode"?: InputMode;
+        /**
+          * @default '@'
+         */
+        "zPrefix"?: string | string[];
+        /**
+          * @default 0
+         */
+        "zTabindex"?: string | number;
+    }
+    interface ZaneMentionDropdown {
+        "ariaLabel"?: string;
+        "disabled"?: boolean;
+        /**
+          * @default -1
+         */
+        "hoveringIndex"?: number;
+        "loading"?: boolean;
+        "onZSelect"?: (event: ZaneMentionDropdownCustomEvent<MentionOption>) => void;
+        /**
+          * @default []
+         */
+        "options"?: MentionOption[];
     }
     interface ZaneOnlyChild {
         /**
@@ -3019,6 +4589,76 @@ declare namespace LocalJSX {
          */
         "zId"?: string;
     }
+    interface ZaneRate {
+        "allowHalf"?: boolean;
+        "ariaLabel"?: string;
+        "clearable"?: boolean;
+        /**
+          * @default ['', '', '']
+         */
+        "colors"?: string[] | Record<number, string>;
+        /**
+          * @default undefined
+         */
+        "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "disabledVoidColor"?: string;
+        /**
+          * @default 'star-fill'
+         */
+        "disabledVoidIcon"?: string;
+        /**
+          * @default 4
+         */
+        "highThreshold"?: number;
+        /**
+          * @default ['star-fill', 'star-fill', 'star-fill']
+         */
+        "icons"?: string[] | Record<number, string>;
+        "label"?: string;
+        /**
+          * @default 2
+         */
+        "lowThreshold"?: number;
+        /**
+          * @default 5
+         */
+        "max"?: number;
+        "onZChange"?: (event: ZaneRateCustomEvent<number>) => void;
+        /**
+          * @default '{value}'
+         */
+        "scoreTemplate"?: string;
+        "showScore"?: boolean;
+        "showText"?: boolean;
+        "size"?: ComponentSize;
+        /**
+          * @default ''
+         */
+        "textColor"?: string;
+        /**
+          * @default ['Extremely bad', 'Disappointed', 'Fair', 'Satisfied', 'Surprise']
+         */
+        "texts"?: string[];
+        /**
+          * @default 0
+         */
+        "value"?: number;
+        /**
+          * @default ''
+         */
+        "voidColor"?: string;
+        /**
+          * @default 'star-line'
+         */
+        "voidIcon"?: string;
+        /**
+          * @default undefined
+         */
+        "zId"?: string;
+    }
     interface ZaneRow {
         "align"?: RowAlignType;
         /**
@@ -3076,6 +4716,267 @@ declare namespace LocalJSX {
           * @default {}
          */
         "wrapStyle"?: Record<string, string>;
+    }
+    interface ZaneSelect {
+        "allowCreate"?: boolean;
+        "ariaLabel"?: string;
+        /**
+          * @default 'none'
+         */
+        "autocomplete"?: 'none' | 'list' | 'both' | 'inline';
+        "automaticDropdown"?: boolean;
+        /**
+          * @default 'close-circle-line'
+         */
+        "clearIcon"?: string;
+        "clearable"?: boolean;
+        "collapseTags"?: boolean;
+        "collapseTagsTooltip"?: boolean;
+        /**
+          * @default 300
+         */
+        "debounce"?: number;
+        "defaultFirstOption"?: boolean;
+        /**
+          * @default undefined
+         */
+        "disabled"?: boolean;
+        "emptyValues"?: any[];
+        /**
+          * @default undefined
+         */
+        "estimatedOptionHeight"?: number;
+        "filterMethod"?: (query: string) => boolean;
+        "filterable"?: boolean;
+        /**
+          * @default true
+         */
+        "fitInputWidth"?: boolean | number;
+        /**
+          * @default 274
+         */
+        "height"?: number;
+        /**
+          * @default 34
+         */
+        "itemHeight"?: number;
+        "label"?: string;
+        "loading"?: boolean;
+        "loadingText"?: string;
+        /**
+          * @default 1
+         */
+        "maxCollapseTags"?: number;
+        "multiple"?: boolean;
+        /**
+          * @default 0
+         */
+        "multipleLimit"?: number;
+        "name"?: string;
+        "noDataText"?: string;
+        "noMatchText"?: string;
+        /**
+          * @default [0, 0]
+         */
+        "offset"?: | (({
+        placement,
+        popper,
+        reference,
+      }: {
+        placement: Placement;
+        popper: PopperRect;
+        reference: PopperRect;
+      }) => [number, number])
+    | [number, number];
+        "onZBlur"?: (event: ZaneSelectCustomEvent<FocusEvent>) => void;
+        "onZChange"?: (event: ZaneSelectCustomEvent<any>) => void;
+        "onZClear"?: (event: ZaneSelectCustomEvent<any>) => void;
+        "onZCompositionEnd"?: (event: ZaneSelectCustomEvent<CompositionEvent>) => void;
+        "onZCompositionStart"?: (event: ZaneSelectCustomEvent<CompositionEvent>) => void;
+        "onZCompositionUpdate"?: (event: ZaneSelectCustomEvent<CompositionEvent>) => void;
+        "onZFocus"?: (event: ZaneSelectCustomEvent<FocusEvent>) => void;
+        "onZRemoveTag"?: (event: ZaneSelectCustomEvent<any>) => void;
+        "options"?: OptionType[];
+        "placeholder"?: string;
+        /**
+          * @default 'bottom-start'
+         */
+        "placement"?: Placement;
+        /**
+          * @default {}
+         */
+        "popperOptions"?: Partial<PopperOptions>;
+        "popperTheme"?: string;
+        /**
+          * @default {     label: 'label',     value: 'value',     disabled: 'disabled',     options: 'options'   }
+         */
+        "props"?: Props;
+        "remote"?: boolean;
+        "remoteMethod"?: (query: string) => any;
+        "remoteShowSuffix"?: boolean;
+        /**
+          * @default true
+         */
+        "reserveKeyword"?: boolean;
+        "scrollbarAlwaysOn"?: boolean;
+        /**
+          * @default false
+         */
+        "showArrow"?: boolean;
+        "size"?: ComponentSize;
+        /**
+          * @default 'arrow-down-s-line'
+         */
+        "suffixIcon"?: string;
+        /**
+          * @default 'light'
+         */
+        "tagEffect"?: 'dark' | 'light' | 'plain';
+        "tagLabelRender"?: (label: string, value: string, index: number) => HTMLElement;
+        "tagRender"?: () => HTMLElement;
+        /**
+          * @default 'info'
+         */
+        "tagType"?: 'primary' | 'success' | 'warning' | 'danger' | 'info';
+        /**
+          * @default true
+         */
+        "validateEvent"?: boolean;
+        /**
+          * @default undefined
+         */
+        "value"?: any[] | string | number | Record<string, any> | any;
+        /**
+          * @default 'value'
+         */
+        "valueKey"?: string;
+        /**
+          * @default undefined
+         */
+        "valueOnClear"?: any;
+        "zId"?: string;
+        /**
+          * @default 0
+         */
+        "zTabindex"?: number;
+    }
+    interface ZaneSelectGroupItem {
+        "item"?: any;
+        "zHeight"?: number;
+        "zStyle"?: Record<string, any>;
+    }
+    interface ZaneSelectMenu {
+        "ariaLabel"?: string;
+        "data"?: any[];
+        "hoveringIndex"?: number;
+        "loading"?: boolean;
+        "width"?: number;
+        "zId"?: string;
+    }
+    interface ZaneSelectOptionItem {
+        "created"?: boolean;
+        "data"?: any[];
+        "disabled"?: boolean;
+        "hovering"?: boolean;
+        "index"?: number;
+        "item"?: Option;
+        "onZHover"?: (event: ZaneSelectOptionItemCustomEvent<number>) => void;
+        "onZSelect"?: (event: ZaneSelectOptionItemCustomEvent<{
+    value: Option,
+    index: number
+  }>) => void;
+        "optionRender"?: (item: Option, index: number, disabled: boolean) => HTMLElement;
+        "selected"?: boolean;
+        "zStyle"?: Record<string, any>;
+    }
+    interface ZaneSlider {
+        /**
+          * @default undefined
+         */
+        "ariaLabel"?: string;
+        /**
+          * @default undefined
+         */
+        "disabled"?: boolean;
+        "formatTooltip"?: (value: number) => number | string;
+        /**
+          * @default undefined
+         */
+        "formatValueText"?: (value: number) => string;
+        "height"?: string;
+        /**
+          * @default ''
+         */
+        "inputSize"?: ComponentSize;
+        "label"?: string;
+        "marks"?: Record<number, string | { style: Record<string, any>; label: string }>;
+        /**
+          * @default 100
+         */
+        "max"?: number;
+        /**
+          * @default 0
+         */
+        "min"?: number;
+        "onZChange"?: (event: ZaneSliderCustomEvent<number | number[]>) => void;
+        "onZInput"?: (event: ZaneSliderCustomEvent<number | number[]>) => void;
+        /**
+          * @default 'top'
+         */
+        "placement"?: Placement;
+        "range"?: boolean;
+        /**
+          * @default undefined
+         */
+        "rangeEndLabel"?: string;
+        /**
+          * @default undefined
+         */
+        "rangeStartLabel"?: string;
+        "showInput"?: boolean;
+        /**
+          * @default true
+         */
+        "showInputControls"?: boolean;
+        "showStops"?: boolean;
+        /**
+          * @default true
+         */
+        "showTooltip"?: boolean;
+        /**
+          * @default ''
+         */
+        "size"?: ComponentSize;
+        /**
+          * @default 1
+         */
+        "step"?: number;
+        /**
+          * @default undefined
+         */
+        "tooltipClass"?: string;
+        /**
+          * @default true
+         */
+        "validateEvent"?: boolean;
+        /**
+          * @default 0
+         */
+        "value"?: number | number[];
+        "vertical"?: boolean;
+        "zId"?: string;
+    }
+    interface ZaneSliderButton {
+        "onZChange"?: (event: ZaneSliderButtonCustomEvent<number>) => void;
+        /**
+          * @default 'top'
+         */
+        "placement"?: Placement;
+        /**
+          * @default 0
+         */
+        "value"?: number;
+        "vertical"?: boolean;
     }
     interface ZaneSplitter {
         /**
@@ -3250,20 +5151,20 @@ declare namespace LocalJSX {
         popper,
         reference,
       }: {
-        placement: Placement;
+        placement: Placement1;
         popper: PopperRect;
         reference: PopperRect;
       }) => [number, number])
     | [number, number];
-        "onZClickOutside"?: (event: ZaneTooltipCustomEvent<Instance<Props>>) => void;
-        "onZHidden"?: (event: ZaneTooltipCustomEvent<Instance<Props>>) => void;
-        "onZHide"?: (event: ZaneTooltipCustomEvent<Instance<Props>>) => void;
-        "onZMount"?: (event: ZaneTooltipCustomEvent<Instance<Props>>) => void;
-        "onZShow"?: (event: ZaneTooltipCustomEvent<Instance<Props>>) => void;
+        "onZClickOutside"?: (event: ZaneTooltipCustomEvent<Instance<Props1>>) => void;
+        "onZHidden"?: (event: ZaneTooltipCustomEvent<Instance<Props1>>) => void;
+        "onZHide"?: (event: ZaneTooltipCustomEvent<Instance<Props1>>) => void;
+        "onZMount"?: (event: ZaneTooltipCustomEvent<Instance<Props1>>) => void;
+        "onZShow"?: (event: ZaneTooltipCustomEvent<Instance<Props1>>) => void;
         /**
           * @default 'top'
          */
-        "placement"?: Placement;
+        "placement"?: Placement1;
         /**
           * @default []
          */
@@ -3289,7 +5190,7 @@ declare namespace LocalJSX {
          */
         "theme"?: string;
         "tippyRender"?: | ((instance: Instance) => {
-        onUpdate?: (prevProps: Props, nextProps: Props) => void;
+        onUpdate?: (prevProps: Props1, nextProps: Props1) => void;
         popper: PopperElement;
       })
     | null;
@@ -3310,6 +5211,216 @@ declare namespace LocalJSX {
          */
         "zIndex"?: number;
     }
+    interface ZaneVirtualGrid {
+        /**
+          * @default 2
+         */
+        "columnCache"?: number;
+        "columnWidth"?: number | ItemSize;
+        /**
+          * @default 'div'
+         */
+        "containerElement"?: string;
+        /**
+          * @default []
+         */
+        "data"?: any[];
+        /**
+          * @default 'ltr'
+         */
+        "direction"?: 'ltr' | 'rtl';
+        "estimatedColumnWidth"?: number;
+        "estimatedRowHeight"?: number;
+        /**
+          * @default 6
+         */
+        "hScrollbarSize"?: number;
+        "height"?: string | number;
+        /**
+          * @default 0
+         */
+        "initScrollLeft"?: number;
+        /**
+          * @default 0
+         */
+        "initScrollTop"?: number;
+        /**
+          * @default 'div'
+         */
+        "innerElement"?: string;
+        /**
+          * @default {}
+         */
+        "innerProps"?: Record<string, unknown>;
+        "isSized"?: boolean;
+        /**
+          * @default ({columnIndex, rowIndex}) => `${columnIndex}-${rowIndex}`
+         */
+        "itemKey"?: GridItemKeyGetter;
+        "itemRender"?: (
+    data: {
+      columnIndex: number,
+      data: any[],
+      isScrolling: boolean,
+      style: Record<string, string>,
+      rowIndex: number,
+      key: string | number,
+    }
+  ) => HTMLElement;
+        "onZItemRendered"?: (event: ZaneVirtualGridCustomEvent<{
+    columnCacheStart: number;
+    columnCacheEnd: number;
+    columnVisibleStart: number;
+    columnVisibleEnd: number;
+    rowCacheStart: number;
+    rowCacheEnd: number;
+    rowVisibleStart: number;
+    rowVisibleEnd: number;
+  }>) => void;
+        "onZScroll"?: (event: ZaneVirtualGridCustomEvent<{
+    scrollLeft: number;
+    scrollTop: number;
+    updateRequested: boolean;
+    xAxisScrollDir: string;
+    yAxisScrollDir: string;
+  }>) => void;
+        /**
+          * @default true
+         */
+        "perfMode"?: boolean;
+        "role"?: string;
+        /**
+          * @default 2
+         */
+        "rowCache"?: number;
+        "rowHeight"?: number | ItemSize;
+        "scrollbarAlwaysOn"?: boolean;
+        /**
+          * @default 2
+         */
+        "scrollbarEndGap"?: number;
+        /**
+          * @default 0
+         */
+        "scrollbarStartGap"?: number;
+        "totalColumn"?: number;
+        "totalRow"?: number;
+        "useIsScrolling"?: boolean;
+        /**
+          * @default 6
+         */
+        "vScrollbarSize"?: number;
+        "width"?: number | string;
+        /**
+          * @default ''
+         */
+        "wrapperClass"?: string;
+        "wrapperStyle"?: Record<string, string>;
+    }
+    interface ZaneVirtualList {
+        /**
+          * @default 2
+         */
+        "cache"?: number;
+        /**
+          * @default 'div'
+         */
+        "containerElement"?: string;
+        /**
+          * @default []
+         */
+        "data"?: any[];
+        /**
+          * @default 'ltr'
+         */
+        "direction"?: 'ltr' | 'rtl';
+        "estimatedItemSize"?: number;
+        "height"?: string | number;
+        /**
+          * @default 0
+         */
+        "initScrollOffset"?: number;
+        /**
+          * @default 'div'
+         */
+        "innerElement"?: string;
+        /**
+          * @default {}
+         */
+        "innerProps"?: Record<string, unknown>;
+        "isSized"?: boolean;
+        "itemRender"?: (
+    data: {
+      data: any[],
+      index: number,
+      isScrolling: boolean,
+      style: Record<string, any>
+    }
+  ) => HTMLElement;
+        "itemSize"?: number | ItemSize;
+        /**
+          * @default 'vertical'
+         */
+        "layout"?: 'horizontal' | 'vertical';
+        "onZItemRendered"?: (event: ZaneVirtualListCustomEvent<{
+    cacheStart: number;
+    cacheEnd: number;
+    visibleStart: number;
+    visibleEnd: number;
+  }>) => void;
+        "onZScroll"?: (event: ZaneVirtualListCustomEvent<{
+    scrollDir: string;
+    scrollOffset: number;
+    updateRequested: boolean;
+  }>) => void;
+        /**
+          * @default true
+         */
+        "perfMode"?: boolean;
+        /**
+          * @default false
+         */
+        "scrollbarAlwaysOn"?: boolean;
+        "total"?: number;
+        "useIsScrolling"?: boolean;
+        "width"?: number | string;
+        /**
+          * @default ''
+         */
+        "wrapperClass"?: string;
+        "wrapperStyle"?: Record<string, string>;
+    }
+    interface ZaneVirtualScrollbar {
+        "alwaysOn"?: boolean;
+        "clientSize"?: number;
+        /**
+          * @default 2
+         */
+        "endGap"?: number;
+        /**
+          * @default 'vertical'
+         */
+        "layout"?: 'horizontal' | 'vertical';
+        "onZScroll"?: (event: ZaneVirtualScrollbarCustomEvent<{
+    distance: number;
+    totalSteps: number
+  }>) => void;
+        "onZStartMove"?: (event: ZaneVirtualScrollbarCustomEvent<void>) => void;
+        "onZStopMove"?: (event: ZaneVirtualScrollbarCustomEvent<void>) => void;
+        "ratio"?: number;
+        "scrollFrom"?: number;
+        /**
+          * @default 6
+         */
+        "scrollbarSize"?: number;
+        /**
+          * @default 0
+         */
+        "startGap"?: number;
+        "total"?: number;
+        "visible"?: boolean;
+        "wrapperClass"?: string;
+    }
     interface IntrinsicElements {
         "zane-a2ui": ZaneA2ui;
         "zane-aside": ZaneAside;
@@ -3324,6 +5435,13 @@ declare namespace LocalJSX {
         "zane-cascader-node": ZaneCascaderNode;
         "zane-cascader-node-content": ZaneCascaderNodeContent;
         "zane-cascader-panel": ZaneCascaderPanel;
+        "zane-chat": ZaneChat;
+        "zane-chat-body": ZaneChatBody;
+        "zane-chat-bubble": ZaneChatBubble;
+        "zane-chat-footer": ZaneChatFooter;
+        "zane-chat-header": ZaneChatHeader;
+        "zane-chat-input": ZaneChatInput;
+        "zane-chat-renderer-markdown": ZaneChatRendererMarkdown;
         "zane-checkbox": ZaneCheckbox;
         "zane-checkbox-button": ZaneCheckboxButton;
         "zane-checkbox-group": ZaneCheckboxGroup;
@@ -3343,14 +5461,24 @@ declare namespace LocalJSX {
         "zane-icon": ZaneIcon;
         "zane-input": ZaneInput;
         "zane-input-number": ZaneInputNumber;
+        "zane-input-tag": ZaneInputTag;
         "zane-link": ZaneLink;
         "zane-main": ZaneMain;
+        "zane-mention": ZaneMention;
+        "zane-mention-dropdown": ZaneMentionDropdown;
         "zane-only-child": ZaneOnlyChild;
         "zane-radio": ZaneRadio;
         "zane-radio-button": ZaneRadioButton;
         "zane-radio-group": ZaneRadioGroup;
+        "zane-rate": ZaneRate;
         "zane-row": ZaneRow;
         "zane-scrollbar": ZaneScrollbar;
+        "zane-select": ZaneSelect;
+        "zane-select-group-item": ZaneSelectGroupItem;
+        "zane-select-menu": ZaneSelectMenu;
+        "zane-select-option-item": ZaneSelectOptionItem;
+        "zane-slider": ZaneSlider;
+        "zane-slider-button": ZaneSliderButton;
         "zane-splitter": ZaneSplitter;
         "zane-splitter-bar": ZaneSplitterBar;
         "zane-splitter-panel": ZaneSplitterPanel;
@@ -3358,6 +5486,9 @@ declare namespace LocalJSX {
         "zane-text": ZaneText;
         "zane-thumb": ZaneThumb;
         "zane-tooltip": ZaneTooltip;
+        "zane-virtual-grid": ZaneVirtualGrid;
+        "zane-virtual-list": ZaneVirtualList;
+        "zane-virtual-scrollbar": ZaneVirtualScrollbar;
     }
 }
 export { LocalJSX as JSX };
@@ -3377,6 +5508,13 @@ declare module "@stencil/core" {
             "zane-cascader-node": LocalJSX.ZaneCascaderNode & JSXBase.HTMLAttributes<HTMLZaneCascaderNodeElement>;
             "zane-cascader-node-content": LocalJSX.ZaneCascaderNodeContent & JSXBase.HTMLAttributes<HTMLZaneCascaderNodeContentElement>;
             "zane-cascader-panel": LocalJSX.ZaneCascaderPanel & JSXBase.HTMLAttributes<HTMLZaneCascaderPanelElement>;
+            "zane-chat": LocalJSX.ZaneChat & JSXBase.HTMLAttributes<HTMLZaneChatElement>;
+            "zane-chat-body": LocalJSX.ZaneChatBody & JSXBase.HTMLAttributes<HTMLZaneChatBodyElement>;
+            "zane-chat-bubble": LocalJSX.ZaneChatBubble & JSXBase.HTMLAttributes<HTMLZaneChatBubbleElement>;
+            "zane-chat-footer": LocalJSX.ZaneChatFooter & JSXBase.HTMLAttributes<HTMLZaneChatFooterElement>;
+            "zane-chat-header": LocalJSX.ZaneChatHeader & JSXBase.HTMLAttributes<HTMLZaneChatHeaderElement>;
+            "zane-chat-input": LocalJSX.ZaneChatInput & JSXBase.HTMLAttributes<HTMLZaneChatInputElement>;
+            "zane-chat-renderer-markdown": LocalJSX.ZaneChatRendererMarkdown & JSXBase.HTMLAttributes<HTMLZaneChatRendererMarkdownElement>;
             "zane-checkbox": LocalJSX.ZaneCheckbox & JSXBase.HTMLAttributes<HTMLZaneCheckboxElement>;
             "zane-checkbox-button": LocalJSX.ZaneCheckboxButton & JSXBase.HTMLAttributes<HTMLZaneCheckboxButtonElement>;
             "zane-checkbox-group": LocalJSX.ZaneCheckboxGroup & JSXBase.HTMLAttributes<HTMLZaneCheckboxGroupElement>;
@@ -3396,14 +5534,24 @@ declare module "@stencil/core" {
             "zane-icon": LocalJSX.ZaneIcon & JSXBase.HTMLAttributes<HTMLZaneIconElement>;
             "zane-input": LocalJSX.ZaneInput & JSXBase.HTMLAttributes<HTMLZaneInputElement>;
             "zane-input-number": LocalJSX.ZaneInputNumber & JSXBase.HTMLAttributes<HTMLZaneInputNumberElement>;
+            "zane-input-tag": LocalJSX.ZaneInputTag & JSXBase.HTMLAttributes<HTMLZaneInputTagElement>;
             "zane-link": LocalJSX.ZaneLink & JSXBase.HTMLAttributes<HTMLZaneLinkElement>;
             "zane-main": LocalJSX.ZaneMain & JSXBase.HTMLAttributes<HTMLZaneMainElement>;
+            "zane-mention": LocalJSX.ZaneMention & JSXBase.HTMLAttributes<HTMLZaneMentionElement>;
+            "zane-mention-dropdown": LocalJSX.ZaneMentionDropdown & JSXBase.HTMLAttributes<HTMLZaneMentionDropdownElement>;
             "zane-only-child": LocalJSX.ZaneOnlyChild & JSXBase.HTMLAttributes<HTMLZaneOnlyChildElement>;
             "zane-radio": LocalJSX.ZaneRadio & JSXBase.HTMLAttributes<HTMLZaneRadioElement>;
             "zane-radio-button": LocalJSX.ZaneRadioButton & JSXBase.HTMLAttributes<HTMLZaneRadioButtonElement>;
             "zane-radio-group": LocalJSX.ZaneRadioGroup & JSXBase.HTMLAttributes<HTMLZaneRadioGroupElement>;
+            "zane-rate": LocalJSX.ZaneRate & JSXBase.HTMLAttributes<HTMLZaneRateElement>;
             "zane-row": LocalJSX.ZaneRow & JSXBase.HTMLAttributes<HTMLZaneRowElement>;
             "zane-scrollbar": LocalJSX.ZaneScrollbar & JSXBase.HTMLAttributes<HTMLZaneScrollbarElement>;
+            "zane-select": LocalJSX.ZaneSelect & JSXBase.HTMLAttributes<HTMLZaneSelectElement>;
+            "zane-select-group-item": LocalJSX.ZaneSelectGroupItem & JSXBase.HTMLAttributes<HTMLZaneSelectGroupItemElement>;
+            "zane-select-menu": LocalJSX.ZaneSelectMenu & JSXBase.HTMLAttributes<HTMLZaneSelectMenuElement>;
+            "zane-select-option-item": LocalJSX.ZaneSelectOptionItem & JSXBase.HTMLAttributes<HTMLZaneSelectOptionItemElement>;
+            "zane-slider": LocalJSX.ZaneSlider & JSXBase.HTMLAttributes<HTMLZaneSliderElement>;
+            "zane-slider-button": LocalJSX.ZaneSliderButton & JSXBase.HTMLAttributes<HTMLZaneSliderButtonElement>;
             "zane-splitter": LocalJSX.ZaneSplitter & JSXBase.HTMLAttributes<HTMLZaneSplitterElement>;
             "zane-splitter-bar": LocalJSX.ZaneSplitterBar & JSXBase.HTMLAttributes<HTMLZaneSplitterBarElement>;
             "zane-splitter-panel": LocalJSX.ZaneSplitterPanel & JSXBase.HTMLAttributes<HTMLZaneSplitterPanelElement>;
@@ -3411,6 +5559,9 @@ declare module "@stencil/core" {
             "zane-text": LocalJSX.ZaneText & JSXBase.HTMLAttributes<HTMLZaneTextElement>;
             "zane-thumb": LocalJSX.ZaneThumb & JSXBase.HTMLAttributes<HTMLZaneThumbElement>;
             "zane-tooltip": LocalJSX.ZaneTooltip & JSXBase.HTMLAttributes<HTMLZaneTooltipElement>;
+            "zane-virtual-grid": LocalJSX.ZaneVirtualGrid & JSXBase.HTMLAttributes<HTMLZaneVirtualGridElement>;
+            "zane-virtual-list": LocalJSX.ZaneVirtualList & JSXBase.HTMLAttributes<HTMLZaneVirtualListElement>;
+            "zane-virtual-scrollbar": LocalJSX.ZaneVirtualScrollbar & JSXBase.HTMLAttributes<HTMLZaneVirtualScrollbarElement>;
         }
     }
 }

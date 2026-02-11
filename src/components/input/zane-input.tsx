@@ -1,4 +1,4 @@
-import type { AnyNormalFunction, ComponentSize } from "../../types";
+import type { ComponentSize } from "../../types";
 
 import {
   Component,
@@ -31,6 +31,7 @@ import { getFormContext, getFormItemContext } from "../form/utils";
 import type { ConfigProviderContext } from "../config-provider/types";
 import { getConfigProviderContext } from "../config-provider/utils";
 import classNames from "classnames";
+import type { InputAutoSize, InputMode, InputType } from "./types";
 
 type TargetElement = HTMLInputElement | HTMLTextAreaElement;
 
@@ -44,11 +45,11 @@ const nsTextarea = useNamespace("textarea");
 export class ZaneInput {
   @Prop() ariaLabel: string;
 
-  @Prop() autocomplete: AutoFill = "off";
+  @Prop() autocomplete: HTMLInputElement['autocomplete'] = "off";
 
   @Prop() autofocus: boolean;
 
-  @Prop() autosize: boolean | { maxRows?: number; minRows?: number } = false;
+  @Prop() autosize: InputAutoSize = false;
 
   @Event({ eventName: "zBlur" }) blurEvent: EventEmitter<FocusEvent>;
 
@@ -83,7 +84,7 @@ export class ZaneInput {
 
   @Prop() form: string;
 
-  @Prop() formatter: AnyNormalFunction<any, string>;
+  @Prop() formatter: Function;
 
   @State() hovering: boolean = false;
 
@@ -113,7 +114,7 @@ export class ZaneInput {
 
   @Prop() name: string;
 
-  @Prop() parser: AnyNormalFunction<any, any>;
+  @Prop() parser: Function;
 
   @State() passwordVisible: boolean = false;
 
@@ -139,7 +140,7 @@ export class ZaneInput {
 
   @State() textareaCalcStyle: Record<string, string> = {};
 
-  @Prop() type: string = "text";
+  @Prop() type: InputType = "text";
 
   @Prop() validateEvent: boolean = true;
 
@@ -149,15 +150,7 @@ export class ZaneInput {
 
   @Prop({ attribute: "id" }) zId: string;
 
-  @Prop({ attribute: "inputmode" }) zInputMode:
-    | "decimal"
-    | "email"
-    | "none"
-    | "numeric"
-    | "search"
-    | "tel"
-    | "text"
-    | "url";
+  @Prop({ attribute: "inputmode" }) zInputMode: InputMode;
 
   @Prop({ attribute: "tabindex" }) zTabindex: number | string = 0;
 
@@ -284,6 +277,11 @@ export class ZaneInput {
     return this.inputRef;
   }
 
+  @Method()
+  async getTextarea() {
+    return this.textareaRef;
+  }
+
   @Watch("clearable")
   @Watch('inputDisabled')
   @Watch('readonly')
@@ -363,7 +361,7 @@ export class ZaneInput {
     );
   }
 
-  getInputType(): string {
+  getInputType(): InputType {
     if (this.showPassword) {
       return this.passwordVisible ? "text" : "password";
     }
@@ -683,7 +681,7 @@ export class ZaneInput {
             ref={(el) => (this.inputRef = el)}
             step={this.step}
             tabindex={this.zTabindex}
-            type={this.getInputType()}
+            type={this.getInputType() as string}
           />
 
           {this.suffixVisible && (

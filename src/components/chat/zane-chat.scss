@@ -1,0 +1,16 @@
+.zane-chat {
+  background: var(--zane-chat-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-color: var(--zane-chat-border-color);
+  border-style: solid;
+  border-width: var(--zane-chat-border-size);
+  border-radius: var(--zane-chat-border-radius);
+  box-shadow: var(--zane-chat-box-shadow);
+  padding: var(--zane-chat-padding);
+}
+
+.zane-chat * {
+  box-sizing: border-box;
+}
