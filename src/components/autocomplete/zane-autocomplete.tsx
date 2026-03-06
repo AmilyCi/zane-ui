@@ -42,21 +42,23 @@ const SCOPE = 'zane-autocomplete';
   tag: 'zane-autocomplete',
 })
 export class ZaneComplete {
-  // @State() activated: boolean = false;
 
   @Prop() ariaLabel: string;
 
   @Prop() autosize: boolean | { maxRows?: number; minRows?: number } = false;
 
-  @Event({ eventName: 'zBlur' }) blurEvent: EventEmitter<FocusEvent>;
+  @Event({ eventName: 'zBlur', bubbles: false })
+  blurEvent: EventEmitter<FocusEvent>;
 
-  @Event({ eventName: 'zChange' }) changeEvent: EventEmitter<number | string>;
+  @Event({ eventName: 'zChange', bubbles: false })
+  changeEvent: EventEmitter<number | string>;
 
   @Prop() clearable: boolean;
 
-  @Event({ eventName: 'zClear' }) clearEvent: EventEmitter<void>;
+  @Event({ eventName: 'zClear', bubbles: false })
+  clearEvent: EventEmitter<void>;
 
-  @Prop() clearIcon: string = 'circle-close';
+  @Prop() clearIcon: string = 'close-circle-line';
 
   @Prop() debounce: number = 300;
 
@@ -71,15 +73,12 @@ export class ZaneComplete {
 
   @Prop() fitInputWidth: boolean;
 
-  @Event({ eventName: 'zFocus' }) focusEvent: EventEmitter<FocusEvent>;
+  @Event({ eventName: 'zFocus', bubbles: false })
+  focusEvent: EventEmitter<FocusEvent>;
 
   @Prop() form: string;
 
   @Prop() formatter: AnyNormalFunction<any, string>;
-
-  @State() hasFooter: boolean = false;
-
-  @State() hasHeader: boolean = false;
 
   @Prop() hideLoading: boolean;
 
@@ -87,7 +86,8 @@ export class ZaneComplete {
 
   @Prop() highlightFirstItem: boolean;
 
-  @Event({ eventName: 'zInput' }) inputEvent: EventEmitter<string>;
+  @Event({ eventName: 'zInput', bubbles: false })
+  inputEvent: EventEmitter<string>;
 
   @Prop() inputStyle: Record<string, string> | string = mutable({} as const);
 
@@ -121,7 +121,8 @@ export class ZaneComplete {
 
   @Prop() rows: number = 2;
 
-  @Event({ eventName: 'zSelect' }) selectEvent: EventEmitter<number | string>;
+  @Event({ eventName: 'zSelect', bubbles: false })
+  selectEvent: EventEmitter<number | string>;
 
   @Prop() selectWhenUnmatched: boolean;
 
@@ -175,11 +176,23 @@ export class ZaneComplete {
 
   private listboxId = buildUUID();
 
-  private popperRef: HTMLZaneTooltipElement;
+  private popperRef: HTMLZaneTippyElement;
 
   private readonly: boolean = false;
 
   private regionRef: HTMLElement;
+
+  private hasFooter: boolean = false;
+
+  private hasHeader: boolean = false;
+
+  private hasAppend: boolean;
+
+  private hasPrefix: boolean;
+
+  private hasPrepend: boolean;
+
+  private hasSuffix: boolean;
 
   @Prop() appendTo: 'parent' | ((ref: Element) => Element) | Element = () =>
     document?.body;
@@ -193,6 +206,10 @@ export class ZaneComplete {
     // console.log(this.fetchSuggestions);
     this.hasFooter = !!this.el.querySelector('[slot="footer"]');
     this.hasHeader = !!this.el.querySelector('[slot="header"]');
+    this.hasAppend = !!this.el.querySelector('[slot="append"]');
+    this.hasPrefix = !!this.el.querySelector('[slot="prefix"]');
+    this.hasPrepend = !!this.el.querySelector('[slot="prepend"]');
+    this.hasSuffix = !!this.el.querySelector('[slot="suffix"]');
 
     this.formContext = getFormContext(this.el);
   }
@@ -304,14 +321,15 @@ export class ZaneComplete {
   render() {
     return (
       <Host>
-        <zane-tooltip
+        <zane-tippy
           appendTo={this.appendTo}
           arrow={false}
           hideOnClick={false}
           interactive={true}
           maxWidth={this.dropdownWidth}
-          offset={[0, 1]}
-          onZClickOutside={this.handleClickOutside}
+          boxClass={ns.b('tippy-box')}
+          contentClass={ns.b('tippy-content')}
+          onClickOutside={this.handleClickOutside}
           onZHide={this.handleHide}
           onZShow={this.handleShow}
           placement={this.placement}
@@ -370,10 +388,18 @@ export class ZaneComplete {
               zInputMode={this.zInputMode}
               zTabindex={this.zTabindex}
             >
-              <slot name="prepend" slot="prepend"></slot>
-              <slot name="append" slot="append"></slot>
-              <slot name="prefix" slot="prefix"></slot>
-              <slot name="suffix" slot="suffix"></slot>
+              {
+                this.hasPrepend && (<slot name="prepend" slot="prepend"></slot>)
+              }
+              {
+                this.hasAppend && (<slot name="append" slot="append"></slot>)
+              }
+              {
+                this.hasPrefix && (<slot name="prefix" slot="prefix"></slot>)
+              }
+              {
+                this.hasSuffix && (<slot name="suffix" slot="suffix"></slot>)
+              }
             </zane-input>
           </div>
           <div slot="content">
@@ -431,7 +457,7 @@ export class ZaneComplete {
               )}
             </div>
           </div>
-        </zane-tooltip>
+        </zane-tippy>
       </Host>
     );
   }

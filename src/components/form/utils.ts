@@ -18,7 +18,7 @@ export const filterFields = (
     : fields
 }
 
-export const getFormContext = (el: HTMLElement): ReactiveObject<FormContext> => {
+export const getFormContext = (el: HTMLElement): ReactiveObject<FormContext> | null => {
   let parent = el.parentElement, context = null;
   while (parent) {
     if (parent.tagName === 'ZANE-FORM') {
@@ -30,7 +30,7 @@ export const getFormContext = (el: HTMLElement): ReactiveObject<FormContext> => 
   return context;
 }
 
-export const getFormItemContext = (el: HTMLElement): ReactiveObject<FormItemContext> => {
+export const getFormItemContext = (el: HTMLElement): ReactiveObject<FormItemContext> | null => {
   let parent = el.parentElement, context = null;
   while (parent) {
     if (parent.tagName === 'ZANE-FORM-ITEM') {

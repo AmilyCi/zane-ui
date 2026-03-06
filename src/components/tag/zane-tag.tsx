@@ -17,11 +17,13 @@ const ns = useNamespace('tag');
   tag: 'zane-tag',
 })
 export class ZaneTag {
-  @Event({ eventName: 'zClick' }) clickEvent: EventEmitter<MouseEvent>;
+  @Event({ eventName: 'zClick', bubbles: false })
+  clickEvent: EventEmitter<MouseEvent>;
 
   @Prop({ reflect: true }) closeable: boolean;
 
-  @Event({ eventName: 'zClose' }) closeEvent: EventEmitter<MouseEvent>;
+  @Event({ eventName: 'zClose', bubbles: false })
+  closeEvent: EventEmitter<MouseEvent>;
 
   @Prop() color: string;
 
@@ -97,6 +99,6 @@ export class ZaneTag {
 
   private handleClose = (event: MouseEvent) => {
     event.stopPropagation();
-    this.closeEvent.emit();
+    this.closeEvent.emit(event);
   };
 }

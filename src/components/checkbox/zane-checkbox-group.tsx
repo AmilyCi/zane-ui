@@ -7,6 +7,7 @@ import {
   type EventEmitter,
   Watch,
   State,
+  Host,
 } from "@stencil/core";
 import type { ComponentSize } from "../../types";
 import type {
@@ -35,9 +36,11 @@ export class ZaneCheckboxGroup {
 
   @Prop({ attribute: "id", mutable: true }) zId: string;
 
-  @Prop({ mutable: true }) value: (string | number)[] = [];
+  @Prop({ mutable: true }) value: CheckboxGroupValueType = [];
 
   @Prop() disabled: boolean = undefined;
+
+  @Prop() tag: string = "div";
 
   @Prop() min: number = undefined;
 
@@ -48,8 +51,6 @@ export class ZaneCheckboxGroup {
   @Prop() fill: string;
 
   @Prop() textColor: string;
-
-  @Prop() tag: string = "div";
 
   @Prop() validateEvent: boolean = true;
 
@@ -67,7 +68,8 @@ export class ZaneCheckboxGroup {
 
   @Prop() ariaLabel: string;
 
-  @Event({ eventName: "zChange" }) changeEvent: EventEmitter;
+  @Event({ eventName: "zChange", bubbles: false })
+  changeEvent: EventEmitter<CheckboxGroupValueType>;
 
   @State() isLimitExceeded: boolean = false;
 
@@ -157,7 +159,6 @@ export class ZaneCheckboxGroup {
   }
 
   render() {
-    const Tag = this.tag;
     const OptionComponent =
       this.type === "button" ? "zane-checkbox-button" : "zane-checkbox";
 
@@ -167,38 +168,44 @@ export class ZaneCheckboxGroup {
     }
 
     const { label, value, disabled } = aliasProps;
+
+    const Tag = this.tag;
+
     return (
-      <Tag
+      <Host
         id={this.zId}
         class={ns.b("group")}
         role="group"
-        ariaLabel={
-          !this.isLabeledByFormItem()
-            ? this.ariaLabel || "checkbox-group"
-            : undefined
-        }
-        ariaLabelledby={
-          this.isLabeledByFormItem() ? this.formItemContext?.value.labelId : undefined
-        }
       >
-        <slot>
-          {this.options?.map((option, index) => {
-            return (
-              <OptionComponent
-                key={index}
-                size={this.size}
-                validateEvent={this.validateEvent}
-                label={option[label]}
-                value={option[value]}
-                disabled={option[disabled]}
-                {
-                  ...omit(option, [label, value, disabled])
-                }
-              />
-            );
-          })}
-        </slot>
-      </Tag>
+        <Tag
+          ariaLabel={
+            !this.isLabeledByFormItem()
+              ? this.ariaLabel || "checkbox-group"
+              : undefined
+          }
+          ariaLabelledby={
+            this.isLabeledByFormItem() ? this.formItemContext?.value.labelId : undefined
+          }
+        >
+          <slot>
+            {this.options?.map((option, index) => {
+              return (
+                <OptionComponent
+                  key={index}
+                  size={this.size}
+                  validateEvent={this.validateEvent}
+                  label={option[label]}
+                  value={option[value]}
+                  disabled={option[disabled]}
+                  {
+                    ...omit(option, [label, value, disabled])
+                  }
+                />
+              );
+            })}
+          </slot>
+        </Tag>
+      </Host>
     );
   }
 }

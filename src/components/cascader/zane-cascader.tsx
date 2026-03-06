@@ -61,7 +61,7 @@ export class ZaneCascader {
 
   @Prop() clearable: boolean;
 
-  @Prop() clearIcon: string = "circle-close";
+  @Prop() clearIcon: string = "close-circle-line";
 
   @Prop() collapseTags: boolean;
 
@@ -82,9 +82,11 @@ export class ZaneCascader {
     keyword: string
   ) => boolean;
 
-  @Event({ eventName: "zFocus" }) focusEvent: EventEmitter<FocusEvent>;
+  @Event({ eventName: "zFocus", bubbles: false })
+  focusEvent: EventEmitter<FocusEvent>;
 
-  @Event({ eventName: "zRemoveTag" }) removeTagEvent: EventEmitter<
+  @Event({ eventName: "zRemoveTag", bubbles: false })
+  removeTagEvent: EventEmitter<
     CascaderNodeValue | CascaderNodePathValue
   >;
 
@@ -143,25 +145,28 @@ export class ZaneCascader {
 
   @Prop() valueOnClear: string | number | boolean | Function | null = undefined;
 
-  @Event({ eventName: "zBlur" }) blurEvent: EventEmitter<FocusEvent>;
+  @Event({ eventName: "zBlur", bubbles: false })
+  blurEvent: EventEmitter<FocusEvent>;
 
-  @Event({ eventName: "zClear" }) clearEvent: EventEmitter<void>;
+  @Event({ eventName: "zClear", bubbles: false })
+  clearEvent: EventEmitter<void>;
 
-  @Event({ eventName: "zChange" }) changeEvent: EventEmitter<CascaderValue>;
+  @Event({ eventName: "zChange", bubbles: false })
+  changeEvent: EventEmitter<CascaderValue>;
 
-  @Event({ eventName: "zCompositionEnd" })
+  @Event({ eventName: "zCompositionEnd", bubbles: false })
   compositionendEvent: EventEmitter<CompositionEvent>;
 
-  @Event({ eventName: "zCompositionStart" })
+  @Event({ eventName: "zCompositionStart", bubbles: false })
   compositionstartEvent: EventEmitter<CompositionEvent>;
 
-  @Event({ eventName: "zCompositionUpdate" })
+  @Event({ eventName: "zCompositionUpdate", bubbles: false })
   compositionupdateEvent: EventEmitter<CompositionEvent>;
 
-  @Event({ eventName: "zVisibleChange" })
+  @Event({ eventName: "zVisibleChange", bubbles: false })
   visibleChangeEvent: EventEmitter<boolean>;
 
-  @Event({ eventName: "zExpandChange" })
+  @Event({ eventName: "zExpandChange", bubbles: false })
   expandChangeEvent: EventEmitter<CascaderNodePathValue>;
 
   @Prop() wrapperStyle: Record<string, string>;
@@ -209,11 +214,11 @@ export class ZaneCascader {
 
   private suggestionPanel: HTMLZaneScrollbarElement;
 
-  private tagTooltipRef: HTMLZaneTooltipElement;
+  private tagTooltipRef: HTMLZaneTippyElement;
 
   private tagWrapper: HTMLElement;
 
-  private tooltipRef: HTMLZaneTooltipElement;
+  private tooltipRef: HTMLZaneTippyElement;
 
   private wrapperRef: HTMLElement;
 
@@ -405,12 +410,12 @@ export class ZaneCascader {
 
     return (
       <Host>
-        <zane-tooltip
+        <zane-tippy
           arrow={false}
           hideOnClick={false}
           interactive={true}
           offset={[0, 1]}
-          onZClickOutside={this.handleClickOutside}
+          onClickOutside={this.handleClickOutside}
           onZHide={this.handleHide}
           placement={this.placement}
           ref={(el) => (this.tooltipRef = el)}
@@ -504,7 +509,7 @@ export class ZaneCascader {
 
                 {(this.collapseTags &&
                   this.tags.length > this.maxCollapseTags) && (
-                    <zane-tooltip
+                    <zane-tippy
                       ref={(el) => (this.tagTooltipRef = el)}
                       disabled={this.popperVisible || !this.collapseTagsTooltip}
                       placement="bottom-start"
@@ -545,7 +550,7 @@ export class ZaneCascader {
                           </div>
                         </zane-scrollbar>
                       </div>
-                    </zane-tooltip>
+                    </zane-tippy>
                   )}
                 {this.filterable && !this.isDisabled && (
                   <input
@@ -608,7 +613,7 @@ export class ZaneCascader {
               >
                 {
                   this.suggestions?.length
-                    ? this.renderSuggestion 
+                    ? this.renderSuggestion
                       ? this.renderSuggestion(this.suggestions)
                       : this.suggestions.length && this.suggestions.map((item) => (
                           <div
@@ -641,7 +646,7 @@ export class ZaneCascader {
               )
             }
           </div>
-        </zane-tooltip>
+        </zane-tippy>
       </Host>
     );
   }
@@ -879,7 +884,7 @@ export class ZaneCascader {
 
   private focusFirstNode = () => {
     let firstNode!: HTMLElement
-  
+
     if (this.filtering && this.suggestionPanel) {
       firstNode = this.suggestionPanel?.querySelector(
         `.${ns.e('suggestion-item')}`
@@ -889,7 +894,7 @@ export class ZaneCascader {
         `.${ns.b('node')}[tabindex="-1"]`
       )
     }
-  
+
     if (firstNode) {
       firstNode.focus()
       !this.filtering && firstNode.click();
@@ -1010,7 +1015,7 @@ export class ZaneCascader {
 
   private updatePopperPosition = () => {
     nextFrame(() => {
-      this.tooltipRef.updateTippyInstance();
+      this.tooltipRef.updateTippyProps();
     });
   };
 
@@ -1035,7 +1040,7 @@ export class ZaneCascader {
 
     if (this.tagWrapper) {
       nextFrame(() => {
-        
+
         const { offsetHeight } = this.tagWrapper;
         const height =
           this.tags.length > 0

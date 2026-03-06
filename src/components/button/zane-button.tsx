@@ -38,7 +38,8 @@ export class ZaneButton {
 
   @Prop() circle: boolean = false;
 
-  @Event({ eventName: "zClick" }) clickEvent: EventEmitter<MouseEvent>;
+  @Event({ eventName: "zClick", bubbles: false })
+  clickEvent: EventEmitter<MouseEvent>;
 
   @Prop() color: string;
 
@@ -92,7 +93,7 @@ export class ZaneButton {
 
     this.updateCustomStyle();
 
-    this.buttonGroupContext.change$.subscribe((change) => {
+    this.buttonGroupContext?.change$.subscribe((change) => {
       if (change.key === "disabled") {
         this.onDisabledChange();
       }
@@ -336,5 +337,5 @@ export class ZaneButton {
     return null;
   }
 
-  
+
 }

@@ -73,7 +73,8 @@ export class ZaneForm {
 
   @State() potentialLabelWidthArr: number[] = [];
 
-  @Event({ eventName: "validate" }) validateEvent: EventEmitter<{
+  @Event({ eventName: "validate", bubbles: false })
+  validateEvent: EventEmitter<{
     prop: FormItemProp;
     isValid: boolean;
     message: string;

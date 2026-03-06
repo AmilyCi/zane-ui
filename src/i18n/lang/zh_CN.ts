@@ -27,5 +27,17 @@ export const zh_CN: I18nResource = {
     defaultLabel: '滑块介于 {min} 和 {max} 之间',
     defaultRangeStartLabel: '选择起始值',
     defaultRangeEndLabel: '选择结束值',
+  },
+  transfer: {
+    noMatch: '无匹配数据',
+    noData: '暂无数据',
+    title1: '列表 1',
+    title2: '列表 2',
+    filterPlaceholder: '请输入搜索内容',
+    noCheckedFormat: '共 {total} 项',
+    hasCheckedFormat: '已选 {checked}/{total} 项',
+  },
+  tree: {
+    emptyText: '暂无数据'
   }
 };

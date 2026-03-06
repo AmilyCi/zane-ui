@@ -49,10 +49,10 @@ export class ZaneCollapse {
 
   @Prop() value: CollapseModelValue = [];
 
-  @Event({ eventName: 'zChange' })
+  @Event({ eventName: 'zChange', bubbles: false })
   zaneChange: EventEmitter<(number | string)[] | number | string>;
 
-  @Event({ eventName: 'zUpdate' })
+  @Event({ eventName: 'zUpdate', bubbles: false })
   zaneUpdate: EventEmitter<(number | string)[] | number | string>;
 
   @State() activeNames: (number | string)[];

@@ -21,7 +21,7 @@ export class ZaneRadio {
   @Element() el: HTMLElement;
 
   @Prop({ mutable: true }) value: string | number | boolean = undefined;
-  
+
   @Prop() size: ComponentSize = "";
 
   @Prop() disabled: boolean = undefined;
@@ -32,7 +32,8 @@ export class ZaneRadio {
 
   @Prop() border: boolean = undefined;
 
-  @Event({ eventName: "zChange" }) changeEvent: EventEmitter<
+  @Event({ eventName: "zChange", bubbles: false })
+  changeEvent: EventEmitter<
     string | number | boolean | undefined
   >;
 
@@ -103,7 +104,7 @@ export class ZaneRadio {
       this.changeEvent.emit(this.actualValue);
     });
   }
-  
+
   componentWillLoad() {
     this.formContext = getFormContext(this.el);
     this.formItemContext = getFormItemContext(this.el);

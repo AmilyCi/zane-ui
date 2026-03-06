@@ -31,7 +31,7 @@ export class ZaneSlider {
 
   @Prop() step: number = 1;
 
-  @Prop() value: number | number[] = 0;
+  @Prop({ mutable: true }) value: number | number[] = 0;
 
   @Prop() showInput: boolean;
 
@@ -73,9 +73,11 @@ export class ZaneSlider {
 
   @Prop() ariaLabel: string = undefined;
 
-  @Event({ eventName: 'zChange' }) changeEvent: EventEmitter<number | number[]>;
+  @Event({ eventName: 'zChange', bubbles: false })
+  changeEvent: EventEmitter<number | number[]>;
 
-  @Event({ eventName: 'zInput' }) inputEvent: EventEmitter<number | number[]>;
+  @Event({ eventName: 'zInput', bubbles: false })
+  inputEvent: EventEmitter<number | number[]>;
 
   @State() inputId: string;
 
@@ -241,6 +243,11 @@ export class ZaneSlider {
       });
   }
 
+  @Watch('sliderSize')
+  handleSliderSizeChange() {
+    this.context.value.sliderSize = this.sliderSize;
+  }
+
   private isLabeledByFormItem = () => {
     return !!(
       !(this.label || this.ariaLabel) &&
@@ -369,6 +376,13 @@ export class ZaneSlider {
     this.formItemContext = getFormItemContext(this.el);
     this.configProviderContext = getConfigProviderContext(this.el);
 
+    this.handleWatchId();
+    this.handleUpdateDisabled();
+    this.handleUpdateSize();
+    this.handleUpdatePrecision();
+    this.handleUpdateStops();
+    this.handleUpdateMarkList();
+
     this.context = new ReactiveObject<SliderContext>({
       min: this.min,
       max: this.max,
@@ -383,13 +397,6 @@ export class ZaneSlider {
       updateDragging: this.updateDragging,
     });
     sliderContexts.set(this.el, this.context);
-
-    this.handleWatchId();
-    this.handleUpdateDisabled();
-    this.handleUpdateSize();
-    this.handleUpdatePrecision();
-    this.handleUpdateStops();
-    this.handleUpdateMarkList();
 
     this.sliderWrapperRef?.addEventListener('touchstart', this.onSliderWrapperPrevent, { passive: false });
     this.sliderWrapperRef?.addEventListener('touchmove', this.onSliderWrapperPrevent, { passive: false });

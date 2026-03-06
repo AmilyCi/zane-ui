@@ -59,7 +59,7 @@ export class I18nManager {
     this.config = {
       defaultLang: "en",
       fallbackLang: "en",
-      storageKey: "stencil-i18n-lang",
+      storageKey: "zane-ui-i18n-lang",
       debug: false,
       autoDetect: true,
       ...config,
@@ -141,7 +141,7 @@ export class I18nManager {
     // 返回第一个有效的语言代码
     for (const lang of languages) {
       if (lang && this.isValidLanguageCode(lang)) {
-        return lang.split("-")[0]; // 只取主要语言部分
+        return lang; // 只取主要语言部分
       }
     }
 

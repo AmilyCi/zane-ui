@@ -102,14 +102,11 @@
     }
   }
 }
+.#{$namespace}-autocomplete-tippy-box {
+  background-color: getCssVar('bg-color', 'overlay');
+  border: 1px solid getCssVar('border-color', 'lighter');
 
-#{$namespace}-autocomplete {
-  .#{$namespace}-tooltip-box {
-    background-color: getCssVar('bg-color', 'overlay');
-    border: 1px solid getCssVar('border-color', 'lighter');
-
-    .#{$namespace}-tooltip-content {
-      padding: 0;
-    }
+  .#{$namespace}-autocomplete-tippy-content {
+    padding: 0;
   }
 }

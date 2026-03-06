@@ -30,7 +30,8 @@ export class ZaneCascaderNode {
 
   @Prop() menuId: string;
 
-  @Event({ eventName: "zExpand" }) expandEvent: EventEmitter<Event>;
+  @Event({ eventName: "zExpand", bubbles: false })
+  expandEvent: EventEmitter<Event>;
 
   @State() multiple: boolean = undefined;
 

@@ -1,15 +1,15 @@
 import { Component, h, Element, Prop, State, Watch, Event, type EventEmitter } from '@stencil/core';
-import type { Placement } from '@popperjs/core';
 import type { ComponentSize } from '../../types';
 import type { InputAutoSize, InputMode, InputModelModifiers, InputType } from '../input/types';
 import type { MentionCtx, MentionOption, MentionOptionProps } from './types';
 import { filterOption, getCursorPosition, getMentionCtx } from './utils';
-import type { PopperOptions, PopperRect } from '../tooltip/types';
 import { useNamespace } from '../../hooks';
 import { getEventCode, isFocusable, isFunction, nextFrame, type ReactiveObject } from '../../utils';
 import { EVENT_CODE } from '../../constants';
 import type { FormContext } from '../form/types';
 import { getFormContext } from '../form/utils';
+import type { Props } from 'tippy.js';
+import tippy from 'tippy.js';
 
 const ns = useNamespace('mention');
 
@@ -96,17 +96,7 @@ export class ZaneMention {
 
   @Prop() showArrow: boolean = false;
 
-  @Prop() offset:
-    | (({
-        placement,
-        popper,
-        reference,
-      }: {
-        placement: Placement;
-        popper: PopperRect;
-        reference: PopperRect;
-      }) => [number, number])
-    | [number, number] = [0, 0];
+  @Prop() offset: Props['offset'] = tippy.defaultProps.offset;
 
   @Prop() whole: boolean;
 
@@ -116,7 +106,7 @@ export class ZaneMention {
 
   @Prop() popperTheme: string;
 
-  @Prop() popperOptions: Partial<PopperOptions> = {};
+  @Prop() popperOptions: Props['popperOptions'] = tippy.defaultProps.popperOptions;
 
   @Prop() props: MentionOptionProps = {
     value: 'value',
@@ -124,30 +114,36 @@ export class ZaneMention {
     disabled: 'disabled'
   };
 
-  @Event({ eventName: 'zInput' }) inputEvent: EventEmitter<string>;
+  @Event({ eventName: 'zInput', bubbles: false })
+  inputEvent: EventEmitter<string>;
 
-  @Event({ eventName: 'zSelect'}) selectEvent: EventEmitter<{
+  @Event({ eventName: 'zSelect', bubbles: false })
+  selectEvent: EventEmitter<{
     item: MentionOption,
     prefix: string,
   }>;
 
-  @Event({ eventName: 'zSearch' }) searchEvent: EventEmitter<{
+  @Event({ eventName: 'zSearch', bubbles: false })
+  searchEvent: EventEmitter<{
     pattern: string;
     prefix: string;
   }>;
 
-  @Event({ eventName: 'zWholeRemove' }) wholeRemoveEvent: EventEmitter<{
+  @Event({ eventName: 'zWholeRemove', bubbles: false })
+  wholeRemoveEvent: EventEmitter<{
     pattern: string;
     prefix: string;
   }>
 
-  @Event({ eventName: 'zFocus'}) focusEvent: EventEmitter<FocusEvent>;
+  @Event({ eventName: 'zFocus', bubbles: false })
+  focusEvent: EventEmitter<FocusEvent>;
 
-  @Event({ eventName: 'zBlur' }) blurEvent: EventEmitter<FocusEvent>;
+  @Event({ eventName: 'zBlur', bubbles: false })
+  blurEvent: EventEmitter<FocusEvent>;
 
   @State() mentionDisabled: boolean = false;
 
-  @State() computedPlacement: Placement;
+  @State() computedPlacement: Props['placement'];
 
   @State() cursorStyle: Record<string, string>;
 
@@ -165,13 +161,15 @@ export class ZaneMention {
 
   @State() isFocused: boolean = false;
 
+  @State() triggerHeight: string = '20px';
+
   private formContext: ReactiveObject<FormContext>;
 
   private wrapperRef: HTMLDivElement;
 
   private inputRef: HTMLZaneInputElement;
 
-  private tooltipRef: HTMLZaneTooltipElement;
+  private tooltipRef: HTMLZaneTippyElement;
 
   private dropdownRef: HTMLZaneMentionDropdownElement;
 
@@ -294,7 +292,7 @@ export class ZaneMention {
   private handleBlur = async (event: FocusEvent | CustomEvent<FocusEvent>) => {
     const e: FocusEvent = event instanceof CustomEvent ? event.detail : event;
     const cancelBlur = await this.tooltipRef?.isFocusInsideContent(e);
-    if (this.mentionDisabled || 
+    if (this.mentionDisabled ||
       (e.relatedTarget && this.wrapperRef?.contains(e.relatedTarget as Node)) ||
       cancelBlur
     ) {
@@ -308,7 +306,7 @@ export class ZaneMention {
 
   private handleClick = (event: MouseEvent) => {
     if (
-      this.mentionDisabled || 
+      this.mentionDisabled ||
       isFocusable(event.target as HTMLElement) ||
       (this.wrapperRef?.contains(document.activeElement) && this.wrapperRef !== document.activeElement)
     ) {
@@ -447,7 +445,7 @@ export class ZaneMention {
       await this.syncCursor();
       await this.syncDropdownVisible();
       nextFrame(() => {
-        this.tooltipRef?.updateTippyInstance();
+        this.tooltipRef?.updateTippyProps();
       });
     }, 0);
   }
@@ -469,6 +467,8 @@ export class ZaneMention {
       left: `${caretPosition.left + inputRect.left - wrapperRect.left}px`,
       top: `${caretPosition.top + inputRect.top - wrapperRect.top}px`
     }
+
+    this.triggerHeight = `${caretPosition.height}px`;
   }
 
   private syncDropdownVisible = async () => {
@@ -572,40 +572,44 @@ export class ZaneMention {
             this.hasSuffixSlot && (<div slot="suffix"><slot name="suffix"></slot></div>)
           }
         </zane-input>
-        <zane-tooltip
-          ref={(el) => this.tooltipRef = el}
-          theme={this.popperTheme}
-          popperOptions={this.popperOptions}
-          placement={this.computedPlacement}
-          offset={this.offset}
-          arrow={this.showArrow}
-          hideOnClick={false}
-          interactive={true}
-          trigger='manual'
-        >
-          <div style={this.cursorStyle}></div>
-          <div slot='content'>
-            <zane-mention-dropdown
-              ref={(el) => this.dropdownRef = el}
-              options={this.filteredOptions}
-              disabled={this.disabled}
-              loading={this.loading}
-              ariaLabel={this.ariaLabel}
-              onZSelect={this.handleSelect}
-              onClick={this.handleDropdownClick}
-            >
-              {
-                this.hasHeaderSlot && <slot name='header'></slot>
-              }
-              {
-                this.hasFooterSlot && <slot name='footer'></slot>
-              }
-              {
-                this.hasLoadingSlot && <slot name="loading"></slot>
-              }
-            </zane-mention-dropdown>
-          </div>
-        </zane-tooltip>
+        <div style={this.cursorStyle}>
+          <zane-tippy
+            ref={(el) => this.tooltipRef = el}
+            theme={this.popperTheme}
+            popperOptions={this.popperOptions}
+            placement={this.computedPlacement}
+            offset={this.offset}
+            arrow={this.showArrow}
+            hideOnClick={false}
+            interactive={true}
+            boxClass={ns.b('tippy-box')}
+            contentClass={ns.b('tippy-content')}
+            trigger='manual'
+          >
+            <div style={{ height: this.triggerHeight }}></div>
+            <div slot='content'>
+              <zane-mention-dropdown
+                ref={(el) => this.dropdownRef = el}
+                options={this.filteredOptions}
+                disabled={this.disabled}
+                loading={this.loading}
+                ariaLabel={this.ariaLabel}
+                onZSelect={this.handleSelect}
+                onClick={this.handleDropdownClick}
+              >
+                {
+                  this.hasHeaderSlot && <slot name='header'></slot>
+                }
+                {
+                  this.hasFooterSlot && <slot name='footer'></slot>
+                }
+                {
+                  this.hasLoadingSlot && <slot name="loading"></slot>
+                }
+              </zane-mention-dropdown>
+            </div>
+          </zane-tippy>
+        </div>
       </div>
     );
   }

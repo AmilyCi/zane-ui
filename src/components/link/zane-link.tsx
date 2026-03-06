@@ -19,7 +19,8 @@ const ns = useNamespace('link');
   tag: 'zane-link',
 })
 export class ZaneLink {
-  @Event({ eventName: 'zClick' }) clickEvent: EventEmitter<MouseEvent>;
+  @Event({ eventName: 'zClick', bubbles: false })
+  clickEvent: EventEmitter<MouseEvent>;
 
   @Prop() disabled: boolean;
 

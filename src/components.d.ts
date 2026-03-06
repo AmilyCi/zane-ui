@@ -7,12 +7,12 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { AutocompleteData, AutocompleteFetchFunc, AutocompleteFetchSuggestions } from "./components/autocomplete/types";
 import { AnyNormalFunction, Arrayable, Awaitable, ComponentSize } from "./types";
-import { Element, Event } from "@stencil/core";
+import { Element, Event, VNode } from "@stencil/core";
 import { ButtonNativeType, ButtonType } from "./components/button/types";
 import { CascaderNode } from "./components/cascader/node";
 import { CascaderNodePathValue, CascaderNodeValue, CascaderOption, CascaderProps, CascaderValue, RenderLabel, Tag } from "./components/cascader/types";
 import { ChatBodyThemes, ChatBubbleThemes, ChatFooterThemes, ChatHeaderThemes, ChatInputThemes, ThemeTokens } from "./components/chat/types";
-import { CheckboxOption, CheckboxOptionProps } from "./components/checkbox/types";
+import { CheckboxGroupValueType, CheckboxOption, CheckboxOptionProps, CheckboxValueType } from "./components/checkbox/types";
 import { ColSize } from "./components/col/types";
 import { CollapseActiveName, CollapseIconPositionType, CollapseModelValue } from "./components/collapse/types";
 import { ButtonConfig, CardConfig } from "./components/config-provider/types";
@@ -21,21 +21,24 @@ import { ValidateFieldsError } from "async-validator";
 import { ForwardRefSetter } from "./components/forward-ref/types";
 import { InputAutoSize, InputMode, InputModelModifiers, InputType } from "./components/input/types";
 import { MentionOption, MentionOptionProps } from "./components/mention/types";
-import { Placement } from "@popperjs/core";
-import { Content, GetReferenceClientRect, Instance, Placement as Placement1, Plugin, PopperElement, PopperOptions, PopperRect, Props as Props1 } from "./components/tooltip/types";
+import { Instance, Placement as Placement1, Props } from "tippy.js";
 import { RadioOption, RadioOptionProp } from "./components/radio/types";
 import { RowAlignType, RowJustifyType } from "./components/row/types";
 import { ScrollbarDirection } from "./components/scrollbar/types";
-import { Option, OptionType, Props } from "./components/select/types";
+import { Option, OptionType, Props as SelectProps } from "./components/select/types";
+import { Placement } from "@popperjs/core";
+import { TransferDataItem, TransferDirection, TransferFormat, TransferKey, TransferPropsAlias } from "./components/transfer/types";
+import { CheckedInfo, FilterMethod, TreeData, TreeKey, TreeNode, TreeNodeData, TreeOptionProps } from "./components/tree/types";
+import { ComponentSize as ComponentSize1 } from "./types/index";
 import { Alignment, GridItemKeyGetter, Indices, ItemSize } from "./components/virtual-list/types";
 export { AutocompleteData, AutocompleteFetchFunc, AutocompleteFetchSuggestions } from "./components/autocomplete/types";
 export { AnyNormalFunction, Arrayable, Awaitable, ComponentSize } from "./types";
-export { Element, Event } from "@stencil/core";
+export { Element, Event, VNode } from "@stencil/core";
 export { ButtonNativeType, ButtonType } from "./components/button/types";
 export { CascaderNode } from "./components/cascader/node";
 export { CascaderNodePathValue, CascaderNodeValue, CascaderOption, CascaderProps, CascaderValue, RenderLabel, Tag } from "./components/cascader/types";
 export { ChatBodyThemes, ChatBubbleThemes, ChatFooterThemes, ChatHeaderThemes, ChatInputThemes, ThemeTokens } from "./components/chat/types";
-export { CheckboxOption, CheckboxOptionProps } from "./components/checkbox/types";
+export { CheckboxGroupValueType, CheckboxOption, CheckboxOptionProps, CheckboxValueType } from "./components/checkbox/types";
 export { ColSize } from "./components/col/types";
 export { CollapseActiveName, CollapseIconPositionType, CollapseModelValue } from "./components/collapse/types";
 export { ButtonConfig, CardConfig } from "./components/config-provider/types";
@@ -44,12 +47,15 @@ export { ValidateFieldsError } from "async-validator";
 export { ForwardRefSetter } from "./components/forward-ref/types";
 export { InputAutoSize, InputMode, InputModelModifiers, InputType } from "./components/input/types";
 export { MentionOption, MentionOptionProps } from "./components/mention/types";
-export { Placement } from "@popperjs/core";
-export { Content, GetReferenceClientRect, Instance, Placement as Placement1, Plugin, PopperElement, PopperOptions, PopperRect, Props as Props1 } from "./components/tooltip/types";
+export { Instance, Placement as Placement1, Props } from "tippy.js";
 export { RadioOption, RadioOptionProp } from "./components/radio/types";
 export { RowAlignType, RowJustifyType } from "./components/row/types";
 export { ScrollbarDirection } from "./components/scrollbar/types";
-export { Option, OptionType, Props } from "./components/select/types";
+export { Option, OptionType, Props as SelectProps } from "./components/select/types";
+export { Placement } from "@popperjs/core";
+export { TransferDataItem, TransferDirection, TransferFormat, TransferKey, TransferPropsAlias } from "./components/transfer/types";
+export { CheckedInfo, FilterMethod, TreeData, TreeKey, TreeNode, TreeNodeData, TreeOptionProps } from "./components/tree/types";
+export { ComponentSize as ComponentSize1 } from "./types/index";
 export { Alignment, GridItemKeyGetter, Indices, ItemSize } from "./components/virtual-list/types";
 export namespace Components {
     interface ZaneA2ui {
@@ -72,7 +78,7 @@ export namespace Components {
          */
         "autosize": boolean | { maxRows?: number; minRows?: number };
         /**
-          * @default 'circle-close'
+          * @default 'close-circle-line'
          */
         "clearIcon": string;
         "clearable": boolean;
@@ -297,7 +303,7 @@ export namespace Components {
         "beforeFilter": (value: string) => boolean | Promise<any>;
         "checkOnClickNode": boolean;
         /**
-          * @default "circle-close"
+          * @default "close-circle-line"
          */
         "clearIcon": string;
         "clearable": boolean;
@@ -636,7 +642,7 @@ export namespace Components {
         /**
           * @default []
          */
-        "value": (string | number)[];
+        "value": CheckboxGroupValueType;
         "zId": string;
     }
     interface ZaneCol {
@@ -852,7 +858,7 @@ export namespace Components {
         "autosize": InputAutoSize;
         "clear": () => Promise<void>;
         /**
-          * @default "circle-close"
+          * @default "close-circle-line"
          */
         "clearIcon": string;
         /**
@@ -1120,18 +1126,9 @@ export namespace Components {
         "modelModifiers": InputModelModifiers;
         "name": string;
         /**
-          * @default [0, 0]
+          * @default tippy.defaultProps.offset
          */
-        "offset": | (({
-        placement,
-        popper,
-        reference,
-      }: {
-        placement: Placement;
-        popper: PopperRect;
-        reference: PopperRect;
-      }) => [number, number])
-    | [number, number];
+        "offset": Props['offset'];
         /**
           * @default []
          */
@@ -1143,9 +1140,9 @@ export namespace Components {
          */
         "placement": 'bottom' | 'top';
         /**
-          * @default {}
+          * @default tippy.defaultProps.popperOptions
          */
-        "popperOptions": Partial<PopperOptions>;
+        "popperOptions": Props['popperOptions'];
         "popperTheme": string;
         "prefixIcon": string;
         /**
@@ -1505,33 +1502,24 @@ export namespace Components {
         "noDataText": string;
         "noMatchText": string;
         /**
-          * @default [0, 0]
+          * @default tippy.defaultProps.offset
          */
-        "offset": | (({
-        placement,
-        popper,
-        reference,
-      }: {
-        placement: Placement;
-        popper: PopperRect;
-        reference: PopperRect;
-      }) => [number, number])
-    | [number, number];
+        "offset": Props['offset'];
         "options": OptionType[];
         "placeholder": string;
         /**
           * @default 'bottom-start'
          */
-        "placement": Placement;
+        "placement": Props['placement'];
         /**
           * @default {}
          */
-        "popperOptions": Partial<PopperOptions>;
+        "popperOptions": Props['popperOptions'];
         "popperTheme": string;
         /**
           * @default {     label: 'label',     value: 'value',     disabled: 'disabled',     options: 'options'   }
          */
-        "props": Props;
+        "props": SelectProps;
         "remote": boolean;
         "remoteMethod": (query: string) => any;
         "remoteShowSuffix": boolean;
@@ -1693,7 +1681,7 @@ export namespace Components {
         "isDragging": () => Promise<boolean>;
         "isHovering": () => Promise<boolean>;
         "onButtonDown": (e: MouseEvent) => Promise<void>;
-        "onKeyDown": (e: KeyboardEvent) => Promise<void>;
+        "onZKeyDown": (e: KeyboardEvent) => Promise<void>;
         /**
           * @default 'top'
          */
@@ -1704,6 +1692,9 @@ export namespace Components {
          */
         "value": number;
         "vertical": boolean;
+    }
+    interface ZaneSliderMarker {
+        "mark": string | { style: Record<string, any>, label: any};
     }
     interface ZaneSplitter {
         /**
@@ -1728,6 +1719,57 @@ export namespace Components {
         "resizable": boolean;
         "size": number | string;
         "uuid": string;
+    }
+    interface ZaneSwitch {
+        "activeActionIcon": string;
+        "activeIcon": string;
+        /**
+          * @default ''
+         */
+        "activeText": string;
+        /**
+          * @default true
+         */
+        "activeValue": boolean | string | number;
+        "ariaLabel": string;
+        "beforeChange": () => Promise<boolean> | boolean;
+        /**
+          * @default undefined
+         */
+        "disabled": boolean;
+        "inactiveActionIcon": string;
+        "inactiveIcon": string;
+        /**
+          * @default ''
+         */
+        "inactiveText": string;
+        /**
+          * @default false
+         */
+        "inactiveValue": boolean | string | number;
+        "inlinePrompt": boolean;
+        "isChecked": () => Promise<boolean>;
+        "loading": boolean;
+        /**
+          * @default ''
+         */
+        "name": string;
+        "size": ComponentSize;
+        /**
+          * @default true
+         */
+        "validateEvent": boolean;
+        /**
+          * @default false
+         */
+        "value": boolean | string | number;
+        /**
+          * @default ''
+         */
+        "width": string | number;
+        "zFocus": () => Promise<void>;
+        "zId": string;
+        "zTabindex": number;
     }
     interface ZaneTag {
         "closeable": boolean;
@@ -1763,163 +1805,487 @@ export namespace Components {
         "size": string;
         "vertical": boolean;
     }
-    interface ZaneTooltip {
+    interface ZaneTippy {
         /**
-          * @default true
+          * @default tippy.defaultProps.allowHTML
          */
         "allowHTML": boolean;
         /**
-          * @default false
+          * @default tippy.defaultProps.animateFill
          */
         "animateFill": boolean;
         /**
-          * @default 'fade'
+          * @default tippy.defaultProps.animation
          */
-        "animation": boolean | string;
+        "animation": string | boolean;
         /**
-          * @default TIPPY_DEFAULT_APPEND_TO
+          * @default tippy.defaultProps.appendTo
          */
-        "appendTo": 'parent' | ((ref: Element) => Element) | Element;
+        "appendTo": Element | "parent" | ((ref: Element) => Element);
         /**
-          * @default { content: 'describedby' }
+          * @default tippy.defaultProps.aria
          */
-        "aria": {
-    content?: 'auto' | 'describedby' | 'labelledby' | null;
-    expanded?: 'auto' | boolean;
-  };
+        "aria": { content?: "auto" | "describedby" | "labelledby"; expanded?: boolean | "auto"; };
         /**
-          * @default true
+          * @default tippy.defaultProps.arrow
          */
-        "arrow": boolean | DocumentFragment | string | SVGElement;
+        "arrow": string | boolean | SVGElement | DocumentFragment;
         /**
           * @default ''
          */
-        "content": Content;
+        "boxClass": string;
         /**
-          * @default 0
+          * @default undefined
          */
-        "delay": [null | number, null | number] | number;
+        "boxStyle": Record<string, any>;
+        /**
+          * 内容支持字符串（直接作为 HTML 或文本）
+         */
+        "content": string;
+        /**
+          * @default ''
+         */
+        "contentClass": string;
+        /**
+          * @default undefined
+         */
+        "contentStyle": Record<string, any>;
+        /**
+          * @default 'span'
+         */
+        "contentTag": string;
+        /**
+          * @default tippy.defaultProps.delay
+         */
+        "delay": number | [number, number];
+        "destroy": () => Promise<void>;
         "disable": () => Promise<void>;
         /**
           * @default false
          */
         "disabled": boolean;
         /**
-          * @default 300
+          * @default tippy.defaultProps.duration
          */
-        "duration": [null | number, null | number] | number;
+        "duration": number | [number, number];
         "enable": () => Promise<void>;
         /**
-          * @default false
+          * @default tippy.defaultProps.followCursor
          */
-        "followCursor": 'horizontal' | 'initial' | 'vertical' | boolean;
+        "followCursor": boolean | "horizontal" | "vertical" | "initial";
         /**
-          * @default null
+          * @default tippy.defaultProps.getReferenceClientRect
          */
-        "getReferenceClientRect": GetReferenceClientRect | null;
+        "getReferenceClientRect": GetReferenceClientRect;
         "hide": () => Promise<void>;
         /**
-          * @default true
+          * @default tippy.defaultProps.hideOnClick
          */
-        "hideOnClick": 'toggle' | boolean;
+        "hideOnClick": boolean | "toggle";
         /**
-          * @default false
+          * @default tippy.defaultProps.ignoreAttributes
          */
         "ignoreAttributes": boolean;
         /**
-          * @default false
+          * @default tippy.defaultProps.inertia
          */
         "inertia": boolean;
         /**
-          * @default true
+          * @default tippy.defaultProps.inlinePositioning
          */
         "inlinePositioning": boolean;
         /**
-          * @default false
+          * @default tippy.defaultProps.interactive
          */
         "interactive": boolean;
         /**
-          * @default 2
+          * @default tippy.defaultProps.interactiveBorder
          */
         "interactiveBorder": number;
         /**
-          * @default 0
+          * @default tippy.defaultProps.interactiveDebounce
          */
         "interactiveDebounce": number;
         "isFocusInsideContent": (event?: FocusEvent) => Promise<boolean>;
         "isVisible": () => Promise<boolean>;
         /**
-          * @default 350
+          * @default tippy.defaultProps.maxWidth
          */
-        "maxWidth": number | string;
+        "maxWidth": string | number;
         /**
-          * @default ''
+          * @default tippy.defaultProps.moveTransition
          */
         "moveTransition": string;
         /**
-          * @default [0, 10]
+          * @default tippy.defaultProps.offset
          */
-        "offset": | (({
-        placement,
-        popper,
-        reference,
-      }: {
-        placement: Placement1;
-        popper: PopperRect;
-        reference: PopperRect;
-      }) => [number, number])
-    | [number, number];
+        "offset": [number, number] | (({ placement, popper, reference, }: { placement: Placement; popper: Rect; reference: Rect; }) => [number, number]);
         /**
-          * @default 'top'
+          * @default tippy.defaultProps.placement
          */
-        "placement": Placement1;
+        "placement": AutoPlacement | BasePlacement | VariationPlacement;
         /**
-          * @default []
+          * @default tippy.defaultProps.plugins
          */
         "plugins": Plugin<unknown>[];
         /**
-          * @default {}
+          * @default tippy.defaultProps.popperOptions
          */
-        "popperOptions": Partial<PopperOptions>;
+        "popperOptions": { placement?: Placement; modifiers?: Partial<Modifier<any, any>>[]; strategy?: PositioningStrategy; onFirstUpdate?: (arg0: Partial<State>) => void; };
         /**
-          * @default 'tooltip'
+          * @default tippy.defaultProps.role
          */
         "role": string;
+        "setContent": (newContent: string | HTMLElement) => Promise<void>;
         "show": () => Promise<void>;
         /**
-          * @default false
+          * @default tippy.defaultProps.showOnCreate
          */
         "showOnCreate": boolean;
         /**
-          * @default false
+          * @default tippy.defaultProps.sticky
          */
-        "sticky": 'popper' | 'reference' | boolean;
+        "sticky": boolean | "popper" | "reference";
         /**
-          * @default ''
+          * @default 'span'
+         */
+        "tag": string;
+        /**
+          * @default tippy.defaultProps.theme
          */
         "theme": string;
-        "tippyRender": | ((instance: Instance) => {
-        onUpdate?: (prevProps: Props1, nextProps: Props1) => void;
-        popper: PopperElement;
-      })
-    | null;
         /**
-          * @default true
+          * @default tippy.defaultProps.render
          */
-        "touch": 'hold' | ['hold', number] | boolean;
+        "tippyRender": (instance: Instance<Props>) => { popper: PopperElement<Props>; onUpdate?: (prevProps: Props, nextProps: Props) => void; };
+        "to": string | 'parent' | HTMLElement;
         /**
-          * @default 'mouseenter focus'
+          * @default tippy.defaultProps.touch
+         */
+        "touch": boolean | "hold" | ["hold", number];
+        /**
+          * @default tippy.defaultProps.trigger
          */
         "trigger": string;
         /**
-          * @default null
+          * @default tippy.defaultProps.triggerTarget
          */
-        "triggerTarget": Element | Element[] | null;
-        "updateTippyInstance": () => Promise<void>;
+        "triggerTarget": Element | Element[];
+        "updateTippyProps": () => Promise<void>;
         /**
-          * @default 9999
+          * @default tippy.defaultProps.zIndex
          */
         "zIndex": number;
+    }
+    interface ZaneTransfer {
+        /**
+          * @default [] as unknown as [string, string]
+         */
+        "buttonTexts": [string, string];
+        "clearQuery": (which: TransferDirection) => Promise<void>;
+        /**
+          * @default []
+         */
+        "data": TransferDataItem[];
+        "filterMethod": (query: string, item: TransferDataItem) => boolean;
+        "filterPlaceholder": string;
+        /**
+          * @default false
+         */
+        "filterable": boolean;
+        /**
+          * @default {}
+         */
+        "format": TransferFormat;
+        "getLeftPanelRef": () => Promise<HTMLZaneTransferPanelElement>;
+        "getRightPanelRef": () => Promise<HTMLZaneTransferPanelElement>;
+        /**
+          * @default []
+         */
+        "leftDefaultChecked": TransferKey[];
+        /**
+          * @default {     label: 'label',     key: 'key',     disabled: 'disabled'   }
+         */
+        "props": TransferPropsAlias;
+        "renderContent": Function;
+        /**
+          * @default []
+         */
+        "rightDefaultChecked": TransferKey[];
+        /**
+          * @default 'original'
+         */
+        "targetOrder": 'push' | 'unshift' | 'original';
+        /**
+          * @default [] as unknown as [string, string]
+         */
+        "titles": [string, string];
+        /**
+          * @default true
+         */
+        "validateEvent": boolean;
+        /**
+          * @default []
+         */
+        "value": TransferKey[];
+    }
+    interface ZaneTransferPanel {
+        /**
+          * @default []
+         */
+        "data": TransferDataItem[];
+        /**
+          * @default []
+         */
+        "defaultChecked": TransferKey[];
+        "filterMethod": (query: string, item: TransferDataItem) => boolean;
+        /**
+          * @default false
+         */
+        "filterable": boolean;
+        /**
+          * @default {}
+         */
+        "format": TransferFormat;
+        "optionRender": (option: TransferDataItem) => VNode | VNode[];
+        "placeholder": string;
+        /**
+          * @default {     label: 'label',     key: 'key',     disabled: 'disabled'   }
+         */
+        "props": TransferPropsAlias;
+        "updateQuery": (query: string) => Promise<void>;
+        "zTitle": string;
+    }
+    interface ZaneTree {
+        /**
+          * @default false
+         */
+        "accordion": boolean;
+        /**
+          * @default true
+         */
+        "checkOnClickLeaf": boolean;
+        /**
+          * @default false
+         */
+        "checkOnClickNode": boolean;
+        /**
+          * @default false
+         */
+        "checkStrictly": boolean;
+        "collapseNode": (node: TreeNode) => Promise<void>;
+        "currentNodeKey": TreeKey;
+        /**
+          * @default []
+         */
+        "data": TreeData;
+        /**
+          * @default []
+         */
+        "defaultCheckedKeys": TreeKey[];
+        /**
+          * @default []
+         */
+        "defaultExpandedKeys": TreeKey[];
+        "emptyText": string;
+        "expandNode": (node: TreeNode) => Promise<void>;
+        /**
+          * @default true
+         */
+        "expandOnClickNode": boolean;
+        "filter": (query: string) => Promise<void>;
+        "filterMethod": FilterMethod;
+        "getCheckedKeys": (leafOnly?: boolean) => Promise<TreeKey[]>;
+        "getCheckedNodes": (leafOnly?: boolean) => Promise<TreeNodeData[]>;
+        "getCurrentKey": () => Promise<TreeKey | undefined>;
+        "getCurrentNode": () => Promise<TreeNodeData | undefined>;
+        "getHalfCheckedKeys": () => Promise<TreeKey[]>;
+        "getHalfCheckedNodes": () => Promise<TreeNodeData[]>;
+        "getNode": (data: TreeKey | TreeNodeData) => Promise<TreeNode>;
+        "height": number;
+        /**
+          * @default false
+         */
+        "highlightCurrent": boolean;
+        "icon": string;
+        /**
+          * @default 16
+         */
+        "indent": number;
+        /**
+          * @default 26
+         */
+        "itemSize": number;
+        /**
+          * @default true
+         */
+        "perfMode": boolean;
+        /**
+          * @default {     children: 'children',     label: 'label',     disabled: 'disabled',     value: 'id',     class: '',   }
+         */
+        "props": TreeOptionProps;
+        /**
+          * @default false
+         */
+        "scrollbarAlwaysOn": boolean;
+        "setChecked": (key: TreeKey, isChecked: boolean) => Promise<void>;
+        "setCheckedKeys": (keys: TreeKey[]) => Promise<void>;
+        "setCurrentKey": (key: TreeKey) => Promise<void>;
+        "setData": (data: TreeData) => Promise<void>;
+        /**
+          * @default false
+         */
+        "showCheckbox": boolean;
+        "toggleCheckbox": (node: TreeNode, isChecked: CheckboxValueType, nodeClick?: boolean, immediateUpdate?: boolean) => Promise<void>;
+        "toggleExpand": (node: TreeNode) => Promise<void>;
+        "zScrollTo": (offset: number) => Promise<void>;
+        "zScrollToNode": (key: TreeKey, strategy?: "auto" | "smart" | "center" | "start" | "end") => Promise<void>;
+    }
+    interface ZaneTreeNode {
+        "checked": boolean;
+        "current": boolean;
+        "disabled": boolean;
+        "expanded": boolean;
+        "hiddenExpandIcon": boolean;
+        "indeterminate": boolean;
+        /**
+          * @default 26
+         */
+        "itemSize": number;
+        /**
+          * @default mutable(EMPTY_NODE)
+         */
+        "node": TreeNode;
+        "showCheckbox": boolean;
+    }
+    interface ZaneTreeNodeContent {
+        "node": TreeNode;
+    }
+    interface ZaneTreeSelect {
+        "allowCreate": boolean;
+        "ariaLabel": string;
+        /**
+          * @default 'none'
+         */
+        "autocomplete": 'none' | 'list' | 'both' | 'inline';
+        "automaticDropdown": boolean;
+        /**
+          * @default 'close-circle-line'
+         */
+        "clearIcon": string;
+        "clearable": boolean;
+        "collapseTags": boolean;
+        "collapseTagsTooltip": boolean;
+        /**
+          * @default 300
+         */
+        "debounce": number;
+        "defaultFirstOption": boolean;
+        /**
+          * @default undefined
+         */
+        "disabled": boolean;
+        "emptyValues": any[];
+        /**
+          * @default undefined
+         */
+        "estimatedOptionHeight": number;
+        "filterMethod": (query: string) => boolean;
+        "filterable": boolean;
+        /**
+          * @default true
+         */
+        "fitInputWidth": boolean | number;
+        /**
+          * @default 274
+         */
+        "height": number;
+        /**
+          * @default 34
+         */
+        "itemHeight": number;
+        "label": string;
+        "loading": boolean;
+        "loadingText": string;
+        /**
+          * @default 1
+         */
+        "maxCollapseTags": number;
+        "multiple": boolean;
+        /**
+          * @default 0
+         */
+        "multipleLimit": number;
+        "name": string;
+        "noDataText": string;
+        "noMatchText": string;
+        /**
+          * @default [0, 0]
+         */
+        "offset": Props['offset'];
+        "options": OptionType[];
+        "placeholder": string;
+        /**
+          * @default 'bottom-start'
+         */
+        "placement": Placement1;
+        /**
+          * @default {}
+         */
+        "popperOptions": Props['popperOptions'];
+        "popperTheme": string;
+        /**
+          * @default {     label: 'label',     value: 'value',     disabled: 'disabled',     options: 'options'   }
+         */
+        "props": SelectProps;
+        "remote": boolean;
+        "remoteMethod": (query: string) => any;
+        "remoteShowSuffix": boolean;
+        /**
+          * @default true
+         */
+        "reserveKeyword": boolean;
+        "scrollbarAlwaysOn": boolean;
+        /**
+          * @default false
+         */
+        "showArrow": boolean;
+        "size": ComponentSize;
+        /**
+          * @default 'arrow-down-s-line'
+         */
+        "suffixIcon": string;
+        /**
+          * @default 'light'
+         */
+        "tagEffect": 'dark' | 'light' | 'plain';
+        "tagLabelRender": (label: string, value: string, index: number) => HTMLElement;
+        "tagRender": () => HTMLElement;
+        /**
+          * @default 'info'
+         */
+        "tagType": 'primary' | 'success' | 'warning' | 'danger' | 'info';
+        /**
+          * @default true
+         */
+        "validateEvent": boolean;
+        /**
+          * @default undefined
+         */
+        "value": any[] | string | number | Record<string, any> | any;
+        /**
+          * @default 'value'
+         */
+        "valueKey": string;
+        /**
+          * @default undefined
+         */
+        "valueOnClear": any;
+        "zId": string;
+        /**
+          * @default 0
+         */
+        "zTabindex": number;
     }
     interface ZaneVirtualGrid {
         /**
@@ -2243,13 +2609,33 @@ export interface ZaneSplitterPanelCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLZaneSplitterPanelElement;
 }
+export interface ZaneSwitchCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneSwitchElement;
+}
 export interface ZaneTagCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLZaneTagElement;
 }
-export interface ZaneTooltipCustomEvent<T> extends CustomEvent<T> {
+export interface ZaneTippyCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLZaneTooltipElement;
+    target: HTMLZaneTippyElement;
+}
+export interface ZaneTransferCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneTransferElement;
+}
+export interface ZaneTransferPanelCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneTransferPanelElement;
+}
+export interface ZaneTreeCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneTreeElement;
+}
+export interface ZaneTreeNodeCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneTreeNodeElement;
 }
 export interface ZaneVirtualGridCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -2489,7 +2875,7 @@ declare global {
         new (): HTMLZaneChatRendererMarkdownElement;
     };
     interface HTMLZaneCheckboxElementEventMap {
-        "zChange": any;
+        "zChange": string | number | boolean;
     }
     interface HTMLZaneCheckboxElement extends Components.ZaneCheckbox, HTMLStencilElement {
         addEventListener<K extends keyof HTMLZaneCheckboxElementEventMap>(type: K, listener: (this: HTMLZaneCheckboxElement, ev: ZaneCheckboxCustomEvent<HTMLZaneCheckboxElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2523,7 +2909,7 @@ declare global {
         new (): HTMLZaneCheckboxButtonElement;
     };
     interface HTMLZaneCheckboxGroupElementEventMap {
-        "zChange": any;
+        "zChange": CheckboxGroupValueType;
     }
     interface HTMLZaneCheckboxGroupElement extends Components.ZaneCheckboxGroup, HTMLStencilElement {
         addEventListener<K extends keyof HTMLZaneCheckboxGroupElementEventMap>(type: K, listener: (this: HTMLZaneCheckboxGroupElement, ev: ZaneCheckboxGroupCustomEvent<HTMLZaneCheckboxGroupElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3008,6 +3394,12 @@ declare global {
         prototype: HTMLZaneSliderButtonElement;
         new (): HTMLZaneSliderButtonElement;
     };
+    interface HTMLZaneSliderMarkerElement extends Components.ZaneSliderMarker, HTMLStencilElement {
+    }
+    var HTMLZaneSliderMarkerElement: {
+        prototype: HTMLZaneSliderMarkerElement;
+        new (): HTMLZaneSliderMarkerElement;
+    };
     interface HTMLZaneSplitterElementEventMap {
         "collapse": {
     index: number;
@@ -3064,6 +3456,24 @@ declare global {
         prototype: HTMLZaneSplitterPanelElement;
         new (): HTMLZaneSplitterPanelElement;
     };
+    interface HTMLZaneSwitchElementEventMap {
+        "zChange": boolean | string | number;
+        "zInput": boolean | string | number;
+    }
+    interface HTMLZaneSwitchElement extends Components.ZaneSwitch, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneSwitchElementEventMap>(type: K, listener: (this: HTMLZaneSwitchElement, ev: ZaneSwitchCustomEvent<HTMLZaneSwitchElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneSwitchElementEventMap>(type: K, listener: (this: HTMLZaneSwitchElement, ev: ZaneSwitchCustomEvent<HTMLZaneSwitchElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneSwitchElement: {
+        prototype: HTMLZaneSwitchElement;
+        new (): HTMLZaneSwitchElement;
+    };
     interface HTMLZaneTagElementEventMap {
         "zClick": MouseEvent;
         "zClose": MouseEvent;
@@ -3094,26 +3504,183 @@ declare global {
         prototype: HTMLZaneThumbElement;
         new (): HTMLZaneThumbElement;
     };
-    interface HTMLZaneTooltipElementEventMap {
-        "zClickOutside": Instance<Props1>;
-        "zHidden": Instance<Props1>;
-        "zHide": Instance<Props1>;
-        "zMount": Instance<Props1>;
-        "zShow": Instance<Props1>;
+    interface HTMLZaneTippyElementEventMap {
+        "afterUpdate": [Instance<Props>, Partial<Props>];
+        "beforeUpdate": [Instance<Props>, Partial<Props>];
+        "create": Instance<Props>;
+        "destroy": Instance<Props>;
+        "hidden": Instance<Props>;
+        "zHide": Instance<Props>;
+        "mount": Instance<Props>;
+        "zShow": Instance<Props>;
+        "shown": Instance<Props>;
+        "trigger": [Instance<Props>, Event];
+        "untrigger": [Instance<Props>, Event];
+        "clickOutside": [Instance<Props>, Event];
+        "state": {
+    isEnabled: boolean
+    isVisible: boolean
+    isDestroyed: boolean
+    isMounted: boolean
+    isShown: boolean
+  };
     }
-    interface HTMLZaneTooltipElement extends Components.ZaneTooltip, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLZaneTooltipElementEventMap>(type: K, listener: (this: HTMLZaneTooltipElement, ev: ZaneTooltipCustomEvent<HTMLZaneTooltipElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLZaneTippyElement extends Components.ZaneTippy, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneTippyElementEventMap>(type: K, listener: (this: HTMLZaneTippyElement, ev: ZaneTippyCustomEvent<HTMLZaneTippyElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLZaneTooltipElementEventMap>(type: K, listener: (this: HTMLZaneTooltipElement, ev: ZaneTooltipCustomEvent<HTMLZaneTooltipElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneTippyElementEventMap>(type: K, listener: (this: HTMLZaneTippyElement, ev: ZaneTippyCustomEvent<HTMLZaneTippyElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLZaneTooltipElement: {
-        prototype: HTMLZaneTooltipElement;
-        new (): HTMLZaneTooltipElement;
+    var HTMLZaneTippyElement: {
+        prototype: HTMLZaneTippyElement;
+        new (): HTMLZaneTippyElement;
+    };
+    interface HTMLZaneTransferElementEventMap {
+        "zChange": {
+    value: TransferKey[];
+    direction: 'left' | 'right';
+    movedKeys: TransferKey[];
+  };
+        "zLeftCheckChange": {
+    value: TransferKey[];
+    movedKeys?: TransferKey[];
+  };
+        "zRightCheckChange": {
+    value: TransferKey[];
+    movedKeys?: TransferKey[];
+  };
+    }
+    interface HTMLZaneTransferElement extends Components.ZaneTransfer, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneTransferElementEventMap>(type: K, listener: (this: HTMLZaneTransferElement, ev: ZaneTransferCustomEvent<HTMLZaneTransferElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneTransferElementEventMap>(type: K, listener: (this: HTMLZaneTransferElement, ev: ZaneTransferCustomEvent<HTMLZaneTransferElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneTransferElement: {
+        prototype: HTMLZaneTransferElement;
+        new (): HTMLZaneTransferElement;
+    };
+    interface HTMLZaneTransferPanelElementEventMap {
+        "zCheckedChange": {
+    value: TransferKey[];
+    movedKeys?: TransferKey[];
+  };
+    }
+    interface HTMLZaneTransferPanelElement extends Components.ZaneTransferPanel, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneTransferPanelElementEventMap>(type: K, listener: (this: HTMLZaneTransferPanelElement, ev: ZaneTransferPanelCustomEvent<HTMLZaneTransferPanelElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneTransferPanelElementEventMap>(type: K, listener: (this: HTMLZaneTransferPanelElement, ev: ZaneTransferPanelCustomEvent<HTMLZaneTransferPanelElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneTransferPanelElement: {
+        prototype: HTMLZaneTransferPanelElement;
+        new (): HTMLZaneTransferPanelElement;
+    };
+    interface HTMLZaneTreeElementEventMap {
+        "zNodeClick": {
+    data: TreeNodeData
+    node: TreeNode
+    event: MouseEvent
+  };
+        "zNodeDrop": {
+    data: TreeNodeData
+    node: TreeNode
+    event: DragEvent
+  };
+        "zNodeExpand": {
+    data: TreeNodeData
+    node: TreeNode
+  };
+        "zNodeCollapse": {
+    data: TreeNodeData
+    node: TreeNode
+  };
+        "zCurrentChange": {
+    data: TreeNodeData
+    node: TreeNode
+  };
+        "zNodeCheck": {
+    data: TreeNodeData
+    checkedInfo: CheckedInfo
+  };
+        "zNodeCheckChange": {
+    data: TreeNodeData
+    checked: CheckboxValueType
+  };
+        "zNodeContextMenu": {
+    data: TreeNodeData
+    node: TreeNode
+    event: Event
+  };
+    }
+    interface HTMLZaneTreeElement extends Components.ZaneTree, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneTreeElementEventMap>(type: K, listener: (this: HTMLZaneTreeElement, ev: ZaneTreeCustomEvent<HTMLZaneTreeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneTreeElementEventMap>(type: K, listener: (this: HTMLZaneTreeElement, ev: ZaneTreeCustomEvent<HTMLZaneTreeElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneTreeElement: {
+        prototype: HTMLZaneTreeElement;
+        new (): HTMLZaneTreeElement;
+    };
+    interface HTMLZaneTreeNodeElementEventMap {
+        "zClick": {
+    node: TreeNode,
+    event: MouseEvent,
+  };
+        "zDrop": {
+    node: TreeNode,
+    event: DragEvent,
+  };
+        "zToggle": {
+    node: TreeNode,
+  };
+        "zCheck": {
+    node: TreeNode,
+    checked: CheckboxValueType,
+  };
+    }
+    interface HTMLZaneTreeNodeElement extends Components.ZaneTreeNode, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneTreeNodeElementEventMap>(type: K, listener: (this: HTMLZaneTreeNodeElement, ev: ZaneTreeNodeCustomEvent<HTMLZaneTreeNodeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneTreeNodeElementEventMap>(type: K, listener: (this: HTMLZaneTreeNodeElement, ev: ZaneTreeNodeCustomEvent<HTMLZaneTreeNodeElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneTreeNodeElement: {
+        prototype: HTMLZaneTreeNodeElement;
+        new (): HTMLZaneTreeNodeElement;
+    };
+    interface HTMLZaneTreeNodeContentElement extends Components.ZaneTreeNodeContent, HTMLStencilElement {
+    }
+    var HTMLZaneTreeNodeContentElement: {
+        prototype: HTMLZaneTreeNodeContentElement;
+        new (): HTMLZaneTreeNodeContentElement;
+    };
+    interface HTMLZaneTreeSelectElement extends Components.ZaneTreeSelect, HTMLStencilElement {
+    }
+    var HTMLZaneTreeSelectElement: {
+        prototype: HTMLZaneTreeSelectElement;
+        new (): HTMLZaneTreeSelectElement;
     };
     interface HTMLZaneVirtualGridElementEventMap {
         "zItemRendered": {
@@ -3255,13 +3822,21 @@ declare global {
         "zane-select-option-item": HTMLZaneSelectOptionItemElement;
         "zane-slider": HTMLZaneSliderElement;
         "zane-slider-button": HTMLZaneSliderButtonElement;
+        "zane-slider-marker": HTMLZaneSliderMarkerElement;
         "zane-splitter": HTMLZaneSplitterElement;
         "zane-splitter-bar": HTMLZaneSplitterBarElement;
         "zane-splitter-panel": HTMLZaneSplitterPanelElement;
+        "zane-switch": HTMLZaneSwitchElement;
         "zane-tag": HTMLZaneTagElement;
         "zane-text": HTMLZaneTextElement;
         "zane-thumb": HTMLZaneThumbElement;
-        "zane-tooltip": HTMLZaneTooltipElement;
+        "zane-tippy": HTMLZaneTippyElement;
+        "zane-transfer": HTMLZaneTransferElement;
+        "zane-transfer-panel": HTMLZaneTransferPanelElement;
+        "zane-tree": HTMLZaneTreeElement;
+        "zane-tree-node": HTMLZaneTreeNodeElement;
+        "zane-tree-node-content": HTMLZaneTreeNodeContentElement;
+        "zane-tree-select": HTMLZaneTreeSelectElement;
         "zane-virtual-grid": HTMLZaneVirtualGridElement;
         "zane-virtual-list": HTMLZaneVirtualListElement;
         "zane-virtual-scrollbar": HTMLZaneVirtualScrollbarElement;
@@ -3288,7 +3863,7 @@ declare namespace LocalJSX {
          */
         "autosize"?: boolean | { maxRows?: number; minRows?: number };
         /**
-          * @default 'circle-close'
+          * @default 'close-circle-line'
          */
         "clearIcon"?: string;
         "clearable"?: boolean;
@@ -3512,7 +4087,7 @@ declare namespace LocalJSX {
         "beforeFilter"?: (value: string) => boolean | Promise<any>;
         "checkOnClickNode"?: boolean;
         /**
-          * @default "circle-close"
+          * @default "close-circle-line"
          */
         "clearIcon"?: string;
         "clearable"?: boolean;
@@ -3766,7 +4341,7 @@ declare namespace LocalJSX {
         "indeterminate"?: boolean;
         "label"?: any;
         "name"?: string;
-        "onZChange"?: (event: ZaneCheckboxCustomEvent<any>) => void;
+        "onZChange"?: (event: ZaneCheckboxCustomEvent<string | number | boolean>) => void;
         "size"?: ComponentSize;
         /**
           * @default undefined
@@ -3840,7 +4415,7 @@ declare namespace LocalJSX {
           * @default undefined
          */
         "min"?: number;
-        "onZChange"?: (event: ZaneCheckboxGroupCustomEvent<any>) => void;
+        "onZChange"?: (event: ZaneCheckboxGroupCustomEvent<CheckboxGroupValueType>) => void;
         "options"?: CheckboxOption[];
         /**
           * @default {     label: "label",     value: "value",     disabled: "disabled",   }
@@ -3863,7 +4438,7 @@ declare namespace LocalJSX {
         /**
           * @default []
          */
-        "value"?: (string | number)[];
+        "value"?: CheckboxGroupValueType;
         "zId"?: string;
     }
     interface ZaneCol {
@@ -4084,7 +4659,7 @@ declare namespace LocalJSX {
          */
         "autosize"?: InputAutoSize;
         /**
-          * @default "circle-close"
+          * @default "close-circle-line"
          */
         "clearIcon"?: string;
         /**
@@ -4373,18 +4948,9 @@ declare namespace LocalJSX {
         "modelModifiers"?: InputModelModifiers;
         "name"?: string;
         /**
-          * @default [0, 0]
+          * @default tippy.defaultProps.offset
          */
-        "offset"?: | (({
-        placement,
-        popper,
-        reference,
-      }: {
-        placement: Placement;
-        popper: PopperRect;
-        reference: PopperRect;
-      }) => [number, number])
-    | [number, number];
+        "offset"?: Props['offset'];
         "onZBlur"?: (event: ZaneMentionCustomEvent<FocusEvent>) => void;
         "onZFocus"?: (event: ZaneMentionCustomEvent<FocusEvent>) => void;
         "onZInput"?: (event: ZaneMentionCustomEvent<string>) => void;
@@ -4411,9 +4977,9 @@ declare namespace LocalJSX {
          */
         "placement"?: 'bottom' | 'top';
         /**
-          * @default {}
+          * @default tippy.defaultProps.popperOptions
          */
-        "popperOptions"?: Partial<PopperOptions>;
+        "popperOptions"?: Props['popperOptions'];
         "popperTheme"?: string;
         "prefixIcon"?: string;
         /**
@@ -4776,18 +5342,9 @@ declare namespace LocalJSX {
         "noDataText"?: string;
         "noMatchText"?: string;
         /**
-          * @default [0, 0]
+          * @default tippy.defaultProps.offset
          */
-        "offset"?: | (({
-        placement,
-        popper,
-        reference,
-      }: {
-        placement: Placement;
-        popper: PopperRect;
-        reference: PopperRect;
-      }) => [number, number])
-    | [number, number];
+        "offset"?: Props['offset'];
         "onZBlur"?: (event: ZaneSelectCustomEvent<FocusEvent>) => void;
         "onZChange"?: (event: ZaneSelectCustomEvent<any>) => void;
         "onZClear"?: (event: ZaneSelectCustomEvent<any>) => void;
@@ -4801,16 +5358,16 @@ declare namespace LocalJSX {
         /**
           * @default 'bottom-start'
          */
-        "placement"?: Placement;
+        "placement"?: Props['placement'];
         /**
           * @default {}
          */
-        "popperOptions"?: Partial<PopperOptions>;
+        "popperOptions"?: Props['popperOptions'];
         "popperTheme"?: string;
         /**
           * @default {     label: 'label',     value: 'value',     disabled: 'disabled',     options: 'options'   }
          */
-        "props"?: Props;
+        "props"?: SelectProps;
         "remote"?: boolean;
         "remoteMethod"?: (query: string) => any;
         "remoteShowSuffix"?: boolean;
@@ -4978,6 +5535,9 @@ declare namespace LocalJSX {
         "value"?: number;
         "vertical"?: boolean;
     }
+    interface ZaneSliderMarker {
+        "mark"?: string | { style: Record<string, any>, label: any};
+    }
     interface ZaneSplitter {
         /**
           * @default "horizontal"
@@ -5019,6 +5579,57 @@ declare namespace LocalJSX {
         "size"?: number | string;
         "uuid"?: string;
     }
+    interface ZaneSwitch {
+        "activeActionIcon"?: string;
+        "activeIcon"?: string;
+        /**
+          * @default ''
+         */
+        "activeText"?: string;
+        /**
+          * @default true
+         */
+        "activeValue"?: boolean | string | number;
+        "ariaLabel"?: string;
+        "beforeChange"?: () => Promise<boolean> | boolean;
+        /**
+          * @default undefined
+         */
+        "disabled"?: boolean;
+        "inactiveActionIcon"?: string;
+        "inactiveIcon"?: string;
+        /**
+          * @default ''
+         */
+        "inactiveText"?: string;
+        /**
+          * @default false
+         */
+        "inactiveValue"?: boolean | string | number;
+        "inlinePrompt"?: boolean;
+        "loading"?: boolean;
+        /**
+          * @default ''
+         */
+        "name"?: string;
+        "onZChange"?: (event: ZaneSwitchCustomEvent<boolean | string | number>) => void;
+        "onZInput"?: (event: ZaneSwitchCustomEvent<boolean | string | number>) => void;
+        "size"?: ComponentSize;
+        /**
+          * @default true
+         */
+        "validateEvent"?: boolean;
+        /**
+          * @default false
+         */
+        "value"?: boolean | string | number;
+        /**
+          * @default ''
+         */
+        "width"?: string | number;
+        "zId"?: string;
+        "zTabindex"?: number;
+    }
     interface ZaneTag {
         "closeable"?: boolean;
         "color"?: string;
@@ -5055,161 +5666,542 @@ declare namespace LocalJSX {
         "size"?: string;
         "vertical"?: boolean;
     }
-    interface ZaneTooltip {
+    interface ZaneTippy {
         /**
-          * @default true
+          * @default tippy.defaultProps.allowHTML
          */
         "allowHTML"?: boolean;
         /**
-          * @default false
+          * @default tippy.defaultProps.animateFill
          */
         "animateFill"?: boolean;
         /**
-          * @default 'fade'
+          * @default tippy.defaultProps.animation
          */
-        "animation"?: boolean | string;
+        "animation"?: string | boolean;
         /**
-          * @default TIPPY_DEFAULT_APPEND_TO
+          * @default tippy.defaultProps.appendTo
          */
-        "appendTo"?: 'parent' | ((ref: Element) => Element) | Element;
+        "appendTo"?: Element | "parent" | ((ref: Element) => Element);
         /**
-          * @default { content: 'describedby' }
+          * @default tippy.defaultProps.aria
          */
-        "aria"?: {
-    content?: 'auto' | 'describedby' | 'labelledby' | null;
-    expanded?: 'auto' | boolean;
-  };
+        "aria"?: { content?: "auto" | "describedby" | "labelledby"; expanded?: boolean | "auto"; };
         /**
-          * @default true
+          * @default tippy.defaultProps.arrow
          */
-        "arrow"?: boolean | DocumentFragment | string | SVGElement;
+        "arrow"?: string | boolean | SVGElement | DocumentFragment;
         /**
           * @default ''
          */
-        "content"?: Content;
+        "boxClass"?: string;
         /**
-          * @default 0
+          * @default undefined
          */
-        "delay"?: [null | number, null | number] | number;
+        "boxStyle"?: Record<string, any>;
+        /**
+          * 内容支持字符串（直接作为 HTML 或文本）
+         */
+        "content"?: string;
+        /**
+          * @default ''
+         */
+        "contentClass"?: string;
+        /**
+          * @default undefined
+         */
+        "contentStyle"?: Record<string, any>;
+        /**
+          * @default 'span'
+         */
+        "contentTag"?: string;
+        /**
+          * @default tippy.defaultProps.delay
+         */
+        "delay"?: number | [number, number];
         /**
           * @default false
          */
         "disabled"?: boolean;
         /**
-          * @default 300
+          * @default tippy.defaultProps.duration
          */
-        "duration"?: [null | number, null | number] | number;
+        "duration"?: number | [number, number];
         /**
-          * @default false
+          * @default tippy.defaultProps.followCursor
          */
-        "followCursor"?: 'horizontal' | 'initial' | 'vertical' | boolean;
+        "followCursor"?: boolean | "horizontal" | "vertical" | "initial";
         /**
-          * @default null
+          * @default tippy.defaultProps.getReferenceClientRect
          */
-        "getReferenceClientRect"?: GetReferenceClientRect | null;
+        "getReferenceClientRect"?: GetReferenceClientRect;
         /**
-          * @default true
+          * @default tippy.defaultProps.hideOnClick
          */
-        "hideOnClick"?: 'toggle' | boolean;
+        "hideOnClick"?: boolean | "toggle";
         /**
-          * @default false
+          * @default tippy.defaultProps.ignoreAttributes
          */
         "ignoreAttributes"?: boolean;
         /**
-          * @default false
+          * @default tippy.defaultProps.inertia
          */
         "inertia"?: boolean;
         /**
-          * @default true
+          * @default tippy.defaultProps.inlinePositioning
          */
         "inlinePositioning"?: boolean;
         /**
-          * @default false
+          * @default tippy.defaultProps.interactive
          */
         "interactive"?: boolean;
         /**
-          * @default 2
+          * @default tippy.defaultProps.interactiveBorder
          */
         "interactiveBorder"?: number;
         /**
-          * @default 0
+          * @default tippy.defaultProps.interactiveDebounce
          */
         "interactiveDebounce"?: number;
         /**
-          * @default 350
+          * @default tippy.defaultProps.maxWidth
          */
-        "maxWidth"?: number | string;
+        "maxWidth"?: string | number;
         /**
-          * @default ''
+          * @default tippy.defaultProps.moveTransition
          */
         "moveTransition"?: string;
         /**
-          * @default [0, 10]
+          * @default tippy.defaultProps.offset
          */
-        "offset"?: | (({
-        placement,
-        popper,
-        reference,
-      }: {
-        placement: Placement1;
-        popper: PopperRect;
-        reference: PopperRect;
-      }) => [number, number])
-    | [number, number];
-        "onZClickOutside"?: (event: ZaneTooltipCustomEvent<Instance<Props1>>) => void;
-        "onZHidden"?: (event: ZaneTooltipCustomEvent<Instance<Props1>>) => void;
-        "onZHide"?: (event: ZaneTooltipCustomEvent<Instance<Props1>>) => void;
-        "onZMount"?: (event: ZaneTooltipCustomEvent<Instance<Props1>>) => void;
-        "onZShow"?: (event: ZaneTooltipCustomEvent<Instance<Props1>>) => void;
+        "offset"?: [number, number] | (({ placement, popper, reference, }: { placement: Placement; popper: Rect; reference: Rect; }) => [number, number]);
+        "onAfterUpdate"?: (event: ZaneTippyCustomEvent<[Instance<Props>, Partial<Props>]>) => void;
+        "onBeforeUpdate"?: (event: ZaneTippyCustomEvent<[Instance<Props>, Partial<Props>]>) => void;
+        "onClickOutside"?: (event: ZaneTippyCustomEvent<[Instance<Props>, Event]>) => void;
+        "onCreate"?: (event: ZaneTippyCustomEvent<Instance<Props>>) => void;
+        "onDestroy"?: (event: ZaneTippyCustomEvent<Instance<Props>>) => void;
+        "onHidden"?: (event: ZaneTippyCustomEvent<Instance<Props>>) => void;
+        "onMount"?: (event: ZaneTippyCustomEvent<Instance<Props>>) => void;
+        "onShown"?: (event: ZaneTippyCustomEvent<Instance<Props>>) => void;
+        "onState"?: (event: ZaneTippyCustomEvent<{
+    isEnabled: boolean
+    isVisible: boolean
+    isDestroyed: boolean
+    isMounted: boolean
+    isShown: boolean
+  }>) => void;
+        "onTrigger"?: (event: ZaneTippyCustomEvent<[Instance<Props>, Event]>) => void;
+        "onUntrigger"?: (event: ZaneTippyCustomEvent<[Instance<Props>, Event]>) => void;
+        "onZHide"?: (event: ZaneTippyCustomEvent<Instance<Props>>) => void;
+        "onZShow"?: (event: ZaneTippyCustomEvent<Instance<Props>>) => void;
         /**
-          * @default 'top'
+          * @default tippy.defaultProps.placement
          */
-        "placement"?: Placement1;
+        "placement"?: AutoPlacement | BasePlacement | VariationPlacement;
         /**
-          * @default []
+          * @default tippy.defaultProps.plugins
          */
         "plugins"?: Plugin<unknown>[];
         /**
-          * @default {}
+          * @default tippy.defaultProps.popperOptions
          */
-        "popperOptions"?: Partial<PopperOptions>;
+        "popperOptions"?: { placement?: Placement; modifiers?: Partial<Modifier<any, any>>[]; strategy?: PositioningStrategy; onFirstUpdate?: (arg0: Partial<State>) => void; };
         /**
-          * @default 'tooltip'
+          * @default tippy.defaultProps.role
          */
         "role"?: string;
         /**
-          * @default false
+          * @default tippy.defaultProps.showOnCreate
          */
         "showOnCreate"?: boolean;
         /**
-          * @default false
+          * @default tippy.defaultProps.sticky
          */
-        "sticky"?: 'popper' | 'reference' | boolean;
+        "sticky"?: boolean | "popper" | "reference";
         /**
-          * @default ''
+          * @default 'span'
+         */
+        "tag"?: string;
+        /**
+          * @default tippy.defaultProps.theme
          */
         "theme"?: string;
-        "tippyRender"?: | ((instance: Instance) => {
-        onUpdate?: (prevProps: Props1, nextProps: Props1) => void;
-        popper: PopperElement;
-      })
-    | null;
         /**
-          * @default true
+          * @default tippy.defaultProps.render
          */
-        "touch"?: 'hold' | ['hold', number] | boolean;
+        "tippyRender"?: (instance: Instance<Props>) => { popper: PopperElement<Props>; onUpdate?: (prevProps: Props, nextProps: Props) => void; };
+        "to"?: string | 'parent' | HTMLElement;
         /**
-          * @default 'mouseenter focus'
+          * @default tippy.defaultProps.touch
+         */
+        "touch"?: boolean | "hold" | ["hold", number];
+        /**
+          * @default tippy.defaultProps.trigger
          */
         "trigger"?: string;
         /**
-          * @default null
+          * @default tippy.defaultProps.triggerTarget
          */
-        "triggerTarget"?: Element | Element[] | null;
+        "triggerTarget"?: Element | Element[];
         /**
-          * @default 9999
+          * @default tippy.defaultProps.zIndex
          */
         "zIndex"?: number;
+    }
+    interface ZaneTransfer {
+        /**
+          * @default [] as unknown as [string, string]
+         */
+        "buttonTexts"?: [string, string];
+        /**
+          * @default []
+         */
+        "data"?: TransferDataItem[];
+        "filterMethod"?: (query: string, item: TransferDataItem) => boolean;
+        "filterPlaceholder"?: string;
+        /**
+          * @default false
+         */
+        "filterable"?: boolean;
+        /**
+          * @default {}
+         */
+        "format"?: TransferFormat;
+        /**
+          * @default []
+         */
+        "leftDefaultChecked"?: TransferKey[];
+        "onZChange"?: (event: ZaneTransferCustomEvent<{
+    value: TransferKey[];
+    direction: 'left' | 'right';
+    movedKeys: TransferKey[];
+  }>) => void;
+        "onZLeftCheckChange"?: (event: ZaneTransferCustomEvent<{
+    value: TransferKey[];
+    movedKeys?: TransferKey[];
+  }>) => void;
+        "onZRightCheckChange"?: (event: ZaneTransferCustomEvent<{
+    value: TransferKey[];
+    movedKeys?: TransferKey[];
+  }>) => void;
+        /**
+          * @default {     label: 'label',     key: 'key',     disabled: 'disabled'   }
+         */
+        "props"?: TransferPropsAlias;
+        "renderContent"?: Function;
+        /**
+          * @default []
+         */
+        "rightDefaultChecked"?: TransferKey[];
+        /**
+          * @default 'original'
+         */
+        "targetOrder"?: 'push' | 'unshift' | 'original';
+        /**
+          * @default [] as unknown as [string, string]
+         */
+        "titles"?: [string, string];
+        /**
+          * @default true
+         */
+        "validateEvent"?: boolean;
+        /**
+          * @default []
+         */
+        "value"?: TransferKey[];
+    }
+    interface ZaneTransferPanel {
+        /**
+          * @default []
+         */
+        "data"?: TransferDataItem[];
+        /**
+          * @default []
+         */
+        "defaultChecked"?: TransferKey[];
+        "filterMethod"?: (query: string, item: TransferDataItem) => boolean;
+        /**
+          * @default false
+         */
+        "filterable"?: boolean;
+        /**
+          * @default {}
+         */
+        "format"?: TransferFormat;
+        "onZCheckedChange"?: (event: ZaneTransferPanelCustomEvent<{
+    value: TransferKey[];
+    movedKeys?: TransferKey[];
+  }>) => void;
+        "optionRender"?: (option: TransferDataItem) => VNode | VNode[];
+        "placeholder"?: string;
+        /**
+          * @default {     label: 'label',     key: 'key',     disabled: 'disabled'   }
+         */
+        "props"?: TransferPropsAlias;
+        "zTitle"?: string;
+    }
+    interface ZaneTree {
+        /**
+          * @default false
+         */
+        "accordion"?: boolean;
+        /**
+          * @default true
+         */
+        "checkOnClickLeaf"?: boolean;
+        /**
+          * @default false
+         */
+        "checkOnClickNode"?: boolean;
+        /**
+          * @default false
+         */
+        "checkStrictly"?: boolean;
+        "currentNodeKey"?: TreeKey;
+        /**
+          * @default []
+         */
+        "data"?: TreeData;
+        /**
+          * @default []
+         */
+        "defaultCheckedKeys"?: TreeKey[];
+        /**
+          * @default []
+         */
+        "defaultExpandedKeys"?: TreeKey[];
+        "emptyText"?: string;
+        /**
+          * @default true
+         */
+        "expandOnClickNode"?: boolean;
+        "filterMethod"?: FilterMethod;
+        "height"?: number;
+        /**
+          * @default false
+         */
+        "highlightCurrent"?: boolean;
+        "icon"?: string;
+        /**
+          * @default 16
+         */
+        "indent"?: number;
+        /**
+          * @default 26
+         */
+        "itemSize"?: number;
+        "onZCurrentChange"?: (event: ZaneTreeCustomEvent<{
+    data: TreeNodeData
+    node: TreeNode
+  }>) => void;
+        "onZNodeCheck"?: (event: ZaneTreeCustomEvent<{
+    data: TreeNodeData
+    checkedInfo: CheckedInfo
+  }>) => void;
+        "onZNodeCheckChange"?: (event: ZaneTreeCustomEvent<{
+    data: TreeNodeData
+    checked: CheckboxValueType
+  }>) => void;
+        "onZNodeClick"?: (event: ZaneTreeCustomEvent<{
+    data: TreeNodeData
+    node: TreeNode
+    event: MouseEvent
+  }>) => void;
+        "onZNodeCollapse"?: (event: ZaneTreeCustomEvent<{
+    data: TreeNodeData
+    node: TreeNode
+  }>) => void;
+        "onZNodeContextMenu"?: (event: ZaneTreeCustomEvent<{
+    data: TreeNodeData
+    node: TreeNode
+    event: Event
+  }>) => void;
+        "onZNodeDrop"?: (event: ZaneTreeCustomEvent<{
+    data: TreeNodeData
+    node: TreeNode
+    event: DragEvent
+  }>) => void;
+        "onZNodeExpand"?: (event: ZaneTreeCustomEvent<{
+    data: TreeNodeData
+    node: TreeNode
+  }>) => void;
+        /**
+          * @default true
+         */
+        "perfMode"?: boolean;
+        /**
+          * @default {     children: 'children',     label: 'label',     disabled: 'disabled',     value: 'id',     class: '',   }
+         */
+        "props"?: TreeOptionProps;
+        /**
+          * @default false
+         */
+        "scrollbarAlwaysOn"?: boolean;
+        /**
+          * @default false
+         */
+        "showCheckbox"?: boolean;
+    }
+    interface ZaneTreeNode {
+        "checked"?: boolean;
+        "current"?: boolean;
+        "disabled"?: boolean;
+        "expanded"?: boolean;
+        "hiddenExpandIcon"?: boolean;
+        "indeterminate"?: boolean;
+        /**
+          * @default 26
+         */
+        "itemSize"?: number;
+        /**
+          * @default mutable(EMPTY_NODE)
+         */
+        "node"?: TreeNode;
+        "onZCheck"?: (event: ZaneTreeNodeCustomEvent<{
+    node: TreeNode,
+    checked: CheckboxValueType,
+  }>) => void;
+        "onZClick"?: (event: ZaneTreeNodeCustomEvent<{
+    node: TreeNode,
+    event: MouseEvent,
+  }>) => void;
+        "onZDrop"?: (event: ZaneTreeNodeCustomEvent<{
+    node: TreeNode,
+    event: DragEvent,
+  }>) => void;
+        "onZToggle"?: (event: ZaneTreeNodeCustomEvent<{
+    node: TreeNode,
+  }>) => void;
+        "showCheckbox"?: boolean;
+    }
+    interface ZaneTreeNodeContent {
+        "node"?: TreeNode;
+    }
+    interface ZaneTreeSelect {
+        "allowCreate"?: boolean;
+        "ariaLabel"?: string;
+        /**
+          * @default 'none'
+         */
+        "autocomplete"?: 'none' | 'list' | 'both' | 'inline';
+        "automaticDropdown"?: boolean;
+        /**
+          * @default 'close-circle-line'
+         */
+        "clearIcon"?: string;
+        "clearable"?: boolean;
+        "collapseTags"?: boolean;
+        "collapseTagsTooltip"?: boolean;
+        /**
+          * @default 300
+         */
+        "debounce"?: number;
+        "defaultFirstOption"?: boolean;
+        /**
+          * @default undefined
+         */
+        "disabled"?: boolean;
+        "emptyValues"?: any[];
+        /**
+          * @default undefined
+         */
+        "estimatedOptionHeight"?: number;
+        "filterMethod"?: (query: string) => boolean;
+        "filterable"?: boolean;
+        /**
+          * @default true
+         */
+        "fitInputWidth"?: boolean | number;
+        /**
+          * @default 274
+         */
+        "height"?: number;
+        /**
+          * @default 34
+         */
+        "itemHeight"?: number;
+        "label"?: string;
+        "loading"?: boolean;
+        "loadingText"?: string;
+        /**
+          * @default 1
+         */
+        "maxCollapseTags"?: number;
+        "multiple"?: boolean;
+        /**
+          * @default 0
+         */
+        "multipleLimit"?: number;
+        "name"?: string;
+        "noDataText"?: string;
+        "noMatchText"?: string;
+        /**
+          * @default [0, 0]
+         */
+        "offset"?: Props['offset'];
+        "options"?: OptionType[];
+        "placeholder"?: string;
+        /**
+          * @default 'bottom-start'
+         */
+        "placement"?: Placement1;
+        /**
+          * @default {}
+         */
+        "popperOptions"?: Props['popperOptions'];
+        "popperTheme"?: string;
+        /**
+          * @default {     label: 'label',     value: 'value',     disabled: 'disabled',     options: 'options'   }
+         */
+        "props"?: SelectProps;
+        "remote"?: boolean;
+        "remoteMethod"?: (query: string) => any;
+        "remoteShowSuffix"?: boolean;
+        /**
+          * @default true
+         */
+        "reserveKeyword"?: boolean;
+        "scrollbarAlwaysOn"?: boolean;
+        /**
+          * @default false
+         */
+        "showArrow"?: boolean;
+        "size"?: ComponentSize;
+        /**
+          * @default 'arrow-down-s-line'
+         */
+        "suffixIcon"?: string;
+        /**
+          * @default 'light'
+         */
+        "tagEffect"?: 'dark' | 'light' | 'plain';
+        "tagLabelRender"?: (label: string, value: string, index: number) => HTMLElement;
+        "tagRender"?: () => HTMLElement;
+        /**
+          * @default 'info'
+         */
+        "tagType"?: 'primary' | 'success' | 'warning' | 'danger' | 'info';
+        /**
+          * @default true
+         */
+        "validateEvent"?: boolean;
+        /**
+          * @default undefined
+         */
+        "value"?: any[] | string | number | Record<string, any> | any;
+        /**
+          * @default 'value'
+         */
+        "valueKey"?: string;
+        /**
+          * @default undefined
+         */
+        "valueOnClear"?: any;
+        "zId"?: string;
+        /**
+          * @default 0
+         */
+        "zTabindex"?: number;
     }
     interface ZaneVirtualGrid {
         /**
@@ -5479,13 +6471,21 @@ declare namespace LocalJSX {
         "zane-select-option-item": ZaneSelectOptionItem;
         "zane-slider": ZaneSlider;
         "zane-slider-button": ZaneSliderButton;
+        "zane-slider-marker": ZaneSliderMarker;
         "zane-splitter": ZaneSplitter;
         "zane-splitter-bar": ZaneSplitterBar;
         "zane-splitter-panel": ZaneSplitterPanel;
+        "zane-switch": ZaneSwitch;
         "zane-tag": ZaneTag;
         "zane-text": ZaneText;
         "zane-thumb": ZaneThumb;
-        "zane-tooltip": ZaneTooltip;
+        "zane-tippy": ZaneTippy;
+        "zane-transfer": ZaneTransfer;
+        "zane-transfer-panel": ZaneTransferPanel;
+        "zane-tree": ZaneTree;
+        "zane-tree-node": ZaneTreeNode;
+        "zane-tree-node-content": ZaneTreeNodeContent;
+        "zane-tree-select": ZaneTreeSelect;
         "zane-virtual-grid": ZaneVirtualGrid;
         "zane-virtual-list": ZaneVirtualList;
         "zane-virtual-scrollbar": ZaneVirtualScrollbar;
@@ -5552,13 +6552,21 @@ declare module "@stencil/core" {
             "zane-select-option-item": LocalJSX.ZaneSelectOptionItem & JSXBase.HTMLAttributes<HTMLZaneSelectOptionItemElement>;
             "zane-slider": LocalJSX.ZaneSlider & JSXBase.HTMLAttributes<HTMLZaneSliderElement>;
             "zane-slider-button": LocalJSX.ZaneSliderButton & JSXBase.HTMLAttributes<HTMLZaneSliderButtonElement>;
+            "zane-slider-marker": LocalJSX.ZaneSliderMarker & JSXBase.HTMLAttributes<HTMLZaneSliderMarkerElement>;
             "zane-splitter": LocalJSX.ZaneSplitter & JSXBase.HTMLAttributes<HTMLZaneSplitterElement>;
             "zane-splitter-bar": LocalJSX.ZaneSplitterBar & JSXBase.HTMLAttributes<HTMLZaneSplitterBarElement>;
             "zane-splitter-panel": LocalJSX.ZaneSplitterPanel & JSXBase.HTMLAttributes<HTMLZaneSplitterPanelElement>;
+            "zane-switch": LocalJSX.ZaneSwitch & JSXBase.HTMLAttributes<HTMLZaneSwitchElement>;
             "zane-tag": LocalJSX.ZaneTag & JSXBase.HTMLAttributes<HTMLZaneTagElement>;
             "zane-text": LocalJSX.ZaneText & JSXBase.HTMLAttributes<HTMLZaneTextElement>;
             "zane-thumb": LocalJSX.ZaneThumb & JSXBase.HTMLAttributes<HTMLZaneThumbElement>;
-            "zane-tooltip": LocalJSX.ZaneTooltip & JSXBase.HTMLAttributes<HTMLZaneTooltipElement>;
+            "zane-tippy": LocalJSX.ZaneTippy & JSXBase.HTMLAttributes<HTMLZaneTippyElement>;
+            "zane-transfer": LocalJSX.ZaneTransfer & JSXBase.HTMLAttributes<HTMLZaneTransferElement>;
+            "zane-transfer-panel": LocalJSX.ZaneTransferPanel & JSXBase.HTMLAttributes<HTMLZaneTransferPanelElement>;
+            "zane-tree": LocalJSX.ZaneTree & JSXBase.HTMLAttributes<HTMLZaneTreeElement>;
+            "zane-tree-node": LocalJSX.ZaneTreeNode & JSXBase.HTMLAttributes<HTMLZaneTreeNodeElement>;
+            "zane-tree-node-content": LocalJSX.ZaneTreeNodeContent & JSXBase.HTMLAttributes<HTMLZaneTreeNodeContentElement>;
+            "zane-tree-select": LocalJSX.ZaneTreeSelect & JSXBase.HTMLAttributes<HTMLZaneTreeSelectElement>;
             "zane-virtual-grid": LocalJSX.ZaneVirtualGrid & JSXBase.HTMLAttributes<HTMLZaneVirtualGridElement>;
             "zane-virtual-list": LocalJSX.ZaneVirtualList & JSXBase.HTMLAttributes<HTMLZaneVirtualListElement>;
             "zane-virtual-scrollbar": LocalJSX.ZaneVirtualScrollbar & JSXBase.HTMLAttributes<HTMLZaneVirtualScrollbarElement>;

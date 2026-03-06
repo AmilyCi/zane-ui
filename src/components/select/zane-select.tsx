@@ -1,8 +1,6 @@
 import { Component, Element, Event, Fragment, h, Method, Prop, State, Watch, type EventEmitter } from '@stencil/core';
-import type { OptionType, Props, SelectStates, Option, SelectContext } from './types';
-import type { PopperOptions, PopperRect } from '../tooltip/types';
+import type { OptionType, Props as SelectProps, SelectStates, Option, SelectContext } from './types';
 import type { ComponentSize } from '../../types';
-import type { Placement } from '@popperjs/core';
 import type { FormContext, FormItemContext } from '../form/types';
 import type { ConfigProviderContext } from '../config-provider/types';
 import { useNamespace, useResizeObserver } from '../../hooks';
@@ -21,6 +19,8 @@ import state from '../../global/store';
 import { ValidateComponentsMap } from '../../constants/validate';
 import { selectContexts } from  './constants';
 import { BORDER_HORIZONTAL_WIDTH } from '../../constants/form';
+import type { Props } from 'tippy.js';
+import tippy from 'tippy.js';
 
 const ns = useNamespace('select');
 const nsInput = useNamespace('input');
@@ -90,7 +90,7 @@ export class ZaneSelect {
 
   @Prop() placeholder: string;
 
-  @Prop() popperOptions: Partial<PopperOptions> = {};
+  @Prop() popperOptions: Props['popperOptions'] = {};
 
   @Prop() remote: boolean;
 
@@ -98,7 +98,7 @@ export class ZaneSelect {
 
   @Prop() size: ComponentSize;
 
-  @Prop() props: Props = {
+  @Prop() props: SelectProps = {
     label: 'label',
     value: 'value',
     disabled: 'disabled',
@@ -111,23 +111,13 @@ export class ZaneSelect {
 
   @Prop() validateEvent: boolean = true;
 
-  @Prop() offset:
-    | (({
-        placement,
-        popper,
-        reference,
-      }: {
-        placement: Placement;
-        popper: PopperRect;
-        reference: PopperRect;
-      }) => [number, number])
-    | [number, number] = [0, 0];
+  @Prop() offset: Props['offset'] = tippy.defaultProps.offset;
 
   @Prop() remoteShowSuffix: boolean;
 
   @Prop() showArrow: boolean = false;
 
-  @Prop() placement: Placement = 'bottom-start';
+  @Prop() placement: Props['placement'] = 'bottom-start';
 
   @Prop() tagType: 'primary' | 'success' | 'warning' | 'danger' | 'info' = 'info';
 
@@ -151,23 +141,28 @@ export class ZaneSelect {
 
   @Prop() tagLabelRender: (label: string, value: string, index: number) => HTMLElement;
 
-  @Event({ eventName: 'zChange' }) changeEvent: EventEmitter<any>;
+  @Event({ eventName: 'zChange', bubbles: false })
+  changeEvent: EventEmitter<any>;
 
-  @Event({ eventName: 'zRemoveTag' }) removeTagEvent: EventEmitter<any>;
+  @Event({ eventName: 'zRemoveTag', bubbles: false })
+  removeTagEvent: EventEmitter<any>;
 
-  @Event({ eventName: 'zClear' }) clearEvent: EventEmitter<any>;
+  @Event({ eventName: 'zClear', bubbles: false })
+  clearEvent: EventEmitter<any>;
 
-  @Event({ eventName: 'zFocus' }) focusEvent: EventEmitter<FocusEvent>;
+  @Event({ eventName: 'zFocus', bubbles: false })
+  focusEvent: EventEmitter<FocusEvent>;
 
-  @Event({ eventName: 'zBlur' }) blurEvent: EventEmitter<FocusEvent>;
+  @Event({ eventName: 'zBlur', bubbles: false })
+  blurEvent: EventEmitter<FocusEvent>;
 
-  @Event({ eventName: "zCompositionEnd" })
+  @Event({ eventName: "zCompositionEnd", bubbles: false })
   compositionendEvent: EventEmitter<CompositionEvent>;
 
-  @Event({ eventName: "zCompositionStart" })
+  @Event({ eventName: "zCompositionStart", bubbles: false })
   compositionstartEvent: EventEmitter<CompositionEvent>;
 
-  @Event({ eventName: "zCompositionUpdate" })
+  @Event({ eventName: "zCompositionUpdate", bubbles: false })
   compositionupdateEvent: EventEmitter<CompositionEvent>;
 
   @State() inputId: string;
@@ -203,7 +198,7 @@ export class ZaneSelect {
 
   @State() indexRef: number = -1;
 
-  @State() aliasProps: Props = {
+  @State() aliasProps: SelectProps = {
     label: 'label',
     value: 'value',
     disabled: 'disabled',
@@ -240,9 +235,9 @@ export class ZaneSelect {
 
   private selectionRef: HTMLDivElement;
 
-  private tooltipRef: HTMLZaneTooltipElement;
+  private tooltipRef: HTMLZaneTippyElement;
 
-  private tagTooltipRef: HTMLZaneTooltipElement;
+  private tagTooltipRef: HTMLZaneTippyElement;
 
   private inputRef: HTMLInputElement;
 
@@ -1208,10 +1203,40 @@ export class ZaneSelect {
   private handleClear = (event: MouseEvent) => {
     event.stopPropagation();
     event.preventDefault();
+
+    let emptyValue: string | any[];
+    if (Array.isArray(this.value)) {
+      emptyValue = [];
+    } else {
+      emptyValue = this.valueOnClear;
+    }
+
+    this.states = {
+      ...this.states,
+      selectedLabel: ''
+    };
+
+    this.expanded = false;
+    this.update(emptyValue);
+    this.clearEvent.emit();
+    this.clearAllNewOption();
+    this.zFocus();
   }
 
   private handleResize = () => {
     this.calculatePopperSize();
+  }
+
+  private handleFocus = () => {
+    nextFrame(() => {
+      this.isFocused = true;
+    });
+  }
+
+  private handleBlur = () => {
+    nextFrame(() => {
+      this.isFocused = false;
+    });
   }
 
   private handleWrapperClick = (event: MouseEvent) => {
@@ -1268,11 +1293,11 @@ export class ZaneSelect {
   }
 
   private updateTooltip = () => {
-    this.tooltipRef?.updateTippyInstance();
+    this.tooltipRef?.updateTippyProps();
   }
 
   private updateTagTooltip = () => {
-    this.tagTooltipRef?.updateTippyInstance();
+    this.tagTooltipRef?.updateTippyProps();
   }
 
   private resetCollapseItemWidth = () => {
@@ -1458,7 +1483,7 @@ export class ZaneSelect {
         onMouseEnter={() => this.states = {...this.states, inputHovering: true}}
         onMouseLeave={() => this.states = {...this.states, inputHovering: false}}
       >
-        <zane-tooltip
+        <zane-tippy
           ref={(el) => this.tooltipRef = el}
           theme={this.popperTheme}
           popperOptions={this.popperOptions}
@@ -1468,8 +1493,10 @@ export class ZaneSelect {
           placement={this.placement}
           offset={this.offset}
           maxWidth={''}
+          boxClass={ns.b('tippy-box')}
+          contentClass={ns.b('tippy-content')}
           trigger='manual'
-          onZClickOutside={this.handleClickOutside}
+          onClickOutside={this.handleClickOutside}
           onZShow={this.handleMenuEnter}
           onZHide={() => this.states = {...this.states, isBeforeHide: false}}
         >
@@ -1531,13 +1558,15 @@ export class ZaneSelect {
                   }
                   {
                     (this.collapseTags && this.value?.length > this.maxCollapseTags) && (
-                      <zane-tooltip
+                      <zane-tippy
                         ref={(el) => this.tagTooltipRef = el}
                         disabled={this.dropdownMenuVisible || !this.collapseTagsTooltip}
                         theme={this.popperTheme}
                         placement="bottom"
                         interactive={true}
                         arrow={false}
+                        boxClass={ns.b('tippy-box')}
+                        contentClass={ns.b('tippy-content')}
                         popperOptions={this.popperOptions}
                       >
                         <div
@@ -1593,7 +1622,7 @@ export class ZaneSelect {
                             }
                           </div>
                         </div>
-                      </zane-tooltip>
+                      </zane-tippy>
                     )
                   }
                 </Fragment>))
@@ -1633,8 +1662,8 @@ export class ZaneSelect {
                   onCompositionupdate={this.handleCompositionUpdate}
                   onKeyDown={this.handleKeyDown}
                   onClick={this.handleClick}
-                  onFocus={() => this.isFocused = true}
-                  onBlur={() => this.isFocused = false}
+                  onFocus={this.handleFocus}
+                  onBlur={this.handleBlur}
                 />
                 {
                   this.filterable && (
@@ -1763,7 +1792,7 @@ export class ZaneSelect {
               }
             </zane-select-menu>
           </div>
-        </zane-tooltip>
+        </zane-tippy>
       </div>
     );
   }

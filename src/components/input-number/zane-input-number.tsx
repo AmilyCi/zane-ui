@@ -95,15 +95,19 @@ export class ZaneInputNumber {
 
   @Prop() disabledScientific: boolean;
 
-  @Event({ eventName: "zChange" }) changeEvent: EventEmitter<
+  @Event({ eventName: "zChange", bubbles: false })
+  changeEvent: EventEmitter<
     number | undefined
   >;
 
-  @Event({ eventName: "zBlur" }) blurEvent: EventEmitter<FocusEvent>;
+  @Event({ eventName: "zBlur", bubbles: false })
+  blurEvent: EventEmitter<FocusEvent>;
 
-  @Event({ eventName: "zFocus" }) focusEvent: EventEmitter<FocusEvent>;
+  @Event({ eventName: "zFocus", bubbles: false })
+  focusEvent: EventEmitter<FocusEvent>;
 
-  @Event({ eventName: "zInput" }) inputEvent: EventEmitter<
+  @Event({ eventName: "zInput", bubbles: false })
+  inputEvent: EventEmitter<
     number | null | undefined
   >;
 

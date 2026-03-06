@@ -42,7 +42,7 @@ export type SelectContext = {
   multipleLimit: number;
   expanded: boolean;
   disabled: boolean;
-  tooltipRef: HTMLZaneTooltipElement;
+  tooltipRef: HTMLZaneTippyElement;
   contentId: string;
   scrollbarAlwaysOn: boolean;
   itemHeight: number;

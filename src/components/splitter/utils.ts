@@ -55,7 +55,7 @@ export function getPct(str: string) {
   return Number(str.slice(0, -1)) / 100;
 }
 
-export const getSplitterContext = (el: HTMLElement): ReactiveObject<SplitterRootContext> => {
+export const getSplitterContext = (el: HTMLElement): ReactiveObject<SplitterRootContext> | null => {
   let parent = el.parentElement;
   let context = null;
   while (parent) {

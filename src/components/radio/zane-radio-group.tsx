@@ -52,7 +52,8 @@ export class ZaneRadioGroup {
 
   @Prop() ariaLabel: string;
 
-  @Event({ eventName: "zChange" }) changeEvent: EventEmitter<
+  @Event({ eventName: "zChange", bubbles: false })
+  changeEvent: EventEmitter<
     string | number | boolean
   >;
 
@@ -106,7 +107,7 @@ export class ZaneRadioGroup {
       changeEvent: this.handleChangeEvent,
     });
     radioGroupContexts.set(this.el, this.context);
-    
+
     if (!this.zId) {
       const id = state.idInjection.current++;
       const prefix = state.idInjection.prefix;

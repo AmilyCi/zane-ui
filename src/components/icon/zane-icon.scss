@@ -40,6 +40,11 @@
   height: 1em;
   width: 1em;
 
+  svg {
+    height: 1em;
+    width: 1em;
+  }
+
   @include when(spin) {
     animation: rotating 2s linear infinite;
   }

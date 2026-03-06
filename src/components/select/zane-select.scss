@@ -262,14 +262,15 @@
       }
     }
   }
+}
 
-  .#{$namespace}-tooltip-box {
-    background-color: getCssVar('bg-color', 'overlay');
-    border: 1px solid getCssVar('border-color', 'lighter');
 
-    .#{$namespace}-tooltip-content {
-      padding: 0;
-    }
+.#{$namespace}-select-tippy-box {
+  background-color: getCssVar('bg-color', 'overlay');
+  border: 1px solid getCssVar('border-color', 'lighter');
+
+  .#{$namespace}-select-tippy-content {
+    padding: 0;
   }
 }
 

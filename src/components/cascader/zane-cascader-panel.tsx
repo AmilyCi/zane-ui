@@ -53,13 +53,15 @@ export class ZaneCascaderPanel {
 
   @Prop({ mutable: true }) checkedNodes: CascaderNode[] = [];
 
-  @Event({ eventName: "zChange" }) changeEvent: EventEmitter<
+  @Event({ eventName: "zChange", bubbles: false })
+  changeEvent: EventEmitter<
     CascaderValue | undefined | null
   >;
 
-  @Event({ eventName: "zClose" }) closeEvent: EventEmitter<void>;
+  @Event({ eventName: "zClose", bubbles: false })
+  closeEvent: EventEmitter<void>;
 
-  @Event({ eventName: "zExpandChange" })
+  @Event({ eventName: "zExpandChange", bubbles: false })
   expandChangeEvent: EventEmitter<CascaderNodePathValue>;
 
   @Method()
@@ -220,11 +222,11 @@ export class ZaneCascaderPanel {
 
   private initStore = () => {
     const cfg = this.config
-  
+
     this.manualChecked = false;
     this.store = new Store(this.options, cfg);
     this.menus = [this.store.getNodes()];
-  
+
     if (cfg.lazy && isEmpty(this.options)) {
       this.initialLoaded = false;
       this.lazyLoad(undefined, (list) => {
@@ -322,7 +324,7 @@ export class ZaneCascaderPanel {
       handleCheckChange: this.handleCheckChange.bind(this),
     });
     cascaderPanelContexts.set(this.el, this.context);
-    
+
     this.config = {
       ...defaultProps,
       ...this.props,
@@ -447,7 +449,7 @@ export class ZaneCascaderPanel {
     this.checkedNodes = nodes;
     this.checkedValue = multiple ? values : (values[0] ?? null);
   }
-  
+
   @Method()
   async loadLazyRootNodes() {
     if (this.initialLoadedOnce) {

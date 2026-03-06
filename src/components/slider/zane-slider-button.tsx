@@ -14,7 +14,6 @@ const ns = useNamespace('slider');
 
 @Component({
   tag: 'zane-slider-button',
-  styleUrl: 'zane-slider-button.scss'
 })
 export class ZaneSliderButton {
   @Element() el: HTMLElement;
@@ -45,11 +44,12 @@ export class ZaneSliderButton {
 
   @State() oldValue: number = 0;
 
-  @Event({ eventName: 'zChange' }) changeEvent: EventEmitter<number>;
+  @Event({ eventName: 'zChange', bubbles: false })
+  changeEvent: EventEmitter<number>;
 
   private buttonRef: HTMLDivElement;
 
-  private tooltipRef: HTMLZaneTooltipElement;
+  private tooltipRef: HTMLZaneTippyElement;
 
   private sliderContext: ReactiveObject<SliderContext>;
 
@@ -64,7 +64,7 @@ export class ZaneSliderButton {
   }
 
   @Method()
-  async onKeyDown(e: KeyboardEvent) {
+  async onZKeyDown(e: KeyboardEvent) {
     this.handleKeyDown(e);
   }
 
@@ -298,7 +298,7 @@ export class ZaneSliderButton {
       if (this.dragging) {
         this.displayTooltip();
       }
-      this.tooltipRef.updateTippyInstance();
+      this.tooltipRef.updateTippyProps();
     });
   }
 
@@ -350,10 +350,12 @@ export class ZaneSliderButton {
         onBlur={this.handleMouseLeave}
         onKeyDown={this.handleKeyDown}
       >
-        <zane-tooltip
+        <zane-tippy
           ref={el => this.tooltipRef = el}
           placement={this.placement}
           disabled={!showTooltip}
+          hideOnClick={false}
+          trigger="manual"
         >
           <div
             class={classNames(
@@ -363,10 +365,8 @@ export class ZaneSliderButton {
               }
             )}
           ></div>
-          <div slot="content">
-            { formatValue }
-          </div>
-        </zane-tooltip>
+          <div slot='content'>{formatValue}</div>
+        </zane-tippy>
       </div>
     );
   }

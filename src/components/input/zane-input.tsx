@@ -51,23 +51,26 @@ export class ZaneInput {
 
   @Prop() autosize: InputAutoSize = false;
 
-  @Event({ eventName: "zBlur" }) blurEvent: EventEmitter<FocusEvent>;
+  @Event({ eventName: "zBlur", bubbles: false })
+  blurEvent: EventEmitter<FocusEvent>;
 
-  @Event({ eventName: "zChange" }) changeEvent: EventEmitter<number | string>;
+  @Event({ eventName: "zChange", bubbles: false })
+  changeEvent: EventEmitter<number | string>;
 
   @Prop() clearable: boolean = false;
 
-  @Event({ eventName: "zClear" }) clearEvent: EventEmitter<void>;
+  @Event({ eventName: "zClear", bubbles: false })
+  clearEvent: EventEmitter<void>;
 
-  @Prop() clearIcon: string = "circle-close";
+  @Prop() clearIcon: string = "close-circle-line";
 
-  @Event({ eventName: "zCompositionEnd" })
+  @Event({ eventName: "zCompositionEnd", bubbles: false })
   compositionendEvent: EventEmitter<CompositionEvent>;
 
-  @Event({ eventName: "zCompositionStart" })
+  @Event({ eventName: "zCompositionStart", bubbles: false })
   compositionstartEvent: EventEmitter<CompositionEvent>;
 
-  @Event({ eventName: "zCompositionUpdate" })
+  @Event({ eventName: "zCompositionUpdate", bubbles: false })
   compositionupdateEvent: EventEmitter<CompositionEvent>;
 
   @Prop() containerRole: string;
@@ -80,7 +83,8 @@ export class ZaneInput {
 
   @Element() el: HTMLElement;
 
-  @Event({ eventName: "zFocus" }) focusEvent: EventEmitter<FocusEvent>;
+  @Event({ eventName: "zFocus", bubbles: false })
+  focusEvent: EventEmitter<FocusEvent>;
 
   @Prop() form: string;
 
@@ -88,7 +92,8 @@ export class ZaneInput {
 
   @State() hovering: boolean = false;
 
-  @Event({ eventName: "zInput" }) inputEvent: EventEmitter<string>;
+  @Event({ eventName: "zInput", bubbles: false })
+  inputEvent: EventEmitter<string>;
 
   @Prop() inputStyle: Record<string, string> | string = mutable({} as const);
 
@@ -96,7 +101,8 @@ export class ZaneInput {
 
   @State() isFocused: boolean = false;
 
-  @Event({ eventName: "zKeyDown" }) keydownEvent: EventEmitter<KeyboardEvent>;
+  @Event({ eventName: "zKeyDown", bubbles: false })
+  keydownEvent: EventEmitter<KeyboardEvent>;
 
   @Prop() max: number;
 
@@ -106,10 +112,10 @@ export class ZaneInput {
 
   @Prop() minLength: number | string;
 
-  @Event({ eventName: "zMouseEnter" })
+  @Event({ eventName: "zMouseEnter", bubbles: false })
   mouseEnterEvent: EventEmitter<MouseEvent>;
 
-  @Event({ eventName: "zMouseLeave" })
+  @Event({ eventName: "zMouseLeave", bubbles: false })
   mouseLeaveEvent: EventEmitter<MouseEvent>;
 
   @Prop() name: string;

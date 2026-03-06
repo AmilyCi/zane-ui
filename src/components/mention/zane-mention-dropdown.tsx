@@ -23,7 +23,8 @@ export class ZaneMentionDropdown {
 
   @Prop({ mutable: true}) hoveringIndex: number = -1;
 
-  @Event({ eventName: 'zSelect'}) selectEvent: EventEmitter<MentionOption>;
+  @Event({ eventName: 'zSelect', bubbles: false })
+  selectEvent: EventEmitter<MentionOption>;
 
   @State() filteredAllDisabled: boolean;
 
@@ -139,7 +140,7 @@ export class ZaneMentionDropdown {
   componentWillRender() {
     this.optionRefs = [];
   }
-  
+
   render() {
     const { t } = state.i18n;
 

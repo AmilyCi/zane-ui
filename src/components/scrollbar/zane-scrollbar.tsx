@@ -54,7 +54,7 @@ export class ZaneScrollbar {
 
   @Element() el: HTMLElement;
 
-  @Event({ eventName: 'end-reached' })
+  @Event({ eventName: 'end-reached', bubbles: false })
   endReachedEvent: EventEmitter<ScrollbarDirection>;
 
   @Prop({ reflect: true }) height: number | string = '';
@@ -69,7 +69,8 @@ export class ZaneScrollbar {
 
   @Prop() role: string;
 
-  @Event({ eventName: 'zScroll' }) scrollEvent: EventEmitter<{
+  @Event({ eventName: 'zScroll', bubbles: false })
+  scrollEvent: EventEmitter<{
     scrollLeft: number;
     scrollTop: number;
   }>;

@@ -1,6 +1,8 @@
+import type { ReactiveObject } from "../../utils/reactive/ReactiveObject";
 import { sliderContexts } from "./constants";
+import type { SliderContext } from "./types";
 
-export const getSliderContext = (el: HTMLElement) => {
+export const getSliderContext = (el: HTMLElement): ReactiveObject<SliderContext> | null => {
   let parent = el.parentElement;
   let context = null;
   while (parent) {

@@ -43,7 +43,8 @@ export class ZaneSplitterPanel {
 
   @Prop({ mutable: true }) size: number | string;
 
-  @Event({ eventName: 'updateSize' }) updateSizeEvent: EventEmitter<number>;
+  @Event({ eventName: 'updateSize', bubbles: false })
+  updateSizeEvent: EventEmitter<number>;
 
   @Prop({ mutable: true }) uuid: string;
 

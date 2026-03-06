@@ -25,7 +25,8 @@ const ns = useNamespace("splitter");
   tag: "zane-splitter",
 })
 export class ZaneSplitter {
-  @Event({ eventName: "collapse" }) collapseEvent: EventEmitter<{
+  @Event({ eventName: "collapse", bubbles: false })
+  collapseEvent: EventEmitter<{
     index: number;
     type: "end" | "start";
     pxSizes: number[];
@@ -41,17 +42,20 @@ export class ZaneSplitter {
 
   @State() movingIndex: { confirmed: boolean; index: number } = null;
 
-  @Event({ eventName: "zResizeEnd" }) resizeEndEvent: EventEmitter<{
+  @Event({ eventName: "zResizeEnd", bubbles: false })
+  resizeEndEvent: EventEmitter<{
     index: number;
     pxSizes: number[];
   }>;
 
-  @Event({ eventName: "zResize" }) resizeEvent: EventEmitter<{
+  @Event({ eventName: "zResize", bubbles: false })
+  resizeEvent: EventEmitter<{
     index: number;
     pxSizes: number[];
   }>;
 
-  @Event({ eventName: "zResizeStart" }) resizeStartEvent: EventEmitter<{
+  @Event({ eventName: "zResizeStart", bubbles: false })
+  resizeStartEvent: EventEmitter<{
     index: number;
     pxSizes: number[];
   }>;
@@ -111,7 +115,7 @@ export class ZaneSplitter {
 
   private onResize = (index: number, offset: number) => {
     this.onMoving(index, offset)
-  
+
     if (!this.lazy) {
       this.resizeEvent.emit({ index, pxSizes: this.pxSizes });
     }
@@ -242,7 +246,7 @@ export class ZaneSplitter {
         }
       }
     });
-    
+
     this.resizeObserver.observe(this.el);
 
     this.context = new ReactiveObject<SplitterRootContext>({

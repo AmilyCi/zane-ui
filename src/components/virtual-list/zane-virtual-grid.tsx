@@ -88,7 +88,8 @@ export class ZaneVirtualGrid {
     }
   ) => HTMLElement
 
-  @Event({ eventName: 'zItemRendered'}) itemRenderedEvent: EventEmitter<{
+  @Event({ eventName: 'zItemRendered', bubbles: false })
+  itemRenderedEvent: EventEmitter<{
     columnCacheStart: number;
     columnCacheEnd: number;
     columnVisibleStart: number;
@@ -99,7 +100,8 @@ export class ZaneVirtualGrid {
     rowVisibleEnd: number;
   }>;
 
-  @Event({ eventName: 'zScroll'}) scrollEvent: EventEmitter<{
+  @Event({ eventName: 'zScroll', bubbles: false })
+  scrollEvent: EventEmitter<{
     scrollLeft: number;
     scrollTop: number;
     updateRequested: boolean;

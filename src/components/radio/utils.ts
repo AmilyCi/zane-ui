@@ -2,7 +2,7 @@ import type { ReactiveObject } from "../../utils";
 import { radioGroupContexts } from "./constants";
 import type { RadioGroupContext } from "./types";
 
-export const getRadioGroupContext = (el: HTMLElement): ReactiveObject<RadioGroupContext> => {
+export const getRadioGroupContext = (el: HTMLElement): ReactiveObject<RadioGroupContext> | null => {
   let parent = el.parentElement;
   let context = null;
   while (parent) {

@@ -27,5 +27,17 @@ export const en_US: I18nResource = {
     defaultLabel: 'slider between {min} and {max}',
     defaultRangeStartLabel: 'pick start value',
     defaultRangeEndLabel: 'pick end value',
+  },
+  transfer: {
+    noMatch: 'No matching data',
+    noData: 'No data',
+    title1: 'List 1',
+    title2: 'List 2',
+    filterPlaceholder: 'Enter keyword',
+    noCheckedFormat: '{total} items',
+    hasCheckedFormat: '{checked}/{total} checked',
+  },
+  tree: {
+    emptyText: 'No Data'
   }
 };

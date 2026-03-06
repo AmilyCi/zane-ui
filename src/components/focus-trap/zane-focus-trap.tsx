@@ -81,20 +81,22 @@ export class ElFocusTrap {
 
   @Prop() trapped: boolean = false;
 
-  @Event({ eventName: 'zFocusAfterReleased' })
+  @Event({ eventName: 'zFocusAfterReleased', bubbles: false })
   zaneFocusAfterReleased: EventEmitter<Event>;
 
-  @Event({ eventName: 'zFocusAfterTrapped' })
+  @Event({ eventName: 'zFocusAfterTrapped', bubbles: false })
   zaneFocusAfterTrapped: EventEmitter<Event>;
 
-  @Event({ eventName: 'zFocusIn' }) zaneFocusin: EventEmitter<FocusEvent>;
+  @Event({ eventName: 'zFocusIn', bubbles: false })
+  zaneFocusin: EventEmitter<FocusEvent>;
 
-  @Event({ eventName: 'zFocusOut' }) zaneFocusout: EventEmitter<FocusEvent>;
+  @Event({ eventName: 'zFocusOut', bubbles: false })
+  zaneFocusout: EventEmitter<FocusEvent>;
 
-  @Event({ eventName: 'zFocusOutPrevented' })
+  @Event({ eventName: 'zFocusOutPrevented', bubbles: false })
   zaneFocusoutPrevented: EventEmitter<CustomEvent>;
 
-  @Event({ eventName: 'zReleaseRequested' })
+  @Event({ eventName: 'zReleaseRequested', bubbles: false })
   zaneReleaseRequested: EventEmitter<Event>;
 
   private focusLayer: FocusLayer = {

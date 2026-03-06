@@ -32,9 +32,11 @@ export class ZaneSelectOptionItem {
 
   @Prop() optionRender: (item: Option, index: number, disabled: boolean) => HTMLElement;
 
-  @Event({ eventName: 'zHover' }) hoverEvent: EventEmitter<number>;
+  @Event({ eventName: 'zHover', bubbles: false })
+  hoverEvent: EventEmitter<number>;
 
-  @Event({ eventName: 'zSelect' }) selectEvent: EventEmitter<{
+  @Event({ eventName: 'zSelect', bubbles: false })
+  selectEvent: EventEmitter<{
     value: Option,
     index: number
   }>;

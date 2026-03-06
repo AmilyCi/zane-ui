@@ -7,6 +7,7 @@ import {
   type EventEmitter,
   State,
   Watch,
+  Host,
 } from "@stencil/core";
 import type { ComponentSize } from "../../types";
 import type { FormContext, FormItemContext } from "../form/types";
@@ -65,16 +66,17 @@ export class ZaneCheckbox {
 
   @Prop() ariaControls: string;
 
-  @Event({ eventName: "zChange" }) changeEvent: EventEmitter<any>;
+  @Event({ eventName: "zChange", bubbles: false })
+  changeEvent: EventEmitter<string | number | boolean>;
 
   @State() isFocused: boolean = false;
 
   @State() isChecked: boolean;
 
   @State() actualValue: string | number | boolean;
-  
+
   @State() isDisabled: boolean;
-  
+
   @State() isLimitDisabled: boolean;
 
   @State() isLabeledByFormItem: boolean;
@@ -82,7 +84,7 @@ export class ZaneCheckbox {
   @State() hasOwnLabel: boolean;
 
   @State() checkboxSize: ComponentSize;
-  
+
   private hasDefaultSlot = false;
 
   private formContext: ReactiveObject<FormContext>;
@@ -137,13 +139,10 @@ export class ZaneCheckbox {
       this.zId = `${ns.namespace}-id-${prefix}-${id}`;
     }
 
-    this.updateCheckboxSize();
-    this.updateActualValue();
-    this.updateHasOwnLabel();
-    this.updateIsChecked();
-    this.updateIsLimitDisabled();
-    this.updateIsDisabled();
-    this.updateIsLabeledByFormItem();
+    this.handleIsLimitDisabledChange();
+    this.handleValueOrLabelChange();
+    this.handleActualValueChange();
+    this.handleSizeChange();
 
     this.checkboxGroupContext?.change$.subscribe((change) => {
       if (change.key === "value") {
@@ -187,7 +186,7 @@ export class ZaneCheckbox {
       this.isChecked = !!value;
     }
   };
-  
+
   private updateIsLimitDisabled() {
     const max = this.checkboxGroupContext?.value.max;
     const min = this.checkboxGroupContext?.value.min;
@@ -210,7 +209,7 @@ export class ZaneCheckbox {
       if (!this.checkboxGroupContext) {
         this.isDisabled = this.formContext?.value.disabled ?? limitDisabled;
       } else {
-        this.isDisabled = 
+        this.isDisabled =
           this.checkboxGroupContext?.value.disabled || limitDisabled;
       }
     }
@@ -309,40 +308,44 @@ export class ZaneCheckbox {
       ns.is('indeterminate', this.indeterminate),
       ns.is('focus', this.isFocused),
     );
-    return (<Tag
-      htmlFor={forValue}
+    return (<Host
       class={compKls}
-      ariaControls={this.indeterminate ? this.ariaControls : null}
-      ariaChecked={this.indeterminate ? 'mixed' : undefined}
-      ariaLabel={this.ariaLabel}
       onClick={this.onClickRoot}
     >
-      <span class={spanKls}>
-        <input
-          id={this.zId}
-          class={ns.e('original')}
-          type="checkbox"
-          indeterminate={this.indeterminate}
-          name={this.name}
-          tabIndex={this.zTabIndex}
-          disabled={this.isDisabled}
-          onChange={this.handleChange}
-          onFocus={() => this.isFocused = true}
-          onBlur={() => this.isFocused = false}
-          onClick={(e) => e.stopPropagation()}
-          {...this.getInputBindings()}
-        />
-        <span class={ns.e('inner')} />
-      </span>
-      {
-        this.hasOwnLabel && (
-          <span class={ns.e('label')}>
-            <slot>
-              {this.label}
-            </slot>
-          </span>
-        )
-      }
-    </Tag>);
+      <Tag
+        htmlFor={forValue}
+        ariaControls={this.indeterminate ? this.ariaControls : null}
+        ariaChecked={this.indeterminate ? 'mixed' : undefined}
+        ariaLabel={this.ariaLabel}
+        class={ns.b()}
+      >
+        <span class={spanKls}>
+          <input
+            id={this.zId}
+            class={ns.e('original')}
+            type="checkbox"
+            indeterminate={this.indeterminate}
+            name={this.name}
+            tabIndex={this.zTabIndex}
+            disabled={this.isDisabled}
+            onChange={this.handleChange}
+            onFocus={() => this.isFocused = true}
+            onBlur={() => this.isFocused = false}
+            onClick={(e) => e.stopPropagation()}
+            {...this.getInputBindings()}
+          />
+          <span class={ns.e('inner')} />
+        </span>
+        {
+          this.hasOwnLabel && (
+            <span class={ns.e('label')}>
+              <slot>
+                {this.label}
+              </slot>
+            </span>
+          )
+        }
+      </Tag>
+    </Host>);
   }
 }

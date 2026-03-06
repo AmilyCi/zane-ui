@@ -41,7 +41,8 @@ export class ZaneRadio {
 
   @Prop() border: boolean = undefined;
 
-  @Event({ eventName: "zChange" }) changeEvent: EventEmitter<
+  @Event({ eventName: "zChange", bubbles: false })
+  changeEvent: EventEmitter<
     string | number | boolean | undefined
   >;
 

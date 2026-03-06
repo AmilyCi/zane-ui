@@ -66,7 +66,8 @@ export class ZaneCheckboxButton {
 
   @Prop() ariaControls: string;
 
-  @Event({ eventName: "zChange" }) changeEvent: EventEmitter<any>;
+  @Event({ eventName: "zChange", bubbles: false })
+  changeEvent: EventEmitter<any>;
 
   @State() isFocused: boolean = false;
 
@@ -126,7 +127,7 @@ export class ZaneCheckboxButton {
       if (!this.checkboxGroupContext) {
         this.isDisabled = this.formContext?.value.disabled ?? limitDisabled;
       } else {
-        this.isDisabled = 
+        this.isDisabled =
           this.checkboxGroupContext?.value.disabled || limitDisabled;
       }
     }

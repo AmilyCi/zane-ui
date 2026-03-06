@@ -1,10 +1,12 @@
+import type { ReactiveObject } from "../../utils/reactive/ReactiveObject";
 import { selectContexts } from "./constants";
+import type { SelectContext } from "./types";
 
 export const escapeStringRegexp = (str: string) => {
   return str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&').replace(/-/g, '\\x2d');
 }
 
-export const getSelectContext = (el: HTMLElement) => {
+export const getSelectContext = (el: HTMLElement): ReactiveObject<SelectContext> | null => {
   let parent = el.parentElement;
   let context = null;
   while (parent) {

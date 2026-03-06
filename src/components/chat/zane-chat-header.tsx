@@ -38,7 +38,8 @@ export class ZaneChatHeader {
    */
   @Prop() showBack: boolean = false;
 
-  @Event({eventName: 'back'}) backEvent: EventEmitter;
+  @Event({eventName: 'back', bubbles: false})
+  backEvent: EventEmitter;
 
   private chatContext: ReactiveObject<ChatContext>;
 

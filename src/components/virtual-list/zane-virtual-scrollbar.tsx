@@ -37,14 +37,17 @@ export class ZaneVirtualScrollbar {
 
   @Prop() visible: boolean;
 
-  @Event({ eventName: 'zScroll' }) scrollEvent: EventEmitter<{
+  @Event({ eventName: 'zScroll', bubbles: false })
+  scrollEvent: EventEmitter<{
     distance: number;
     totalSteps: number
   }>;
 
-  @Event({ eventName: 'zStartMove' }) startMoveEvent: EventEmitter<void>;
+  @Event({ eventName: 'zStartMove', bubbles: false })
+  startMoveEvent: EventEmitter<void>;
 
-  @Event({ eventName: 'zStopMove' }) stopMoveEvent: EventEmitter<void>;
+  @Event({ eventName: 'zStopMove', bubbles: false })
+  stopMoveEvent: EventEmitter<void>;
 
   @State() GAP: number;
 

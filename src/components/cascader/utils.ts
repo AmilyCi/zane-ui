@@ -4,7 +4,7 @@ import { cascaderPanelContexts } from "./constants";
 import type { CascaderNode } from "./node";
 import type { CascaderPanelContext } from "./types";
 
-export const getCascaderPanelContext = (el: HTMLElement): ReactiveObject<CascaderPanelContext> => {
+export const getCascaderPanelContext = (el: HTMLElement): ReactiveObject<CascaderPanelContext> | null => {
   let parent = el.parentElement;
   let context = null;
   while (parent) {

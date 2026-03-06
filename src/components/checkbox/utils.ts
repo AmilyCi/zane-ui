@@ -2,7 +2,7 @@ import type { ReactiveObject } from "../../utils";
 import type { CheckboxGroupContext } from "./types";
 import { checkboxGroupContexts } from "./constants";
 
-export const getCheckboxGroupContext = (el: HTMLElement): ReactiveObject<CheckboxGroupContext> => {
+export const getCheckboxGroupContext = (el: HTMLElement): ReactiveObject<CheckboxGroupContext> | null => {
   let parent = el.parentElement;
   let context = null;
   while (parent) {

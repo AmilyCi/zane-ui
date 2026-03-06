@@ -1,0 +1,22 @@
+@import '../../../node_modules/tippy.js/dist/tippy.css';
+@import '../../../node_modules/tippy.js/dist/backdrop.css';
+@import '../../../node_modules/tippy.js/dist/border.css';
+@import '../../../node_modules/tippy.js/dist/svg-arrow.css';
+
+@import '../../../node_modules/tippy.js/themes/light.css';
+@import '../../../node_modules/tippy.js/themes/light-border.css';
+@import '../../../node_modules/tippy.js/themes/material.css';
+@import '../../../node_modules/tippy.js/themes/translucent.css';
+
+@import '../../../node_modules/tippy.js/animations/perspective-extreme.css';
+@import '../../../node_modules/tippy.js/animations/perspective-subtle.css';
+@import '../../../node_modules/tippy.js/animations/perspective.css';
+@import '../../../node_modules/tippy.js/animations/scale-extreme.css';
+@import '../../../node_modules/tippy.js/animations/scale-subtle.css';
+@import '../../../node_modules/tippy.js/animations/scale.css';
+@import '../../../node_modules/tippy.js/animations/shift-away-extreme.css';
+@import '../../../node_modules/tippy.js/animations/shift-away-subtle.css';
+@import '../../../node_modules/tippy.js/animations/shift-away.css';
+@import '../../../node_modules/tippy.js/animations/shift-toward-extreme.css';
+@import '../../../node_modules/tippy.js/animations/shift-toward-subtle.css';
+@import '../../../node_modules/tippy.js/animations/shift-toward.css';

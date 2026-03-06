@@ -127,34 +127,42 @@ export class ZaneInputTag {
 
   @State() inputId: string;
 
-  @Event({ eventName: 'zFocus' }) zaneFocus: EventEmitter<FocusEvent>;
+  @Event({ eventName: 'zFocus', bubbles: false })
+  zaneFocus: EventEmitter<FocusEvent>;
 
-  @Event({ eventName: 'zBlur' }) zaneBlur: EventEmitter<FocusEvent>;
+  @Event({ eventName: 'zBlur', bubbles: false })
+  zaneBlur: EventEmitter<FocusEvent>;
 
-  @Event({ eventName: 'zChange' }) changeEvent: EventEmitter<string[]>;
+  @Event({ eventName: 'zChange', bubbles: false })
+  changeEvent: EventEmitter<string[]>;
 
-  @Event({ eventName: 'zAddTag' }) addTagEvent: EventEmitter<string | string[]>;
+  @Event({ eventName: 'zAddTag', bubbles: false })
+  addTagEvent: EventEmitter<string | string[]>;
 
-  @Event({ eventName: 'zRemoveTag' }) removeTagEvent: EventEmitter<{index: number, item: string}>;
+  @Event({ eventName: 'zRemoveTag', bubbles: false })
+  removeTagEvent: EventEmitter<{index: number, item: string}>;
 
-  @Event({ eventName: 'zDragTag' }) dragTagEvent: EventEmitter<{
+  @Event({ eventName: 'zDragTag', bubbles: false })
+  dragTagEvent: EventEmitter<{
     draggingIndex: number,
     dropIndex: number,
     draggedItem: string
   }>;
 
-  @Event({ eventName: "zInput" }) inputEvent: EventEmitter<string>;
+  @Event({ eventName: "zInput", bubbles: false })
+  inputEvent: EventEmitter<string>;
 
-  @Event({ eventName: "zCompositionEnd" })
+  @Event({ eventName: "zCompositionEnd", bubbles: false })
   compositionendEvent: EventEmitter<CompositionEvent>;
 
-  @Event({ eventName: "zCompositionStart" })
+  @Event({ eventName: "zCompositionStart", bubbles: false })
   compositionstartEvent: EventEmitter<CompositionEvent>;
 
-  @Event({ eventName: "zCompositionUpdate" })
+  @Event({ eventName: "zCompositionUpdate", bubbles: false })
   compositionupdateEvent: EventEmitter<CompositionEvent>;
 
-  @Event({ eventName: "zClear" }) clearEvent: EventEmitter<void>;
+  @Event({ eventName: "zClear", bubbles: false })
+  clearEvent: EventEmitter<void>;
 
   private formContext: ReactiveObject<FormContext>;
 
@@ -172,7 +180,7 @@ export class ZaneInputTag {
 
   private calculatorRef: HTMLSpanElement;
 
-  private tagTooltipRef: HTMLZaneTooltipElement;
+  private tagTooltipRef: HTMLZaneTippyElement;
 
   private collapseItemRef: HTMLElement;
 
@@ -758,7 +766,7 @@ export class ZaneInputTag {
           }
           {
             (this.collapseTags && this.value && this.value.length > this.maxCollapseTags) && (
-              <zane-tooltip
+              <zane-tippy
                 ref={(el) => this.tagTooltipRef = el}
                 disabled={!this.collapseTagsTooltip}
                 theme={this.tooltipTheme}
@@ -792,7 +800,7 @@ export class ZaneInputTag {
                     ))
                   }
                 </div>
-              </zane-tooltip>
+              </zane-tippy>
             )
           }
           <div class={ns.e('input-wrapper')}>

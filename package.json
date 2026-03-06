@@ -85,7 +85,8 @@
     "rollup-plugin-dotenv": "^0.5.1",
     "rollup-plugin-node-polyfills": "^0.2.1",
     "rxjs": "^7.8.2",
-    "sass": "^1.97.2"
+    "sass": "^1.97.2",
+    "tippy.js": "^6.3.7"
   },
   "devDependencies": {
     "@zanejs/icons": "^1.0.2",

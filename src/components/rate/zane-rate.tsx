@@ -91,12 +91,13 @@ export class ZaneRate {
 
   @State() pointerAtLeftHalf = true;
 
-  @Event({ eventName: 'zChange' }) changeEvent: EventEmitter<number>;
+  @Event({ eventName: 'zChange', bubbles: false })
+  changeEvent: EventEmitter<number>;
 
   private iconRefs: HTMLElement[] = [];
 
   private iconClientWidths: number[] = [];
-  
+
   private formContext: ReactiveObject<FormContext>;
 
   private formItemContext: ReactiveObject<FormItemContext>;
@@ -116,7 +117,7 @@ export class ZaneRate {
       this.inputId = newId;
     }
   }
-  
+
   @Watch("size")
   handleUpdateSize() {
     this.rateSize =
@@ -126,7 +127,7 @@ export class ZaneRate {
       this.configProviderContext?.value.size ||
       "";
   }
-  
+
   @Watch("disabled")
   handleUpdateDisabled() {
     this.rateDisabled =
@@ -232,10 +233,10 @@ export class ZaneRate {
   }
 
   private getValueFromMap<T>(
-    value: number, 
+    value: number,
     map: Record<number, T | { excluded?: boolean; value: T}>
   ) {
-    const isExcludedObject = (val: unknown): 
+    const isExcludedObject = (val: unknown):
       val is { excluded?: boolean} & Record<any, unknown> => isObject(val)
 
     const matchedKeys = Object.keys(map)
@@ -316,7 +317,7 @@ export class ZaneRate {
     this.handleUpdateText();
     this.handleUpdateValueDecimal();
 
-    
+
     this.formContext?.change$.subscribe(({key}) => {
       if (key === 'disabled') {
         this.handleUpdateDisabled();
@@ -371,7 +372,7 @@ export class ZaneRate {
 
     const activeIcon = this.getValueFromMap(this.currentValue, this.componentMap);
 
-    const voidIcon = this.rateDisabled 
+    const voidIcon = this.rateDisabled
       ? this.disabledVoidIcon
       : this.voidIcon;
 

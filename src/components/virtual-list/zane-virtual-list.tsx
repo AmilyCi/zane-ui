@@ -69,14 +69,16 @@ export class ZaneVirtualList {
     }
   ) => HTMLElement;
 
-  @Event({ eventName: 'zItemRendered'}) itemRenderedEvent: EventEmitter<{
+  @Event({ eventName: 'zItemRendered', bubbles: false })
+  itemRenderedEvent: EventEmitter<{
     cacheStart: number;
     cacheEnd: number;
     visibleStart: number;
     visibleEnd: number;
   }>;
 
-  @Event({ eventName: 'zScroll'}) scrollEvent: EventEmitter<{
+  @Event({ eventName: 'zScroll', bubbles: false })
+  scrollEvent: EventEmitter<{
     scrollDir: string;
     scrollOffset: number;
     updateRequested: boolean;
