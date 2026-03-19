@@ -19,25 +19,25 @@ export const filterFields = (
 }
 
 export const getFormContext = (el: HTMLElement): ReactiveObject<FormContext> | null => {
-  let parent = el.parentElement, context = null;
+  let parent: any = el.parentElement, context = null;
   while (parent) {
     if (parent.tagName === 'ZANE-FORM') {
       context = formContexts.get(parent);
       break;
     }
-    parent = parent.parentElement;
+    parent = parent.rawParent ?? parent.parentElement;
   }
   return context;
 }
 
 export const getFormItemContext = (el: HTMLElement): ReactiveObject<FormItemContext> | null => {
-  let parent = el.parentElement, context = null;
+  let parent: any = el.parentElement, context = null;
   while (parent) {
     if (parent.tagName === 'ZANE-FORM-ITEM') {
       context = formItemContexts.get(parent);
       break;
     }
-    parent = parent.parentElement;
+    parent = parent.rawParent ?? parent.parentElement;
   }
   return context;
 }

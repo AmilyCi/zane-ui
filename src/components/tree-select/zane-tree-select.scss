@@ -1,0 +1,54 @@
+@use '../../styles/config' as *;
+@use '../../styles/mixins/var' as *;
+@use '../../styles/mixins/bem' as *;
+@use '../../styles/mixins/utils' as *;
+@use '../../styles/mixins/function' as *;
+@use '../../global/theme/vars/component' as *;
+
+@include b(tree-select) {
+  @include set-component-css-var('tree', $tree);
+}
+
+.#{$namespace}-tree-select-tippy-box {
+  background-color: getCssVar('bg-color', 'overlay');
+  border: 1px solid getCssVar('border-color', 'lighter');
+
+  .#{$namespace}-tree-select-tippy-content {
+    padding: 0;
+
+    .#{$namespace}-tree-node__expand-icon {
+      margin-left: 8px;
+    }
+
+    // remove icon when show checkbox
+    .#{$namespace}-tree-node.is-checked
+      > .#{$namespace}-tree-node__content
+      .#{$namespace}-select-dropdown__item.selected::after {
+      content: none;
+    }
+
+    .#{$namespace}-tree-node.is-current
+      > .#{$namespace}-tree-node__content  .#{$namespace}-tree-node__label{
+      color: getCssVar('color-primary');
+      font-weight: 700;
+    }
+
+    .#{$namespace}-select-dropdown__list
+      > .#{$namespace}-select-dropdown__item {
+      padding-left: 32px;
+    }
+
+    .#{$namespace}-select-dropdown__item {
+      flex: 1;
+      background: transparent !important;
+
+      // padding-left move to `el-tree-node__expand-icon`
+      padding-left: 0;
+
+      // fix: select height > tree node height
+      // https://github.com/yujinpan/el-select-tree/pull/33
+      height: 20px;
+      line-height: 20px;
+    }
+  }
+}

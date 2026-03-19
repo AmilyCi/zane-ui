@@ -3,14 +3,14 @@ import type { ButtonGroupContext } from "./types";
 import { buttonGroupContexts } from "./constants";
 
 export const getButtonGroupContext = (el: HTMLElement): ReactiveObject<ButtonGroupContext> | null => {
-  let parent = el.parentElement;
+  let parent: any = el.parentElement;
   let context = null;
   while (parent) {
     if (parent.tagName === 'ZANE-BUTTON-GROUP') {
       context = buttonGroupContexts.get(parent);
       break;
     }
-    parent = parent.parentElement;
+    parent = parent.rawParent ?? parent.parentElement;
   }
   return context;
 }

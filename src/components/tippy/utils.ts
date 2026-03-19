@@ -18,3 +18,4 @@ export function getChildren(popper: HTMLElement): PopperChildren {
     content: boxChildren.find((node) => node.classList.contains('tippy-content')),
   } as PopperChildren;
 }
+

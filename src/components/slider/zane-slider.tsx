@@ -1,5 +1,5 @@
 import type { Placement } from '@popperjs/core';
-import { Component, h, Element, Prop, Watch, State, Event, type EventEmitter } from '@stencil/core';
+import { Component, h, Element, Prop, Watch, State, Event, type EventEmitter, Method } from '@stencil/core';
 import { useNamespace } from '../../hooks';
 import type { ComponentSize } from '../../types';
 import state from '../../global/store';
@@ -12,7 +12,7 @@ import { getConfigProviderContext } from '../config-provider/utils';
 import classNames from 'classnames';
 import type { SliderContext } from './types';
 import { sliderContexts } from './constants';
-import { debugWarn, nextFrame } from '../../utils';
+import { debugWarn, hasRawParent, nextFrame } from '../../utils';
 
 const ns = useNamespace('slider');
 
@@ -248,6 +248,11 @@ export class ZaneSlider {
     this.context.value.sliderSize = this.sliderSize;
   }
 
+  @Method()
+  async getContext() {
+    return this.context;
+  }
+
   private isLabeledByFormItem = () => {
     return !!(
       !(this.label || this.ariaLabel) &&
@@ -403,7 +408,10 @@ export class ZaneSlider {
   }
 
   disconnectedCallback() {
-    sliderContexts.delete(this.el);
+    if (!hasRawParent(this.el)) {
+      sliderContexts.delete(this.el);
+      this.context = null;
+    }
     this.sliderWrapperRef?.removeEventListener('touchstart', this.onSliderWrapperPrevent);
     this.sliderWrapperRef?.removeEventListener('touchmove', this.onSliderWrapperPrevent);
   }

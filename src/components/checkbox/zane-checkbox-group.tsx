@@ -8,6 +8,7 @@ import {
   Watch,
   State,
   Host,
+  Method,
 } from "@stencil/core";
 import type { ComponentSize } from "../../types";
 import type {
@@ -21,7 +22,7 @@ import { getFormItemContext } from "../form/utils";
 import { checkboxDefaultProps, checkboxGroupContexts } from "./constants";
 import { isEqual, omit } from "lodash-es";
 import { arrayify } from "@zanejs/utils";
-import { debugWarn, nextFrame, ReactiveObject } from "../../utils";
+import { debugWarn, hasRawParent, nextFrame, ReactiveObject } from "../../utils";
 import { useNamespace } from "../../hooks";
 import state from "../../global/store";
 
@@ -100,6 +101,11 @@ export class ZaneCheckboxGroup {
     }
   }
 
+  @Method()
+  async getContext() {
+    return this.context;
+  }
+
   private inLabel = () => {
     let parent = this.el.parentElement;
     while (parent) {
@@ -155,7 +161,10 @@ export class ZaneCheckboxGroup {
   }
 
   disconnectedCallback() {
-    checkboxGroupContexts.delete(this.el);
+    if (!hasRawParent(this.el)) {
+      checkboxGroupContexts.delete(this.el);
+      this.context = null;
+    }
   }
 
   render() {

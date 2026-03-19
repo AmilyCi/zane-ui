@@ -1,26 +1,50 @@
-import { Component, Element, Event, Fragment, h, Method, Prop, State, Watch, type EventEmitter } from '@stencil/core';
-import type { OptionType, Props as SelectProps, SelectStates, Option, SelectContext } from './types';
+import { Component, h, Prop, Event, EventEmitter, Watch, State, Element, Fragment, Method } from '@stencil/core';
 import type { ComponentSize } from '../../types';
+import type { Props } from 'tippy.js';
+import type {
+  SelectContext,
+  SelectOptionBasic,
+  SelectOptionProps,
+  SelectOptionValue,
+  SelectProps,
+  SelectStates,
+  TagTooltipProps,
+  Option,
+} from './types';
+import tippy from 'tippy.js';
+import { defaultProps, selectContexts } from './constants';
+import { useNamespace, useResizeObserver } from '../../hooks';
+import state from '../../global/store';
+import {
+  castArray,
+  debugWarn,
+  getEventCode,
+  hasRawParent,
+  inLabel,
+  isFocusable,
+  isFunction,
+  isIOS,
+  isKorean,
+  isNumber,
+  isObject,
+  isUndefined,
+  nextFrame,
+  ReactiveObject,
+  scrollIntoView
+} from '../../utils';
+import { isNil } from '../../utils/is/isNil';
 import type { FormContext, FormItemContext } from '../form/types';
 import type { ConfigProviderContext } from '../config-provider/types';
-import { useNamespace, useResizeObserver } from '../../hooks';
-import classNames from 'classnames';
 import { getFormContext, getFormItemContext } from '../form/utils';
 import { getConfigProviderContext } from '../config-provider/utils';
-import { debugWarn, getEventCode, inLabel, isFocusable, isFunction, isKorean, isNumber, isObject, isUndefined, nextFrame } from '../../utils';
-import { DEFAULT_EMPTY_VALUES, EVENT_CODE, MINIMUM_INPUT_WIDTH } from '../../constants';
-import get from 'lodash-es/get';
+import { DEFAULT_EMPTY_VALUES, EVENT_CODE, MINIMUM_INPUT_WIDTH, ValidateComponentsMap } from '../../constants';
+import classNames from 'classnames';
 import isEqual from 'lodash-es/isEqual';
-import debounce from 'lodash-es/debounce';
+import get from 'lodash-es/get';
 import findLastIndex from 'lodash-es/findLastIndex';
-import { ReactiveObject } from '../../utils/reactive/ReactiveObject';
-import { escapeStringRegexp } from './utils';
-import state from '../../global/store';
-import { ValidateComponentsMap } from '../../constants/validate';
-import { selectContexts } from  './constants';
-import { BORDER_HORIZONTAL_WIDTH } from '../../constants/form';
-import type { Props } from 'tippy.js';
-import tippy from 'tippy.js';
+import clamp from 'lodash-es/clamp';
+import debounce from 'lodash-es/debounce';
+import isPlainObject from 'lodash-es/isPlainObject';
 
 const ns = useNamespace('select');
 const nsInput = useNamespace('input');
@@ -32,102 +56,97 @@ const nsInput = useNamespace('input');
 export class ZaneSelect {
   @Element() el: HTMLElement;
 
-  @Prop() allowCreate: boolean;
+  @Prop() name: string;
 
-  @Prop() autocomplete: 'none' | 'list' | 'both' | 'inline' = 'none';
+  @Prop({ attribute: 'id' }) zId: string;
+
+  @Prop({ mutable: true }) value: any[] | string | number | Record<string, any> | any = undefined;
+
+  @Prop() autocomplete: string = 'off';
 
   @Prop() automaticDropdown: boolean;
+
+  @Prop() size: ComponentSize;
+
+  @Prop() disabled: boolean = undefined;
 
   @Prop() clearable: boolean;
 
   @Prop() clearIcon: string = 'close-circle-line';
 
-  @Prop() popperTheme: string;
-
-  @Prop() collapseTags: boolean;
-
-  @Prop() collapseTagsTooltip: boolean;
-
-  @Prop() maxCollapseTags: number = 1;
-
-  @Prop() defaultFirstOption: boolean;
-
-  @Prop() disabled: boolean = undefined;
-
-  @Prop() estimatedOptionHeight: number = undefined;
-
-  @Prop() filterable: boolean;
-
-  @Prop() filterMethod: (query: string) => boolean;
-
-  @Prop() height: number = 274;
-
-  @Prop() itemHeight: number = 34;
-
-  @Prop({ mutable: true }) zId: string;
+  @Prop() allowCreate: boolean;
 
   @Prop() loading: boolean;
 
+  @Prop() popperTheme: string;
+
+  @Prop() popperOptions: Props['popperOptions'] = {};
+
+  @Prop() popperBoxClass: string;
+
+  @Prop() popperContentClass: string;
+
+  @Prop() debounce: number = 300;
+
   @Prop() loadingText: string;
 
-  @Prop({ mutable: true }) value: any[] | string | number | Record<string, any> | any = undefined;
+  @Prop() noMatchText: string;
+
+  @Prop() noDataText: string;
+
+  @Prop() remote: boolean;
+
+  @Prop() remoteMethod: (query) => any;
+
+  @Prop() filterable: boolean;
+
+  @Prop() filterMethod: (query) => any;
 
   @Prop() multiple: boolean;
 
   @Prop() multipleLimit: number = 0;
 
-  @Prop() name: string;
+  @Prop() placeholder: string;
 
-  @Prop() noDataText: string;
-
-  @Prop() noMatchText: string;
-
-  @Prop() remoteMethod: (query: string) => any;
+  @Prop() defaultFirstOption: boolean;
 
   @Prop() reserveKeyword: boolean = true;
 
-  @Prop() options: OptionType[];
-
-  @Prop() placeholder: string;
-
-  @Prop() popperOptions: Props['popperOptions'] = {};
-
-  @Prop() remote: boolean;
-
-  @Prop() debounce: number = 300;
-
-  @Prop() size: ComponentSize;
-
-  @Prop() props: SelectProps = {
-    label: 'label',
-    value: 'value',
-    disabled: 'disabled',
-    options: 'options'
-  };
-
   @Prop() valueKey: string = 'value';
 
-  @Prop() scrollbarAlwaysOn: boolean;
+  @Prop() collapseTags: boolean;
 
-  @Prop() validateEvent: boolean = true;
+  @Prop() collapseTagsTooltip: boolean;
 
-  @Prop() offset: Props['offset'] = tippy.defaultProps.offset;
+  @Prop() tagTooltip: TagTooltipProps = {};
 
-  @Prop() remoteShowSuffix: boolean;
+  @Prop() maxCollapseTags: number = 1;
 
-  @Prop() showArrow: boolean = false;
+  @Prop() fitInputWidth: boolean;
 
-  @Prop() placement: Props['placement'] = 'bottom-start';
+  @Prop() suffixIcon: string = 'arrow-down-s-line';
 
   @Prop() tagType: 'primary' | 'success' | 'warning' | 'danger' | 'info' = 'info';
 
   @Prop() tagEffect: 'dark' | 'light' | 'plain' = 'light';
 
-  @Prop({ attribute: 'tabindex' }) zTabindex: number = 0;
+  @Prop() validateEvent: boolean = true;
 
-  @Prop() fitInputWidth: boolean | number = true;
+  @Prop() remoteShowSuffix: boolean;
 
-  @Prop() suffixIcon: string = 'arrow-down-s-line';
+  @Prop() showArrow: boolean = false;
+
+  @Prop() offset: Props['offset'] = tippy.defaultProps.offset;
+
+  @Prop() placement: Props['placement'] = 'bottom-start';
+
+  @Prop({ attribute: 'tabIndex'}) zTabIndex: number = 0;
+
+  @Prop() appendTo: Props['appendTo'] = tippy.defaultProps.appendTo;
+
+  @Prop() options: Record<string, any>[];
+
+  @Prop() props: SelectOptionProps = { ...defaultProps };
 
   @Prop() emptyValues: any[];
 
@@ -139,7 +158,9 @@ export class ZaneSelect {
 
   @Prop() tagRender: () => HTMLElement;
 
-  @Prop() tagLabelRender: (label: string, value: string, index: number) => HTMLElement;
+  @Prop() tagLabelRender: (
+    label: string | number | boolean, value: SelectOptionValue, index: number
+  ) => HTMLElement;
 
   @Event({ eventName: 'zChange', bubbles: false })
   changeEvent: EventEmitter<any>;
@@ -153,8 +174,14 @@ export class ZaneSelect {
   @Event({ eventName: 'zFocus', bubbles: false })
   focusEvent: EventEmitter<FocusEvent>;
 
+  @Event({ eventName: 'zPopupScroll', bubbles: false })
+  popupScrollEvent: EventEmitter<{scrollTop: number; scrollLeft: number}>;
+
   @Event({ eventName: 'zBlur', bubbles: false })
   blurEvent: EventEmitter<FocusEvent>;
+
+  @Event({ eventName: 'zVisibleChange', bubbles: false })
+  visibleChangeEvent: EventEmitter<boolean>;
 
   @Event({ eventName: "zCompositionEnd", bubbles: false })
   compositionendEvent: EventEmitter<CompositionEvent>;
@@ -177,26 +204,27 @@ export class ZaneSelect {
 
   @State() expanded: boolean = false;
 
-  @State() showTagList: Option[] = [];
+  @State() contentId: string;
 
-  @State() collapseTagList: Option[] = [];
+  @State() optionsArray: Option[] = [];
 
-  @State() states: SelectStates = {
-    inputValue: '',
-    cachedOptions: [],
-    createdOptions: [],
-    hoveringIndex: -1,
-    inputHovering: false,
-    selectionWidth: 0,
-    collapseItemWidth: 0,
-    previousQuery: null,
-    previousValue: undefined,
-    selectedLabel: '',
-    menuVisibleOnFocus: false,
-    isBeforeHide: false
-  };
+  @State() showTagList: SelectOptionBasic[] = [];
 
-  @State() indexRef: number = -1;
+  @State() collapseTagList: SelectOptionBasic[] = [];
+
+  @State() collapseTagSize: 'small' | 'default' = 'default';
+
+  @State() calculatorWidth = 0;
+
+  @State() popperSize: number = -1;
+
+  @State() debouncing: boolean = false;
+
+  @State() isComposing: boolean = false;
+
+  @State() shouldShowPlaceholder: boolean = false;
+
+  @State() hoverOption: Option;
 
   @State() aliasProps: SelectProps = {
     label: 'label',
@@ -205,55 +233,49 @@ export class ZaneSelect {
     options: 'options'
   };
 
-  @State() collapseTagSize: 'small' | 'default' = 'default';
+  @State() optionElements: Option[] = [];
 
-  @State() allOptions: Option[] = [];
+  @State() filteredOptionsCount = 0;
 
-  @State() filteredOptions: Option[] = [];
-
-  @State() allOptionsValueMap: Map<unknown, Option> = new Map();
-
-  @State() createOptionCount: number = 0;
-
-  @State() cachedSelectedOption: Option;
-
-  @State() calculatorWidth = 0;
-
-  @State() debouncing: boolean = false;
-
-  @State() isComposing: boolean = false;
-
-  @State() shouldShowPlaceholder: boolean = false;
-
-  @State() contentId: string;
-
-  @State() popperSize: number = -1;
+  @State() inputValue: string = '';
+  @State() optionValues: SelectOptionValue[] = [];
+  @State() selected: SelectOptionBasic[] = [];
+  @State() selectionWidth: number = 0;
+  @State() collapseItemWidth: number = 0;
+  @State() hoveringIndex: number = -1;
+  @State() selectedLabel: string = '';
+  @State() previousQuery: string = null;
+  @State() inputHovering: boolean = false;
+  @State() menuVisibleOnFocus: boolean = false;
+  @State() isBeforeHide: boolean = false;
 
   private selectRef: HTMLDivElement;
+
+  private tooltipRef: HTMLZaneTippyElement;
 
   private wrapperRef: HTMLDivElement;
 
   private selectionRef: HTMLDivElement;
 
-  private tooltipRef: HTMLZaneTippyElement;
-
-  private tagTooltipRef: HTMLZaneTippyElement;
-
   private inputRef: HTMLInputElement;
+
+  private calculatorRef: HTMLSpanElement;
 
   private suffixRef: HTMLDivElement;
 
-  private menuRef: HTMLZaneSelectMenuElement;
+  private menuRef: HTMLElement;
+
+  private collapseItemRef: HTMLDivElement;
+
+  private tagMenuRef: HTMLDivElement;
+
+  private scrollbarRef: HTMLZaneScrollbarElement;
+
+  private tagTooltipRef: HTMLZaneTippyElement;
 
   private tagLabelRefs: HTMLElement[] = [];
 
   private collapseTagLabelRefs: HTMLElement[] = [];
-
-  private calculatorRef: HTMLElement;
-
-  private tagMenuRef: HTMLDivElement;
-
-  private collapseItemRef: HTMLDivElement;
 
   private formContext: ReactiveObject<FormContext>;
 
@@ -261,13 +283,13 @@ export class ZaneSelect {
 
   private configProviderContext: ReactiveObject<ConfigProviderContext>;
 
-  private hasPrefixSlot: boolean;
+  private hasPrefixSlot = false;
 
-  private hasHeaderSlot: boolean;
+  private hasHeaderSlot = false;
 
-  private hasFooterSlot: boolean;
+  private hasLoadingSlot = false;
 
-  private hasLoadingSlot: boolean;
+  private hasFooterSlot = false;
 
   private context: ReactiveObject<SelectContext>;
 
@@ -277,6 +299,7 @@ export class ZaneSelect {
   private unTagMenuResizeObserver: () => void;
   private unCollapseItemResizeObserver: () => void;
   private unSelectionResizeObserver: () => void;
+  private unMenuResizeObserver: () => void;
 
   @Watch('zId')
   handleWatchId() {
@@ -290,40 +313,6 @@ export class ZaneSelect {
       }
       this.inputId = newId;
     }
-  }
-
-  @Watch('props')
-  handleUpdateAliasProps() {
-    this.aliasProps = {
-      ...this.aliasProps,
-      ...this.props
-    };
-  }
-
-  @Watch('options')
-  handleWatchOptions() {
-    this.allOptions = this.filterOptions('');
-    const optionLabelsSet = new Set(this.options.map((option) => this.getLabel(option)));
-    const createdOptions = this.states.createdOptions.filter(
-      (option) => !optionLabelsSet.has(this.getLabel(option))
-    );
-    this.states = {
-      ...this.states,
-      createdOptions
-    };
-
-    if (!this.inputRef || (this.inputRef && document.activeElement !== this.inputRef)) {
-      this.initStates();
-    }
-  }
-
-  @Watch('allOptions')
-  handleWatchAllOptions() {
-    const valueMap = new Map();
-    this.allOptions.forEach((option, index) => {
-      valueMap.set(this.getValueKey(this.getValue(option)), { option, index });
-    });
-    this.allOptionsValueMap = valueMap;
   }
 
   @Watch("size")
@@ -348,623 +337,464 @@ export class ZaneSelect {
   }
 
   @Watch('multiple')
-  @Watch('collapseTags')
-  @Watch('maxCollapseTags')
-  @Watch('states')
-  handleUpdateShowTagList() {
-    if (!this.multiple) {
-      this.showTagList = [];
-      return;
+  handleMultipleChange() {
+    if (this.context) {
+      this.context.value.multiple = this.multiple;
     }
-    this.showTagList = this.collapseTags
-      ? this.states.cachedOptions.slice(0, this.maxCollapseTags)
-      : this.states.cachedOptions;
   }
 
+  @Watch('fitInputWidth')
+  handleFitInputWidthChange() {
+    if (this.context) {
+      this.context.value.fitInputWidth = this.fitInputWidth;
+    }
+  }
+
+  @Watch('selectRef')
+  handleSelectRefChange() {
+    if (this.context) {
+      this.context.value.selectRef = this.selectRef;
+    }
+  }
+
+  @Watch('optionsArray')
+  @Watch('hoveringIndex')
+  handleUpdateHoverOption() {
+    const hoveringIndex = this.hoveringIndex;
+    if (isNumber(hoveringIndex) && hoveringIndex > -1) {
+      this.hoverOption = this.optionsArray[hoveringIndex];
+    } else {
+      this.hoverOption = undefined;
+    }
+
+    this.optionsArray.forEach((option) => {
+      option.setHover(this.hoverOption === option);
+    });
+  }
+
+  @Watch('optionElements')
+  @Watch('optionValues')
+  handleUpdateOptionsArray() {
+    const list = this.optionElements;
+    const newList: Option[] = [];
+    this.optionValues.forEach((item) => {
+      const index = list.findIndex((i) => {
+        return i.value === item
+      });
+      if (index > -1) {
+        newList.push(list[index]);
+      }
+    });
+    this.optionsArray = newList.length >= list.length ? newList : list;
+    this.filteredOptionsCount = this.optionsArray.filter(
+      async (option) => await option.getVisible()
+    ).length;
+
+    if (this.context) {
+      this.context.value.optionsArray = this.optionsArray;
+    }
+  }
+
+  @Watch('props')
+  handleUpdateAliasProps() {
+    this.aliasProps = {
+      ...this.aliasProps,
+      ...this.props
+    };
+  }
+
+  @Watch('selected')
   @Watch('multiple')
   @Watch('collapseTags')
   @Watch('maxCollapseTags')
-  @Watch('states')
-  handleUpdateCollapseTagList() {
+  handleUpdateShowTagList() {
     if (!this.multiple) {
+      this.showTagList = [];
       this.collapseTagList = [];
       return;
     }
+
+    this.showTagList = this.collapseTags
+      ? this.selected.slice(0, this.maxCollapseTags)
+      : this.selected;
+
     this.collapseTagList = this.collapseTags
-      ? this.states.cachedOptions.slice(this.maxCollapseTags)
+      ? this.selected.slice(0, this.maxCollapseTags)
       : [];
   }
 
   @Watch('value')
-  @Watch('states')
+  @Watch('inputValue')
   @Watch('filterable')
   handleUpdateShouldShowPlaceholder() {
     if (Array.isArray(this.value)) {
-      this.shouldShowPlaceholder = this.value.length === 0 && !this.states.inputValue;
+      this.shouldShowPlaceholder = this.value.length === 0 && !this.inputValue;
       return;
     }
-    this.shouldShowPlaceholder = this.filterable ? !this.states.inputValue : true;
-  }
-
-  @Watch('fitInputWidth')
-  handleUpdatePopperSize() {
-    this.calculatePopperSize();
+    this.shouldShowPlaceholder = this.filterable ? !this.inputValue : true;
   }
 
   @Watch('expanded')
   handleUpdateExpanded() {
     if (this.expanded) {
-      this.calculatePopperSize();
       this.handleQueryChange('');
     } else {
-      this.states = {
-        ...this.states,
-        inputValue: '',
-        previousQuery: null,
-        isBeforeHide: true,
-        menuVisibleOnFocus: false
-      };
-      this.createNewOption('');
+      this.inputValue = '';
+      this.previousQuery = null;
+      this.isBeforeHide = true;
+      this.menuVisibleOnFocus = false;
     }
 
     this.expanded ? this.tooltipRef.show() : this.tooltipRef.hide();
   }
 
-  @Watch('value')
-  handleWatchValue(val, oldVal) {
-    const isValEmpty = !val || (Array.isArray(val) && val.length === 0);
-
-    if (
-      isValEmpty ||
-      (this.multiple && !isEqual(val.toString(), this.states.previousValue)) ||
-      (!this.multiple && this.getValueKey(val) !== this.getValueKey(this.states.previousValue))
-    ) {
-      this.initStates(true);
-    }
-    if (!isEqual(val, oldVal) && this.validateEvent) {
-      this.formItemContext?.value.validate?.('change').catch((err) => debugWarn(err));
-    }
-    this.context.value.value = val;
-  }
-
-  @Watch('filteredOptions')
-  handleWatchFilteredOptions() {
-    this.calculatePopperSize();
-    if (this.menuRef) {
-      nextFrame(() => {
-        this.menuRef.resetScrollTop();
-      });
-    }
-  }
-
-  @Watch('states')
-  handleWatchStates(newVal, oldVal) {
-    if (this.states.isBeforeHide) {
-      return;
-    }
-    if (newVal.inputValue !== oldVal.inputValue) {
-      this.updateOptions();
-    }
-  }
-
-  private getLabel = (option: Option) => {
-    return get(option, this.aliasProps.label);
-  }
-
-  private getValue = (option: Option) => {
-    return get(option, this.aliasProps.value);
-  }
-
-  private getDisabled = (option: Option) => {
-    return get(option, this.aliasProps.disabled);
-  }
-
-  private getOptions = (option: Option) => {
-    return get(option, this.aliasProps.options);
-  }
-
-  private getValueKey = (item: unknown) => {
-    return isObject(item) ? get(item, this.valueKey) : item;
-  }
-
-  private getOption = (value: unknown, cachedOptions?: Option[]) => {
-    const selectValue = this.getValueKey(value)
-    if (this.allOptionsValueMap.has(selectValue)) {
-      const { option } = this.allOptionsValueMap.get(selectValue);
-      return option;
-    }
-    if (cachedOptions && cachedOptions.length > 0) {
-      const option = cachedOptions.find(
-        (option) => this.getValueKey(this.getValue(option)) === selectValue
-      )
-      if (option) {
-        return option;
-      }
-    }
-    return {
-      [this.aliasProps.label]: value,
-      [this.aliasProps.value]: value,
-    }
-  }
-
-  private filterOptions = (query: string) => {
-    const regexp = new RegExp(escapeStringRegexp(query), 'i');
-    const isFilterMethodValid = this.filterable && isFunction(this.filterMethod);
-    const isRemoteMethodValid = this.remote && isFunction(this.remoteMethod);
-
-    const isValidOption = (o: Option): boolean => {
-      if (isFilterMethodValid || isRemoteMethodValid) {
-        return true;
-      }
-      return query ? regexp.test(this.getLabel(o) || '') : true;
-    }
-    if (this.loading) {
-      return [];
-    }
-    return [...this.states.cachedOptions, ...this.options].reduce((all, item) => {
-      const options = this.getOptions(item);
-      if (Array.isArray(options)) {
-        const filtered = options.filter(isValidOption);
-        if (filtered.length > 0) {
-          all.push(
-            {
-              label: this.getLabel(item),
-              type: 'Group'
-            },
-            ...filtered,
-          )
-        }
-      } else if (this.remote || isValidOption(item)) {
-        all.push(item);
-      }
-
-      return all;
-    }, []) as OptionType[];
-  }
-
-  private getValueIndex(arr: unknown[] = [], value: unknown ) {
-    if (!isObject(value)) {
-      return arr.indexOf(value);
-    }
-    const valueKey = this.valueKey;
-    let index = -1;
-    arr.some((item, i) => {
-      if (get(item, valueKey) === get(value, valueKey)) {
-        index = i;
-        return true;
-      }
-      return false;
-    });
-    return index;
-  }
-
-  private calculatePopperSize = () => {
-    if (isNumber(this.fitInputWidth)) {
-      this.popperSize = this.fitInputWidth;
-      return;
-    }
-    const width = this.selectionRef?.offsetWidth || 200;
-    const hasOptions = this.loading ? false : this.options?.length > 0 || this.states.createdOptions?.length > 0;
-    if (!this.fitInputWidth && hasOptions) {
-      nextFrame(async () => {
-        this.popperSize = Math.max(width, await this.calculateLabelMaxWidth());
-      });
+  @Watch('dropdownMenuVisible')
+  handleWatchDropdownMenuVisible() {
+    if (this.dropdownMenuVisible) {
+      this.unMenuResizeObserver = useResizeObserver(this.menuRef, this.updateTooltip);
     } else {
-      this.popperSize = width;
+      this.unMenuResizeObserver?.();
+      this.unMenuResizeObserver = null;
     }
+    this.visibleChangeEvent.emit(this.dropdownMenuVisible);
   }
 
-  private calculateLabelMaxWidth = async () => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const selector = ns.be('dropdown', 'item');
-    const dom = await this.menuRef?.getListRef();
-    const dropdownItemEL = dom?.querySelector(`.${selector}`);
-    if (!dropdownItemEL || !ctx) {
-      return 0;
+  @Watch('filterable')
+  @Watch('filterMethod')
+  @Watch('remote')
+  @Watch('remoteMethod')
+  @Watch('optionsArray')
+  @Watch('inputValue')
+  handleUpdateOptions() {
+    if (this.filterable && isFunction(this.filterMethod)) {
+      return;
     }
-    const style = window.getComputedStyle(dropdownItemEL);
-    const padding = Number.parseFloat(style.paddingLeft) + Number.parseFloat(style.paddingRight);
-    ctx.font = `bold ${style.font.replace(
-      new RegExp(`\\b${style.fontWeight}\\b`),
-      ''
-    )}`;
-    const maxWidth = this.filteredOptions.reduce((max, option) => {
-      const metrics = ctx.measureText(this.getLabel(option) || '');
-      return Math.max(max, metrics.width);
-    }, 0);
-    return maxWidth + padding;
-  }
-
-  private handleMenuEnter = () => {
-    this.states = {
-      ...this.states,
-      isBeforeHide: false,
+    if (this.filterable && this.remote && isFunction(this.remoteMethod)) {
+      return;
     }
-    nextFrame(() => {
-      if (~this.indexRef) {
-        this.scrollToItem(this.indexRef);
-      }
+    this.optionsArray.forEach((option) => {
+      option.updateOption?.(this.inputValue);
     });
+  }
+
+  @Watch('value')
+  handleWatchValue() {
+    this.context.value.value = this.value;
+    if (this.multiple) {
+      if (this.filterable && !this.reserveKeyword) {
+        this.inputValue = '';
+        this.handleQueryChange('');
+      }
+    }
+    this.setSelected();
+    if (this.validateEvent) {
+      this.formItemContext?.value.validate('change').catch((err) => debugWarn(err));
+    }
+  }
+
+  @Method()
+  async getContext() {
+    return this.context;
+  }
+
+  @Method()
+  async zFocus() {
+    this.inputRef?.focus();
+  }
+
+  @Method()
+  async zBlur() {
+    if (this.expanded) {
+      this.expanded = false;
+      nextFrame(() => {
+        this.inputRef?.blur();
+      });
+      return;
+    }
+    this.inputRef?.blur();
+  }
+
+  private handleWrapperClick = (e: MouseEvent) => {
+    e.preventDefault();
+    if (
+      this.selectDisabled ||
+      isFocusable(e.target as HTMLElement) ||
+      (this.wrapperRef?.contains(document.activeElement) && this.wrapperRef !== document.activeElement)
+    ) {
+      return;
+    }
+    this.inputRef.focus();
+  }
+
+  private handleWrapperFocus = (event: FocusEvent) => {
+    if (this.selectDisabled || this.isFocused) {
+      return;
+    }
+    this.isFocused = true;
+    this.focusEvent.emit(event);
+
+    if (this.automaticDropdown && !this.expanded) {
+      this.expanded = true;
+      this.menuVisibleOnFocus = true;
+    }
+  }
+
+  private handleWrapperBlur = async (event: FocusEvent) => {
+    const cancelBlur = await this.tooltipRef.isFocusInsideContent(event) ||
+      await this.tagTooltipRef?.isFocusInsideContent(event);
+
+    if (this.selectDisabled ||
+      (event.relatedTarget && this.wrapperRef.contains(event.relatedTarget as Node)) ||
+      cancelBlur
+    ) {
+      return;
+    }
+
+    this.isFocused = false;
+    this.blurEvent.emit(event);
+
+    this.expanded = false;
+    this.menuVisibleOnFocus = false;
+
+    if (this.validateEvent) {
+      this.formItemContext?.value.validate?.('blur').catch((err) => debugWarn(err));
+    }
   }
 
   private handleClickOutside = () => {
     this.expanded = false;
-
     if (this.isFocused) {
       const event = new FocusEvent('blur');
       this.handleWrapperBlur(event);
     }
-  };
-
-  private handleTagRender = () => {
-    //TODO:
   }
 
-  private handleTagLabelRender = (label: string, value: string, index: number) => {
+  private handleMenuEnter = () => {
+    this.isBeforeHide = false;
+    nextFrame(() => {
+      this.scrollbarRef?.update();
+      this.scrollToOption(this.selected);
+    });
+  }
+
+  private handleSelectMouseEnter = () => {
+    this.inputHovering = true;
+  }
+
+  private handleSelectMouseLeave = () => {
+    this.inputHovering = false;
+  }
+
+  private handleTagRender = () => {
+    // TODO
+  }
+
+  private handleTagLabelRender = (
+    label: string | number | boolean,
+    value: SelectOptionValue,
+    index: number
+  ) => {
     if (this.tagLabelRender) {
       nextFrame(() => {
         const result = this.tagLabelRender(label, value, index);
         const parentEl = this.tagLabelRefs[index];
         if (result && parentEl) {
-          parentEl.appendChild(result);
+          parentEl.innerHTML = result.innerHTML;
         }
       });
     }
   }
 
-  private handleCollapseTagLabelRender = (label: string, value: string, index: number) => {
+  private handleCollapseTagLabelRender = (
+    label: string | number | boolean,
+    value: SelectOptionValue,
+    index: number
+  ) => {
     if (this.tagLabelRender) {
       nextFrame(() => {
         const result = this.tagLabelRender(label, value, index);
         const parentEl = this.collapseTagLabelRefs[index];
         if (result && parentEl) {
-          parentEl.appendChild(result);
+          parentEl.innerHTML = result.innerHTML;
         }
       });
-    }
-  }
-
-  private resetCalculatorWidth = () => {
-    this.calculatorWidth = this.calculatorRef?.getBoundingClientRect().width ?? 0;
-  }
-
-  private resetSelectionWidth = () => {
-    this.states = {
-      ...this.states,
-      selectionWidth: Number.parseFloat(window.getComputedStyle(this.selectionRef).width) || 0
-    }
-  }
-
-  private scrollToItem = (index: number) => {
-    this.menuRef?.zScrollToItem(index);
-  }
-
-  private toggleMenu = (event?: Event) => {
-    if (
-      this.selectDisabled ||
-      (this.filterable && this.expanded && event && !this.suffixRef?.contains(event.target as Node))
-    ) {
-      return;
-    }
-    if (this.states.menuVisibleOnFocus) {
-      this.states = {
-        ...this.states,
-        menuVisibleOnFocus: false
-      }
-    } else {
-      this.expanded = !this.expanded;
-    }
-  }
-
-  private getGapWidth = () => {
-    if (!this.selectionRef) {
-      return 0;
-    }
-    const style = window.getComputedStyle(this.selectionRef);
-    return Number.parseFloat(style.gap || '6px');
-  }
-
-  private emitChange = (val: any) => {
-    if (!isEqual(this.value, val)) {
-      this.changeEvent.emit(val);
-    }
-  }
-
-  private isEmptyValue = (value: unknown) => {
-    const emptyValues = this.emptyValues || DEFAULT_EMPTY_VALUES;
-    let result = true;
-    if (Array.isArray(value)) {
-      result = emptyValues.some((emptyVal) => {
-        return isEqual(value, emptyVal);
-      });
-    } else {
-      result = emptyValues.includes(value);
-    }
-    return result;
-  }
-
-  private initStates = (needUpdateSelectedLabel: boolean = false) => {
-    if (this.multiple) {
-      if (this.value && (this.value as Array<any>).length > 0) {
-        const cachedOptions = this.states.cachedOptions.slice();
-        const newCachedOptions = [];
-        for (const val of this.value) {
-          const option = this.getOption(val, cachedOptions);
-          if (option) {
-            newCachedOptions.push(option);
-          }
-        }
-        this.states = {
-          ...this.states,
-          cachedOptions: newCachedOptions,
-          previousValue: this.value?.toString()
-        }
-      } else {
-        this.states = {
-          ...this.states,
-          cachedOptions: [],
-          previousValue: undefined
-        }
-      }
-    } else {
-      const hasValue = this.multiple
-        ? Array.isArray(this.value) && this.value.length > 0
-        : !this.isEmptyValue(this.value);
-
-      if (hasValue) {
-        const options = this.filteredOptions;
-        const selectedItemIndex = options.findIndex((option) => {
-          return this.getValueKey(this.getValue(option)) === this.getValueKey(this.value);
-        });
-        let selectedLabel = this.states.selectedLabel;
-        if (~selectedItemIndex) {
-          selectedLabel = this.getLabel(options[selectedItemIndex]);
-        } else {
-          if (!this.states.selectedLabel || needUpdateSelectedLabel) {
-            selectedLabel = this.getValueKey(this.value);
-          }
-        }
-        this.states = {
-          ...this.states,
-          previousValue: this.value,
-          selectedLabel,
-        }
-      } else {
-        this.states = {
-          ...this.states,
-          selectedLabel: '',
-          previousValue: undefined
-        }
-      }
-    }
-    this.clearAllNewOption();
-    this.calculatePopperSize();
-  }
-
-  private updateOptions = () => {
-    this.filteredOptions = this.filterOptions(this.states.inputValue);
-  }
-
-  private update = (val: any) => {
-    this.emitChange(val);
-    this.value = val;
-    this.states = {
-      ...this.states,
-      previousValue: this.multiple ? String(val) : val,
-    };
-
-    nextFrame(() => {
-      if (this.multiple && Array.isArray(this.value)) {
-        const cachedOptions = this.states.cachedOptions.slice();
-        const selectedOptions = this.value.map((item) => this.getOption(item, cachedOptions));
-
-        if (!isEqual(this.states.cachedOptions, selectedOptions)) {
-          this.states = {
-            ...this.states,
-            cachedOptions: selectedOptions,
-          };
-        }
-      } else {
-        this.initStates(true);
-      }
-    });
-  }
-
-  private deleteTag = (event: MouseEvent, option: Option) => {
-    let selectedOptions = (this.value as any[]).slice();
-    const index = this.getValueIndex(selectedOptions, this.getValue(option));
-    if (index > -1 && !this.selectDisabled) {
-      selectedOptions = [
-        ...(this.value as Array<unknown>).slice(0, index),
-        ...(this.value as Array<unknown>).slice(index + 1),
-      ];
-      const cachedOptions = this.states.cachedOptions;
-      cachedOptions.splice(index, 1);
-      this.states = {
-        ...this.states,
-        cachedOptions,
-      };
-      this.update(selectedOptions);
-      this.removeTagEvent.emit(this.getValue(option));
-      this.removeNewOption(option);
-    }
-    event.stopPropagation();
-    this.zFocus();
-  }
-
-  private createNewOption = (query: string) => {
-    if (this.allowCreate && this.filterable) {
-      if (query && query.length > 0) {
-        if (this.hasExistingOption(query)) {
-          const createdOptions = this.states.createdOptions.filter(
-            (option) => this.getLabel(option) !== this.states.previousQuery
-          );
-          this.states = {
-            ...this.states,
-            createdOptions,
-          }
-          return;
-        }
-        const newOption = {
-          [this.aliasProps.value]: query,
-          [this.aliasProps.label]: query,
-          created: true,
-          [this.aliasProps.disabled]: false,
-        }
-        const createdOptions = [...this.states.createdOptions];
-        if (this.states.createdOptions.length >= this.createOptionCount) {
-          createdOptions[this.createOptionCount] = newOption;
-        } else {
-          createdOptions.push(newOption);
-        }
-        this.states = {
-          ...this.states,
-          createdOptions,
-        }
-      } else {
-        const createdOptions = [...this.states.createdOptions];
-        if (this.multiple) {
-          createdOptions.length = this.createOptionCount;
-        } else {
-          const selectedOption = this.cachedSelectedOption;
-          createdOptions.length = 0;
-          if (selectedOption && selectedOption.created) {
-            createdOptions.push(selectedOption);
-          }
-        }
-        this.states = {
-          ...this.states,
-          createdOptions,
-        }
-      }
-    }
-  }
-
-  private selectNewOption = (option: Option) => {
-    if (!(this.allowCreate && this.filterable)) {
-      return;
-    }
-
-    if (this.multiple && option.created) {
-      this.createOptionCount++;
-    } else {
-      this.cachedSelectedOption = option;
-    }
-  }
-
-  private removeNewOption = (option: Option) => {
-    if (
-      !(this.allowCreate && this.filterable) ||
-      !option ||
-      !option.created ||
-      (
-        option.created && this.reserveKeyword && this.states.inputValue === this.getLabel(option)
-      )
-    ) {
-      return;
-    }
-    const idx = this.states.createdOptions.findIndex(
-      (it) => this.getValue(it) === this.getValue(option)
-    );
-    if (~idx) {
-      const createdOptions = this.states.createdOptions.slice();
-      createdOptions.splice(idx, 1);
-      this.states = {
-        ...this.states,
-        createdOptions,
-      };
-      this.createOptionCount--;
-    }
-  }
-
-  private clearAllNewOption = () => {
-    if (this.allowCreate && this.filterable) {
-      this.states = {
-        ...this.states,
-        createdOptions: [],
-      };
-      this.createOptionCount = 0;
-    }
-  }
-
-  private hasExistingOption = (query: string) => {
-    const hasOption = (option) => this.getLabel(option) === query;
-    return (
-      (this.options && this.options.some(hasOption)) ||
-      this.states.createdOptions.some(hasOption)
-    )
-  }
-
-  private checkDefaultFirstOption = () => {
-    const optionsInDropdown = this.filteredOptions.filter(
-      (n) => !n.disabled && n.type !== 'Group'
-    );
-    const useCreatedOption = optionsInDropdown.find((n) => n.created);
-    const firstOriginOption = optionsInDropdown[0];
-    this.states = {
-      ...this.states,
-      hoveringIndex: this.getValueIndex(
-        this.filteredOptions,
-        useCreatedOption || firstOriginOption
-      )
-    }
-  }
-
-  private updateHoveringIndex = () => {
-    let hoveringIndex = -1;
-    if (this.multiple) {
-      const length = this.value?.length ?? 0;
-      if (length > 0) {
-        const lastValue = this.value[length - 1];
-        hoveringIndex = this.filteredOptions.findIndex(
-          (item) => this.getValueKey(lastValue) === this.getValueKey(this.getValue(item))
-        )
-      }
-    } else {
-      hoveringIndex = this.filteredOptions.findIndex(
-        (item) => this.getValueKey(this.getValue(item)) === this.getValueKey(this.value)
-      );
-    }
-    this.states = {
-      ...this.states,
-      hoveringIndex,
     }
   }
 
   private handleQueryChange = (val: string) => {
-    if (this.states.previousQuery === val || this.isComposing) {
+    if (this.previousQuery === val || this.isComposing) {
       return;
     }
-    this.states= {
-      ...this.states,
-      previousQuery: val
-    }
+    this.previousQuery = val;
+
     if (this.filterable && isFunction(this.filterMethod)) {
-      this.filterMethod(val)
-    } else if (
-      this.filterable && this.remote && isFunction(this.remoteMethod)
-    ){
+      this.filterMethod(val);
+    } else if (this.filterable && this.remote && isFunction(this.remoteMethod)) {
       this.remoteMethod(val);
     }
-    if (this.defaultFirstOption && (this.filterable || this.remote) && this.filteredOptions.length) {
+
+    if (
+      this.defaultFirstOption &&
+      (this.filterable || this.remote) &&
+      this.filteredOptionsCount
+    ) {
       nextFrame(() => {
-        this.checkDefaultFirstOption();
+        this.checkDefaultFirstOption()
       });
     } else {
       nextFrame(() => {
-        this.updateHoveringIndex()
-      })
+        this.updateHoveringIndex();
+      });
     }
   }
 
+  private navigateOptions = async (direction: 'prev' | 'next') => {
+    if (!this.expanded) {
+      this.expanded = true;
+      return;
+    }
+
+    if (
+      this.optionElements.length === 0 ||
+      this.filteredOptionsCount === 0 ||
+      this.isComposing
+    ) {
+      return;
+    }
+
+    const optionsAllDisabled = this.optionsArray.filter(
+      async (option) => await option.getVisible()
+    ).every(
+      async (option) => option.getDisabled()
+    );
+    if (optionsAllDisabled) {
+      if (direction === 'next') {
+        this.hoveringIndex++;
+        if (this.hoveringIndex === this.optionElements.length) {
+          this.hoveringIndex = 0;
+        }
+      } else if (direction === 'prev') {
+        this.hoveringIndex--;
+        if (this.hoveringIndex < 0) {
+          this.hoveringIndex = this.optionElements.length - 1;
+        }
+      }
+      const option = this.optionsArray[this.hoveringIndex];
+      const isDisabled = await option.getDisabled();
+      const isVisible = await option.getVisible();
+      if (isDisabled || !isVisible) {
+        await this.navigateOptions(direction);
+      }
+
+      nextFrame(() => {
+        this.scrollToOption(this.hoverOption);
+      });
+    }
+  }
+
+  private selectOption = async () => {
+    if (!this.expanded) {
+      this.toggleMenu();
+    } else {
+      const option = this.optionsArray[this.hoveringIndex];
+      const isDisabled = await option.getDisabled();
+      if (option && !isDisabled) {
+        this.handleOptionSelect(option);
+      }
+    }
+  }
+
+  @Method()
+  async handleOptionSelect(option: Option) {
+    if (this.multiple) {
+      const value = castArray(this.value ?? []).slice();
+      const optionIndex = this.getValueIndex(value, option);
+      if (optionIndex > -1) {
+        value.splice(optionIndex, 1);
+      } else if (
+        this.multipleLimit <= 0 ||
+        value.length < this.multipleLimit
+      ) {
+        value.push(option.value);
+      }
+
+      this.value = value;
+      this.emitChange(value);
+      if (option.created) {
+        this.handleQueryChange('');
+      }
+      if (this.filterable && (option.created || !this.reserveKeyword)) {
+        this.inputValue = '';
+      }
+    } else {
+      if (!isEqual(this.value, option.value)) {
+        this.value = option.value;
+        this.emitChange(option.value);
+      }
+      this.expanded = false;
+    }
+    this.zFocus();
+    if (this.expanded) {
+      return;
+    }
+    nextFrame(() => {
+      this.scrollToOption(option);
+    });
+  }
+
+  private handleEsc = () => {
+    if (this.inputValue.length > 0) {
+      this.inputValue = '';
+    } else {
+      this.expanded = false;
+    }
+  }
+
+  private handleClick = (event: MouseEvent) => {
+    event.stopPropagation();
+    this.toggleMenu();
+  }
+
+  private handleFocus = () => {
+    nextFrame(() => {
+      this.isFocused = true;
+    });
+  }
+
+  private handleBlur = () => {
+    nextFrame(() => {
+      this.isFocused = false;
+    });
+  }
+
+  private deleteSelected = (event: Event) => {
+    event.stopPropagation();
+    const value = this.multiple ? [] : this.valueOnClear;
+    if (this.multiple) {
+      for (const item of this.selected) {
+        if (item.isDisabled) {
+          value.push(item.value);
+        }
+      }
+    }
+    this.value = value;
+    this.emitChange(value);
+    this.hoveringIndex = -1;
+    this.expanded = false;
+    this.clearEvent.emit();
+    this.zFocus();
+  }
+
+  private handleClearClick = (event: Event) => {
+    this.deleteSelected(event);
+  }
+
   private onInputChange = () => {
-    if (this.states.inputValue.length > 0 && !this.expanded) {
+    if (this.inputValue.length > 0 && !this.expanded) {
       this.expanded = true;
     }
-    this.createNewOption(this.states.inputValue);
     nextFrame(() => {
-      this.handleQueryChange(this.states.inputValue);
+      this.handleQueryChange(this.inputValue);
     });
   }
 
@@ -974,10 +804,7 @@ export class ZaneSelect {
   }, this.debounce);
 
   private handleInput = (event: Event) => {
-    this.states = {
-      ...this.states,
-      inputValue: (event.target as HTMLInputElement).value
-    }
+    this.inputValue = (event.target as HTMLInputElement).value;
     if (this.remote) {
       this.debouncing = true;
       this.debouncedOnInputChange();
@@ -1008,288 +835,215 @@ export class ZaneSelect {
     this.isComposing = !isKorean(lastCharacter);
   }
 
-  private onKeyboardNavigate = (
-    direction: 'forward' | 'backward',
-    hoveringIndex: number | undefined = undefined
-  ) => {
-    const options = this.filteredOptions;
-    const optionsAllDisabled = options.every((option) => this.getDisabled(option));
-    if (
-      !['forward', 'backward'].includes(direction) ||
-      this.selectDisabled ||
-      optionsAllDisabled ||
-      this.isComposing
-    ) {
-      return;
-    }
-    if (!this.expanded) {
-      this.toggleMenu();
-      return;
-    }
-    if (isUndefined(hoveringIndex)) {
-      hoveringIndex = this.states.hoveringIndex;
-    }
-    let newIndex = -1;
-    if (direction === 'forward') {
-      newIndex = hoveringIndex + 1;
-      if (newIndex >= options.length) {
-        newIndex = 0;
-      }
-    } else if (direction === 'backward') {
-      newIndex = hoveringIndex - 1;
-      if (newIndex < 0 || newIndex >= options.length) {
-        newIndex = options.length - 1;
-      }
-    }
-    const option = options[newIndex];
-    if (this.getDisabled(option) || option.type === 'Group') {
-      this.onKeyboardNavigate(direction, newIndex);
-    } else {
-      this.states = {
-        ...this.states,
-        hoveringIndex: newIndex
-      }
-      this.scrollToItem(newIndex);
-    }
-  }
-
-  private onSelect = (option: Option) => {
-    const optionValue = this.getValue(option);
-    if (this.multiple) {
-      let selectedOptions = ((this.value ?? []) as any[]).slice();
-
-      const index = this.getValueIndex(selectedOptions, optionValue);
-      if (index > -1) {
-        selectedOptions = [
-          ...selectedOptions.slice(0, index),
-          ...selectedOptions.slice(index + 1)
-        ];
-        this.states.cachedOptions.splice(index, 1);
-        this.removeNewOption(option);
-      } else if (
-        this.multipleLimit <= 0 ||
-        selectedOptions.length < this.multipleLimit
-      ) {
-        selectedOptions = [...selectedOptions, optionValue];
-        this.states.cachedOptions.push(option);
-        this.selectNewOption(option);
-      }
-      this.update(selectedOptions);
-      if (option.created) {
-        this.handleQueryChange('');
-      }
-      if (this.filterable && !this.reserveKeyword) {
-        this.states.inputValue = '';
-      }
-    } else {
-      this.states.selectedLabel = this.getLabel(option);
-      if (!isEqual(this.value, optionValue)) {
-        this.update(optionValue);
-      }
-      this.expanded = false;
-      this.selectNewOption(option);
-      if (!option.created) {
-        this.clearAllNewOption();
-      }
-    }
-    this.zFocus();
-  }
-
-  private onHover = (idx: number) => {
-    this.states = {
-      ...this.states,
-      hoveringIndex: idx ?? -1,
-    }
-  }
-
-  private onKeyboardSelect = () => {
-    if (!this.expanded) {
-      this.toggleMenu();
-      return;
-    } else if (
-      ~this.states.hoveringIndex &&
-      this.filteredOptions[this.states.hoveringIndex]
-    ) {
-      this.onSelect(this.filteredOptions[this.states.hoveringIndex]);
-    }
-  }
-
-  private handleEsc = () => {
-    if (this.states.inputValue.length > 0) {
-      this.states = {
-        ...this.states,
-        inputValue: ''
-      }
-    } else {
-      this.expanded = false;
-    }
-  }
-
-  private getLastNotDisabledIndex = (value: unknown[]) => {
-    return findLastIndex(
-      value,
-      (it) => !this.states.cachedOptions.some(
-        (option) => this.getValue(option) === it && this.getDisabled(option)
-      )
-    )
-  }
-
-  private handleDel = (event: KeyboardEvent) => {
+  private deletePrevTag = (e: KeyboardEvent) => {
+    const code = getEventCode(e);
     if (!this.multiple) {
       return;
     }
-    const code = getEventCode(event);
     if (code === EVENT_CODE.delete) {
       return;
     }
-    if (this.states.inputValue.length === 0) {
-      event.preventDefault();
-      const selected = (this.value as any[]).slice();
-      const lastNotDisabledIndex = this.getLastNotDisabledIndex(selected);
+    if ((e.target as HTMLInputElement).value.length <= 0) {
+      const value = castArray(this.value).slice();
+      const lastNotDisabledIndex = this.getLastNotDisabledIndex(value);
       if (lastNotDisabledIndex < 0) {
         return;
       }
-      const removeTagValue = selected[lastNotDisabledIndex];
-      selected.splice(lastNotDisabledIndex, 1);
-      const option = this.states.cachedOptions[lastNotDisabledIndex];
-      this.states.cachedOptions.splice(lastNotDisabledIndex, 1);
-      this.removeNewOption(option);
-      this.update(selected);
+      const removeTagValue = value[lastNotDisabledIndex];
+      value.splice(lastNotDisabledIndex, 1);
+      this.value = value;
+      this.emitChange(value);
       this.removeTagEvent.emit(removeTagValue);
     }
   }
 
-  private handleKeyDown = (event: KeyboardEvent) => {
-    const code = getEventCode(event);
+  private popupScroll = (e:CustomEvent<{
+    scrollTop: number;
+    scrollLeft: number;
+  }>) => {
+    this.popupScrollEvent.emit(e.detail);
+  }
+
+  private handleKeyDown = (e: KeyboardEvent) => {
+    const code = getEventCode(e);
+    let isPreventDefault = true;
     switch(code) {
-      case EVENT_CODE.up: {
-        event.preventDefault();
-        event.stopPropagation();
-        this.onKeyboardNavigate('backward');
+      case EVENT_CODE.up:
+        this.navigateOptions('prev');
         break;
-      }
-      case EVENT_CODE.down: {
-        event.preventDefault();
-        event.stopPropagation();
-        this.onKeyboardNavigate('forward');
+      case EVENT_CODE.down:
+        this.navigateOptions('next');
         break;
-      }
       case EVENT_CODE.enter:
-      case EVENT_CODE.numpadEnter: {
-        event.preventDefault();
-        event.stopPropagation();
-        this.onKeyboardSelect();
+      case EVENT_CODE.numpadEnter:
+        if (!this.isComposing) {
+          this.selectOption();
+        }
         break;
-      }
-      case EVENT_CODE.esc: {
-        event.preventDefault();
-        event.stopPropagation();
+      case EVENT_CODE.esc:
         this.handleEsc();
         break;
-      }
-      case EVENT_CODE.delete: {
-        event.stopPropagation();
-        this.handleDel(event)
+      case EVENT_CODE.backspace:
+        isPreventDefault = false;
+        this.deletePrevTag(e);
+        break;
+      case EVENT_CODE.home:
+        if (!this.expanded) {
+          return;
+        }
+        this.focusOption(0, 'down');
+        break;
+      case EVENT_CODE.end:
+        if (!this.expanded) {
+          return;
+        }
+        this.focusOption(this.optionElements.length - 1, 'up');
+        break;
+      case EVENT_CODE.pageUp:
+        if (!this.expanded) {
+          return;
+        }
+        this.focusOption(this.hoveringIndex - 10, 'up');
+        break;
+      case EVENT_CODE.pageDown:
+        if (!this.expanded) {
+          return;
+        }
+        this.focusOption(this.hoveringIndex + 10, 'down');
+        break;
+      default:
+        isPreventDefault = false;
+        break;
+    }
+    if (isPreventDefault) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+
+  private getValueKey = (item: Option | SelectStates['selected'][0]) => {
+    return isObject(item.value) ? get(item, this.valueKey) : item.value;
+  }
+
+  private getOptions = (option: Option) => {
+    return get(option, this.aliasProps.options);
+  }
+
+  private getOptionProps = (option: Option) => {
+    return {
+      label: this.getLabel(option),
+      value: this.getValue(option),
+      disabled: this.getDisabled(option),
+    }
+  }
+
+  private getLabel = (option: Option) => {
+    return get(option, this.aliasProps.label);
+  }
+
+  private getValue = (option: Option) => {
+    return get(option, this.aliasProps.value);
+  }
+
+  private getDisabled = (option: Option) => {
+    return get(option, this.aliasProps.disabled);
+  }
+
+  private getValueIndex = (arr: SelectOptionValue[], option: Option) => {
+    if (isUndefined(option)) {
+      return -1;
+    }
+    if (!isObject(option.value)) {
+      return arr.indexOf(option.value);
+    }
+
+    return arr.findIndex((item) => {
+      return isEqual(get(item, this.valueKey), this.getValueKey(option));
+    });
+  }
+
+  private getLastNotDisabledIndex = (value: SelectOptionValue[]) => {
+    const cachedOptionElementMap = this.optionElements.reduce((map, item) => {
+      map.set(item.value, item);
+      return map;
+    }, new Map);
+    return findLastIndex(value, async (it) => {
+      const option = cachedOptionElementMap.get(it);
+      const groupDisabled = await option?.getGroupDisabled();
+      return !option?.disabled && !groupDisabled
+    });
+  }
+
+  private getOption = (value: SelectOptionValue) => {
+    let option;
+    const isObjectValue = isPlainObject(value);
+
+    for (let i = this.optionElements.length - 1; i >= 0; i--) {
+      const optionEl = this.optionElements[i];
+      const isEqualValue = isObjectValue
+        ? get(optionEl.value, this.valueKey) === get(value, this.valueKey)
+        : optionEl.value === value;
+
+      const currentLabel = optionEl.label ?? (isObject(optionEl.value) ? '' : optionEl.value)
+
+      if (isEqualValue) {
+        option = {
+          index: this.optionsArray.filter((opt) => !opt.created).indexOf(optionEl),
+          value,
+          currentLabel,
+          disabled: optionEl.disabled,
+        }
         break;
       }
     }
+    if (option) return option;
+    const label = isObjectValue ? (value as any).label : (value ?? '');
+    const newOption = {
+      index: -1,
+      value,
+      currentLabel: label,
+    }
+    return newOption;
   }
 
-  private handleClick = (event: MouseEvent) => {
-    event.stopPropagation();
-    this.toggleMenu();
-  }
-
-  private handleClear = (event: MouseEvent) => {
-    event.stopPropagation();
-    event.preventDefault();
-
-    let emptyValue: string | any[];
-    if (Array.isArray(this.value)) {
-      emptyValue = [];
+  private isEmptyValue = (value: unknown) => {
+    const emptyValues = this.emptyValues || DEFAULT_EMPTY_VALUES;
+    let result = true;
+    if (Array.isArray(value)) {
+      result = emptyValues.some((emptyVal) => {
+        return isEqual(value, emptyVal);
+      });
     } else {
-      emptyValue = this.valueOnClear;
+      result = emptyValues.includes(value);
     }
-
-    this.states = {
-      ...this.states,
-      selectedLabel: ''
-    };
-
-    this.expanded = false;
-    this.update(emptyValue);
-    this.clearEvent.emit();
-    this.clearAllNewOption();
-    this.zFocus();
+    return result;
   }
 
-  private handleResize = () => {
-    this.calculatePopperSize();
-  }
-
-  private handleFocus = () => {
-    nextFrame(() => {
-      this.isFocused = true;
-    });
-  }
-
-  private handleBlur = () => {
-    nextFrame(() => {
-      this.isFocused = false;
-    });
-  }
-
-  private handleWrapperClick = (event: MouseEvent) => {
-    if (this.selectDisabled ||
-      isFocusable(event.target as HTMLElement) ||
-      (this.wrapperRef.contains(document.activeElement) &&
-      this.wrapperRef !== document.activeElement)
-    ) {
-      return;
-    }
-
-    this.inputRef?.focus();
-  }
-
-  private handleWrapperFocus = (event: FocusEvent) => {
-    if (this.selectDisabled || this.isFocused) {
-      return;
-    }
-    this.isFocused = true;
-    this.focusEvent.emit(event);
-
-    if (this.automaticDropdown && !this.expanded) {
-      this.expanded = true;
-      this.states = {
-        ...this.states,
-        menuVisibleOnFocus: true
+  private findFocusableIndex = (
+    arr: any[],
+    start: number,
+    step: number,
+    len: number
+  ) => {
+    for (let i = start; i >= 0 && i < len; i += step) {
+      const obj = arr[i];
+      if (!obj?.isDisabled && obj?.visible) {
+        return i;
       }
     }
+    return null;
   }
 
-  private handleWrapperBlur = async (event: FocusEvent) => {
-    const cancelBlur = await this.tooltipRef.isFocusInsideContent(event) ||
-      await this.tagTooltipRef?.isFocusInsideContent(event);
-
-    if (this.selectDisabled ||
-      (event.relatedTarget && this.wrapperRef.contains(event.relatedTarget as Node)) ||
-      cancelBlur
-    ) {
-      return;
+  private getGapWidth = () => {
+    if (!this.selectionRef) {
+      return 0;
     }
+    const style = window.getComputedStyle(this.selectionRef);
+    return Number.parseFloat(style.gap || '6px');
+  }
 
-    this.isFocused = false;
-    this.blurEvent.emit(event);
-
-    this.expanded = false;
-    this.states = {
-      ...this.states,
-      menuVisibleOnFocus: false,
-    }
-
-    if (this.validateEvent) {
-      this.formItemContext?.value.validate?.('blur').catch((err) => debugWarn(err));
-    }
+  private resetSelectionWidth = () => {
+    this.selectionWidth = Number.parseFloat(window.getComputedStyle(this.selectionRef).width) || 0
   }
 
   private updateTooltip = () => {
@@ -1300,73 +1054,203 @@ export class ZaneSelect {
     this.tagTooltipRef?.updateTippyProps();
   }
 
-  private resetCollapseItemWidth = () => {
-    this.states = {
-      ...this.states,
-      collapseItemWidth: this.collapseItemRef?.getBoundingClientRect().width ?? 0,
+  private updateHoveringIndex = () => {
+    const length = this.selected.length;
+    if (length > 0) {
+      const lastOption = this.selected[length - 1];
+      this.hoveringIndex = this.optionsArray.findIndex(
+        (item) => this.getValueKey(lastOption) === this.getValueKey(item)
+      );
+    } else {
+      this.hoveringIndex = -1;
     }
   }
 
-  @Method()
-  async zFocus() {
-    this.inputRef?.focus();
+  private resetCollapseItemWidth = () => {
+    this.collapseItemWidth = this.collapseItemRef?.getBoundingClientRect().width ?? 0;
   }
 
-  @Method()
-  async zBlur() {
-    if (this.expanded) {
-      this.expanded = false;
-      nextFrame(() => {
-        this.inputRef?.blur();
+  private resetCalculatorWidth = () => {
+    this.calculatorWidth = this.calculatorRef?.getBoundingClientRect().width ?? 0;
+  }
+
+  private setSelected = () => {
+    if (this.multiple) {
+      this.selectedLabel = '';
+    } else {
+      const value = Array.isArray(this.value)
+        ? this.value[0]
+        : this.value;
+
+      const option = this.getOption(value);
+      this.selectedLabel = option.currentLabel;
+      this.selected = [option];
+    }
+    const result: SelectStates['selected'] = [];
+    if (!isUndefined(this.value)) {
+      castArray(this.value).forEach((val) => {
+        result.push(this.getOption(val));
       });
+    }
+    this.selected = result;
+  }
+
+  private deleteTag = (e: MouseEvent, tag: SelectOptionBasic) => {
+    const index = this.selected.indexOf(tag);
+    if (index > -1 && !this.selectDisabled) {
+      const value = castArray(this.value).slice();
+      value.splice(index, 1);
+      this.value = value;
+      this.emitChange(value);
+      this.removeTagEvent.emit(tag.value);
+    }
+    e.stopPropagation();
+    this.zFocus();
+  }
+
+  private emitChange = (val: SelectOptionValue | SelectOptionValue[]) => {
+    if (!isEqual(this.value, val)) {
+      this.changeEvent.emit(val);
+    }
+  }
+
+  private checkDefaultFirstOption = () => {
+    const optionsInDropdown = this.optionsArray.filter(
+      async (n) => {
+        const isVisible = await n.getVisible();
+        const isDisabled = await n.getDisabled();
+        const groupDisabled = await n.getGroupDisabled();
+        return isVisible && !isDisabled && !groupDisabled
+      }
+    );
+    const userCreatedOption = optionsInDropdown.find((n) => n.created);
+    const firstOriginOption = optionsInDropdown[0];
+    const valueList = this.optionsArray.map((item) => item.value);
+    this.hoveringIndex = this.getValueIndex(valueList, userCreatedOption || firstOriginOption);
+  }
+
+  private focusOption = (targetIndex: number, mode: 'up' | 'down') => {
+    const len = this.optionElements.length;
+    if (len === 0) {
       return;
     }
-    this.inputRef?.blur();
+
+    const start = clamp(targetIndex, 0, len - 1);
+    const options = this.optionsArray;
+    const direction = mode === 'up' ? -1 : 1;
+    const newIndex =
+      this.findFocusableIndex(options, start, direction, len) ??
+      this.findFocusableIndex(options, start - direction, -direction, len)
+
+    if (newIndex !== null) {
+      this.hoveringIndex = newIndex;
+
+      nextFrame(() => {
+        this.scrollToOption(this.hoverOption);
+      });
+    }
+  }
+
+  private toggleMenu = (e?: MouseEvent) => {
+    if (
+      this.selectDisabled ||
+      (
+        this.filterable && this.expanded && e && !this.suffixRef?.contains(e?.target as Node)
+      )
+    ) {
+      return;
+    }
+
+    if (isIOS) {
+      this.inputHovering = true;
+    }
+
+    if (this.menuVisibleOnFocus) {
+      this.menuVisibleOnFocus = false;
+    } else {
+      this.expanded = !this.expanded;
+    }
+  }
+
+  private scrollToOption = (option:
+    | Option
+    | Option[]
+    | SelectStates['selected']
+  ) => {
+    const targetOption = Array.isArray(option)
+      ? option[option.length - 1]
+      : option;
+
+    let target = null;
+
+    if (!isNil(targetOption?.value)) {
+      const options = this.optionsArray.filter(
+        (item) => item.value === targetOption.value
+      )
+      if (options.length > 0) {
+        target = options[0]
+      }
+    }
+
+    if (this.tooltipRef && target) {
+      const menu = this.tooltipRef.querySelector(`.${ns.be('dropdown', 'wrap')}`);
+      if (menu) {
+        scrollIntoView(menu as HTMLElement, target);
+      }
+    }
+
+    this.scrollbarRef?.handleScroll();
   }
 
   componentWillLoad() {
-    this.hasPrefixSlot = !!this.el.querySelector('[slot="prefix"]');
-
     this.formContext = getFormContext(this.el);
     this.formItemContext = getFormItemContext(this.el);
     this.configProviderContext = getConfigProviderContext(this.el);
 
+    this.hasPrefixSlot = !!this.el.querySelector('[slot="prefix"]');
+    this.hasHeaderSlot = !!this.el.querySelector('[slot="header"]');
+    this.hasFooterSlot = !!this.el.querySelector('[slot="footer"]');
+    this.hasLoadingSlot = !!this.el.querySelector('[slot="loading"]');
+
     this.contentId = `${ns.namespace}-id-${state.idInjection.prefix}-${state.idInjection.current++}`;
-
-    this.context = new ReactiveObject({
-      estimatedOptionHeight: this.estimatedOptionHeight,
-      multiple: this.multiple,
-      multipleLimit: this.multipleLimit,
-      expanded: this.expanded,
-      disabled: this.selectDisabled,
-      tooltipRef: this.tooltipRef,
-      contentId: this.contentId,
-      scrollbarAlwaysOn: this.scrollbarAlwaysOn,
-      itemHeight: this.itemHeight,
-      height: this.height,
-      value: this.value,
-      valueKey: this.valueKey,
-      getValue: this.getValue,
-      getLabel: this.getLabel,
-      getDisabled: this.getDisabled,
-      onSelect: this.onSelect,
-      onHover: this.onHover,
-      onKeyboardNavigate: this.onKeyboardNavigate,
-      onKeyboardSelect: this.onKeyboardSelect,
-    });
-
-    selectContexts.set(this.el, this.context);
 
     this.handleWatchId();
     this.handleUpdateAliasProps();
     this.handleUpdateDisabled();
     this.handleUpdateSize();
-    this.handleUpdateShowTagList();
-    this.handleWatchOptions();
+    this.handleUpdateOptionsArray();
     this.handleUpdateShouldShowPlaceholder();
 
-    this.initStates();
-    this.updateOptions();
+    this.context = new ReactiveObject({
+      multiple: this.multiple,
+      multipleLimit: this.multipleLimit,
+      fitInputWidth: this.fitInputWidth,
+      selectRef: this.selectRef,
+      options: this.options,
+      optionValues: this.optionValues,
+      optionsArray: this.optionsArray,
+      value: this.value,
+      valueKey: this.valueKey,
+      hoveringIndex: this.hoveringIndex,
+      remote: this.remote,
+      setSelected: this.setSelected,
+      handleOptionSelect: this.handleOptionSelect,
+    });
+
+    this.context.change$.subscribe(({ key, value }) => {
+      if (key === 'optionValues') {
+        this.optionValues = value;
+      }
+      if (key === 'hoveringIndex') {
+        this.hoveringIndex = value;
+      }
+      if (key === 'options') {
+        this.optionElements = value;
+      }
+    });
+    selectContexts.set(this.el, this.context);
+
+    this.setSelected();
 
     this.formContext?.change$.subscribe(({key}) => {
       if (key === 'disabled') {
@@ -1391,16 +1275,17 @@ export class ZaneSelect {
   }
 
   componentDidLoad() {
-    this.unCalculatorResizeObserver = useResizeObserver(this.calculatorRef, this.resetCalculatorWidth);
-    this.unSelectResizeObserver = useResizeObserver(this.selectRef, this.handleResize);
     this.unSelectionResizeObserver = useResizeObserver(this.selectionRef, this.resetSelectionWidth);
     this.unWrapperResizeObserver = useResizeObserver(this.wrapperRef, this.updateTooltip);
     this.unTagMenuResizeObserver = useResizeObserver(this.tagMenuRef, this.updateTagTooltip);
     this.unCollapseItemResizeObserver = useResizeObserver(this.collapseItemRef, this.resetCollapseItemWidth);
+    this.unCalculatorResizeObserver = useResizeObserver(this.calculatorRef, this.resetCalculatorWidth);
 
     this.wrapperRef.addEventListener('click', this.handleWrapperClick);
     this.wrapperRef.addEventListener('focus', this.handleWrapperFocus);
     this.wrapperRef.addEventListener('blur', this.handleWrapperBlur);
+
+    this.context.value.selectRef = this.selectRef;
   }
 
   componentWillRender() {
@@ -1409,7 +1294,10 @@ export class ZaneSelect {
   }
 
   disconnectedCallback() {
-    selectContexts.delete(this.el);
+    if (!hasRawParent(this.el)) {
+      selectContexts.delete(this.el);
+      this.context = null;
+    }
 
     this.unCalculatorResizeObserver?.();
     this.unSelectResizeObserver?.();
@@ -1425,22 +1313,20 @@ export class ZaneSelect {
     const gapWidth = this.getGapWidth();
     const inputSlotWidth = this.filterable ? gapWidth + MINIMUM_INPUT_WIDTH : 0;
     const maxWidth = this.collapseItemRef && this.maxCollapseTags === 1
-      ? this.states.selectionWidth - this.states.collapseItemWidth - gapWidth - inputSlotWidth
-      : this.states.selectionWidth - inputSlotWidth;
+      ? this.selectionWidth - this.collapseItemWidth - gapWidth - inputSlotWidth
+      : this.selectionWidth - inputSlotWidth;
+
+    const tagStyle = { maxWidth: `${maxWidth}px` };
+    const collapseTagStyle = { maxWidth: `${this.selectionWidth}px` };
+    const inputStyle = { minWidth: `${Math.max(this.calculatorWidth, MINIMUM_INPUT_WIDTH)}px` };
 
     const hasValue = this.multiple
         ? Array.isArray(this.value) && this.value.length > 0
         : !this.isEmptyValue(this.value);
 
-    const tagStyle = { maxWidth: `${maxWidth}px` };
-
-    const collapseTagStyle = { maxWidth: `${this.states.selectionWidth}px` };
-
-    const inputStyle = { minWidth: `${Math.max(this.calculatorWidth, MINIMUM_INPUT_WIDTH)}px` };
-
     const currentPlaceholder = this.multiple || !hasValue
       ? (this.placeholder ?? t('select.placeholder'))
-      : this.states.selectedLabel;
+      : this.selectedLabel;
 
     const iconComponent = this.remote && this.filterable && !this.remoteShowSuffix
       ? ''
@@ -1451,7 +1337,7 @@ export class ZaneSelect {
     const showClearBtn = this.clearable &&
       !this.selectDisabled &&
       hasValue &&
-      (this.isFocused || this.states.inputHovering);
+      (this.isFocused || this.inputHovering);
 
     const needStatusIcon = this.formContext?.value.statusIcon ?? false;
 
@@ -1465,109 +1351,132 @@ export class ZaneSelect {
     } else {
       if (
         this.filterable &&
-        this.states.inputValue &&
-        (this.options.length > 0 || this.states.createdOptions.length > 0) &&
-        this.filteredOptions.length === 0
+        this.inputValue &&
+        this.optionElements.length > 0 &&
+        this.filteredOptionsCount === 0
       ) {
         emptyText = this.noMatchText || t('select.noMatch');
       }
-      if (this.options.length === 0 && this.states.createdOptions.length === 0) {
+      if (this.optionElements.length === 0) {
         emptyText = this.noDataText || t('select.noData');
       }
     }
 
+    const hasExistingOption = this.optionsArray
+      .filter((opt) => !opt.created)
+      .some((opt) => {
+        const currentLabel = opt.label ?? isObject(opt.value) ? '' : opt.value;
+        return currentLabel === this.inputValue
+      });
+
+    const showNewOption = this.filterable
+      && this.allowCreate
+      && this.inputValue !== ''
+      && !hasExistingOption;
+
     return (
       <div
-        ref={(el) => this.selectRef = el}
-        class={classNames(ns.b(), ns.m(this.selectSize))}
-        onMouseEnter={() => this.states = {...this.states, inputHovering: true}}
-        onMouseLeave={() => this.states = {...this.states, inputHovering: false}}
+        ref={(el) => (this.selectRef = el)}
+        class={classNames(
+          ns.b(),
+          ns.m(this.selectSize)
+        )}
+        onMouseEnter={this.handleSelectMouseEnter}
+        onMouseLeave={this.handleSelectMouseLeave}
       >
         <zane-tippy
-          ref={(el) => this.tooltipRef = el}
+          ref={(el) => (this.tooltipRef = el)}
+          placement={this.placement}
           theme={this.popperTheme}
           popperOptions={this.popperOptions}
-          interactive={true}
+          appendTo={this.appendTo}
           arrow={this.showArrow}
-          hideOnClick={false}
-          placement={this.placement}
           offset={this.offset}
+          interactive={true}
+          trigger="manual"
           maxWidth={''}
-          boxClass={ns.b('tippy-box')}
-          contentClass={ns.b('tippy-content')}
-          trigger='manual'
+          boxClass={this.popperBoxClass || ns.b('tippy-box')}
+          contentClass={this.popperContentClass || ns.b('tippy-content')}
           onClickOutside={this.handleClickOutside}
           onZShow={this.handleMenuEnter}
-          onZHide={() => this.states = {...this.states, isBeforeHide: false}}
+          onZHide={() => this.isBeforeHide = false}
         >
           <div
-            ref={(el) => this.wrapperRef = el}
+            ref={(el) => (this.wrapperRef = el)}
             class={classNames(
               ns.e('wrapper'),
               ns.is('focused', this.isFocused),
-              ns.is('hovering', this.states.inputHovering),
+              ns.is('hovering', this.inputHovering),
               ns.is('filterable', this.filterable),
-              ns.is('disabled', this.selectDisabled)
+              ns.is('disabled', this.selectDisabled),
             )}
-            onClick={this.toggleMenu}
+            onClick={this.handleClick}
           >
             {
-              this.hasPrefixSlot && (
-                <div class={ns.e('prefix')}>
-                  <slot name="prefix"></slot>
-                </div>
-              )
+              this.hasPrefixSlot && (<div
+                class={ns.e('prefix')}
+              >
+                <slot name="prefix"></slot>
+              </div>)
             }
             <div
-              ref={(el) => this.selectionRef = el}
+              ref={(el) => (this.selectionRef = el)}
               class={classNames(
                 ns.e('selection'),
-                ns.is('near', this.multiple && !this.hasPrefixSlot && !!this.value?.length),
+                ns.is(
+                  'near',
+                  this.multiple && !this.hasPrefixSlot && !!this.selected.length
+                )
               )}
             >
               {
                 this.multiple && (this.tagRender ? this.handleTagRender() : (<Fragment>
                   {
-                    this.showTagList.map((tag, index) => (
-                      <div
-                        key={this.getValueKey(this.getValue(tag))}
-                        class={ns.e('selected-item')}
+                    this.showTagList.map((tag, index) => (<div
+                      key={this.getValueKey(tag)}
+                      class={ns.e('selected-item')}
+                    >
+                      <zane-tag
+                        closeable={!this.selectDisabled && !tag.isDisabled}
+                        size={this.collapseTagSize}
+                        type={this.tagType}
+                        effect={this.tagEffect}
+                        style={tagStyle}
+                        onZClose={(e) => this.deleteTag(e.detail, tag)}
                       >
-                        <zane-tag
-                          closeable={!this.selectDisabled && !this.getDisabled(tag)}
-                          size={this.collapseTagSize}
-                          type={this.tagType}
-                          effect={this.tagEffect}
-                          style={tagStyle}
-                          onZClose={(e) => this.deleteTag(e.detail, tag)}
+                        <span
+                          ref={(el) => this.tagLabelRefs[index] = el}
+                          class={ns.e('tags-text')}
                         >
-                          <span ref={(el) => this.tagLabelRefs[index] = el} class={ns.e('tags-text')}>
-                            {
-                              this.tagLabelRender
-                                ? this.handleTagLabelRender(
-                                  this.getLabel(tag),
-                                  this.getValue(tag),
-                                  index
-                                )
-                                : this.getLabel(tag)
-                            }
-                          </span>
-                        </zane-tag>
-                      </div>
-                    ))
+                          {
+                            this.tagLabelRender
+                              ? this.handleTagLabelRender(
+                                tag.currentLabel,
+                                tag.value,
+                                index
+                              )
+                              : tag.currentLabel
+                          }
+                        </span>
+                      </zane-tag>
+                    </div>))
                   }
                   {
-                    (this.collapseTags && this.value?.length > this.maxCollapseTags) && (
+                    (this.collapseTags && this.selected.length > this.maxCollapseTags) && (
                       <zane-tippy
-                        ref={(el) => this.tagTooltipRef = el}
+                        ref={(el) => (this.tagTooltipRef = el)}
                         disabled={this.dropdownMenuVisible || !this.collapseTagsTooltip}
-                        theme={this.popperTheme}
-                        placement="bottom"
+                        theme={this.tagTooltip?.theme ?? this.popperTheme}
+                        placement={this.tagTooltip?.placement ?? this.placement}
+                        appendTo={this.tagTooltip?.appendTo ?? this.appendTo}
+                        popperOptions={this.tagTooltip?.popperOptions ?? this.popperOptions}
+                        offset={this.tagTooltip?.offset}
+                        onZShow={this.tagTooltip?.onShow}
+                        onZHide={this.tagTooltip?.onHide}
                         interactive={true}
                         arrow={false}
-                        boxClass={ns.b('tippy-box')}
-                        contentClass={ns.b('tippy-content')}
-                        popperOptions={this.popperOptions}
+                        boxClass={this.popperBoxClass || ns.b('tippy-box')}
+                        contentClass={this.popperContentClass || ns.b('tippy-content')}
                       >
                         <div
                           ref={(el) => this.collapseItemRef = el}
@@ -1591,12 +1500,12 @@ export class ZaneSelect {
                             {
                               this.collapseTagList.map((tag, index) => (
                                 <div
-                                  key={this.getValueKey(this.getValue(tag))}
+                                  key={this.getValueKey(tag)}
                                   class={ns.e('selected-item')}
                                 >
                                   <zane-tag
                                     class="in-tooltip"
-                                    closeable={!this.selectDisabled && !this.getDisabled(tag)}
+                                    closeable={!this.selectDisabled && !tag.isDisabled}
                                     size={this.collapseTagSize}
                                     type={this.tagType}
                                     effect={this.tagEffect}
@@ -1609,11 +1518,11 @@ export class ZaneSelect {
                                       {
                                         this.tagLabelRender
                                           ? this.handleCollapseTagLabelRender(
-                                              this.getLabel(tag),
-                                              this.getValue(tag),
+                                              tag.currentLabel,
+                                              tag.value,
                                               index
                                             )
-                                          : this.getLabel(tag)
+                                          : tag.currentLabel
                                       }
                                     </span>
                                   </zane-tag>
@@ -1631,36 +1540,43 @@ export class ZaneSelect {
                 class={classNames(
                   ns.e('selected-item'),
                   ns.e('input-wrapper'),
-                  ns.is('hidden', !this.filterable || this.selectDisabled)
+                  ns.is(
+                    'hidden',
+                    !this.filterable ||
+                      this.selectDisabled ||
+                      (!this.inputValue && !this.isFocused)
+                  )
                 )}
               >
                 <input
                   id={this.inputId}
                   ref={(el) => this.inputRef = el}
-                  style={inputStyle}
-                  autocomplete={this.autocomplete}
-                  tabindex={this.zTabindex}
-                  ariaAutocomplete="none"
-                  ariaHaspopup="listbox"
-                  ariaExpanded={this.expanded}
-                  ariaLabel={this.ariaLabel}
-                  autoCapitalize='off'
-                  role="combobox"
-                  disabled={this.selectDisabled}
-                  readonly={!this.filterable}
                   type='text'
-                  spellcheck="false"
                   name={this.name}
                   class={classNames(
                     ns.e('input'),
-                    ns.is(this.selectSize)
+                    ns.is(this.selectSize),
                   )}
-                  value={this.states.inputValue}
-                  onInput={this.handleInput}
-                  onCompositionstart={this.handleCompositionStart}
-                  onCompositionend={this.handleCompositionEnd}
-                  onCompositionupdate={this.handleCompositionUpdate}
+                  disabled={this.selectDisabled}
+                  autoComplete={this.autocomplete}
+                  style={inputStyle}
+                  tabIndex={this.zTabIndex}
+                  value={this.inputValue}
+                  role='combobox'
+                  readOnly={!this.filterable}
+                  spellcheck={false}
+                  ariaActivedescendant={this.hoverOption?.id || ''}
+                  ariaControls={this.contentId}
+                  ariaExpanded={this.dropdownMenuVisible}
+                  ariaLabel={this.ariaLabel}
+                  ariaAutocomplete='none'
+                  ariaHaspopup='listbox'
                   onKeyDown={this.handleKeyDown}
+                  onCompositionstart={this.handleCompositionStart}
+                  onCompositionupdate={this.handleCompositionUpdate}
+                  onCompositionend={this.handleCompositionEnd}
+                  onInput={this.handleInput}
+                  onChange={(e) => e.stopPropagation()}
                   onClick={this.handleClick}
                   onFocus={this.handleFocus}
                   onBlur={this.handleBlur}
@@ -1672,23 +1588,21 @@ export class ZaneSelect {
                       ariaHidden="true"
                       class={ns.e('input-calculator')}
                     >
-                      {this.states.inputValue}
+                      {this.inputValue}
                     </span>
                   )
                 }
               </div>
               {
-                this.shouldShowPlaceholder && (
-                  <div
-                    class={classNames(
-                      ns.e('selected-item'),
-                      ns.e('placeholder'),
-                      ns.is('transparent', !hasValue || (this.expanded && !this.states.inputValue))
-                    )}
-                  >
-                    {currentPlaceholder}
-                  </div>
-                )
+                this.shouldShowPlaceholder && (<div
+                  class={classNames(
+                    ns.e('selected-item'),
+                    ns.e('placeholder'),
+                    ns.is('transparent', !hasValue || (this.expanded && !this.inputValue)),
+                  )}
+                >
+                  {currentPlaceholder}
+                </div>)
               }
             </div>
             <div
@@ -1696,16 +1610,13 @@ export class ZaneSelect {
               class={ns.e('suffix')}
             >
               {
-                iconComponent && (
+                (iconComponent && !showClearBtn) && (
                   <zane-icon
                     class={classNames(
                       ns.e('caret'),
                       nsInput.e('icon'),
                       iconReverse,
                     )}
-                    style={{
-                      display: showClearBtn ? 'none' : undefined
-                    }}
                     name={iconComponent}
                   ></zane-icon>
                 )
@@ -1715,10 +1626,10 @@ export class ZaneSelect {
                   <zane-icon
                     class={classNames(
                       ns.e('caret'),
-                      nsInput.e('icon'),
+                      ns.e('icon'),
                       ns.e('clear')
                     )}
-                    onClick={this.handleClear}
+                    onClick={this.handleClearClick}
                     name={this.clearIcon}
                   ></zane-icon>
                 )
@@ -1738,59 +1649,93 @@ export class ZaneSelect {
             </div>
           </div>
           <div slot='content'>
-            <zane-select-menu
-              id={this.contentId}
-              ref={(el) => this.menuRef = el}
-              data={this.filteredOptions}
-              width={this.popperSize - BORDER_HORIZONTAL_WIDTH}
-              hoveringIndex={this.states.hoveringIndex}
-              ariaLabel={this.ariaLabel}
-            >
+            <zane-select-dropdown ref={(el) => (this.menuRef = el)}>
               {
-                this.hasHeaderSlot && (
-                  <div
-                    slot='header'
-                    class={ns.be('dropdown', 'header')}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <slot name="header"></slot>
-                  </div>
-                )
+                this.hasHeaderSlot && (<div
+                  class={ns.be('dropdown', 'header')}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <slot name='header'></slot>
+                </div>)
+              }
+              <zane-scrollbar
+                id={this.contentId}
+                ref={(el) => (this.scrollbarRef = el)}
+                tag="ul"
+                role="listbox"
+                wrapClass={ns.be('dropdown', 'wrap')}
+                viewClass={ns.be('dropdown', 'list')}
+                class={ns.is('empty', this.filteredOptionsCount === 0)}
+                ariaLabel={this.ariaLabel}
+                ariaOrientation="vertical"
+                style={{
+                  display: (this.optionElements.length > 0 && !this.loading) ? undefined : 'none'
+                }}
+                onZScroll={this.popupScroll}
+              >
+                {
+                  showNewOption && (
+                    <zane-select-option
+                      value={this.inputValue}
+                      created={true}
+                    ></zane-select-option>
+                  )
+                }
+                <zane-select-options>
+                  <slot>
+                    {
+                      this.options?.map((option) => this.getOptions(option)?.length
+                        ? (
+                          <zane-select-option-group
+                            label={this.getLabel(option)}
+                            disabled={this.getDisabled(option)}
+                          >
+                            {
+                              this.getOptions(option).map((item) => (
+                                <zane-select-option
+                                  {
+                                    ...this.getOptionProps(item)
+                                  }
+                                ></zane-select-option>
+                              ))
+                            }
+                          </zane-select-option-group>)
+                        : (
+                          <zane-select-option
+                            { ...this.getOptionProps(option) }
+                          ></zane-select-option>
+                        )
+                      )
+                    }
+                  </slot>
+                </zane-select-options>
+              </zane-scrollbar>
+              {
+                (this.hasLoadingSlot && this.loading)
+                  ? (
+                      <div class={ns.be('dropdown', 'loading')}>
+                        <slot name='loading'></slot>
+                      </div>
+                    )
+                  : (this.loading || this.filteredOptionsCount === 0)
+                    ? (
+                      <div class={ns.be('dropdown', 'empty')}>
+                        <slot name='empty'>
+                          <span>{ emptyText }</span>
+                        </slot>
+                      </div>
+                    )
+                    : null
               }
               {
-                (this.hasLoadingSlot && this.loading) && (
-                  <div
-                    slot='loading'
-                    class={ns.be('dropdown', 'loading')}
-                  >
-                    <slot name='loading'></slot>
-                  </div>
-                )
+                this.hasFooterSlot && (<div
+                  class={ns.be('dropdown', 'footer')}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <slot name='footer'></slot>
+                </div>)
               }
-              {
-                ((!this.hasLoadingSlot && this.loading) || this.filteredOptions.length === 0) && (
-                  <div
-                    slot='empty'
-                    class={ns.be('dropdown', 'empty')}
-                  >
-                    <slot name='empty'>
-                      { emptyText }
-                    </slot>
-                  </div>
-                )
-              }
-              {
-                this.hasFooterSlot && (
-                  <div
-                    slot='footer'
-                    class={ns.be('dropdown', 'footer')}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <slot name="footer"></slot>
-                  </div>
-                )
-              }
-            </zane-select-menu>
+            </zane-select-dropdown>
           </div>
         </zane-tippy>
       </div>

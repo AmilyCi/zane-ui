@@ -1,10 +1,10 @@
 import type { ComponentSize } from '../../types';
 
-import { Component, Element, h, Host, Prop, Watch } from '@stencil/core';
+import { Component, Element, h, Host, Method, Prop, Watch } from '@stencil/core';
 
 import { useNamespace } from '../../hooks';
 import type { ButtonGroupContext, ButtonType } from './types';
-import { ReactiveObject } from '../../utils';
+import { hasRawParent, ReactiveObject } from '../../utils';
 import { buttonGroupContexts } from './constants';
 
 const ns = useNamespace('button');
@@ -33,7 +33,9 @@ export class ZaneButtonGroup {
   }
 
   disconnectedCallback() {
-    buttonGroupContexts.delete(this.el);
+    if (!hasRawParent(this.el)) {
+      buttonGroupContexts.delete(this.el);
+    }
   }
 
   @Watch('size')
@@ -49,6 +51,11 @@ export class ZaneButtonGroup {
   @Watch('disabled')
   handleWatchDisabled() {
     this.context.value.disabled = this.disabled;
+  }
+
+  @Method()
+  async getContext() {
+    return this.context;
   }
 
   render() {

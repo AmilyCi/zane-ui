@@ -24,7 +24,7 @@ import { getFormContext, getFormItemContext } from "./utils";
 import { getConfigProviderContext } from "../config-provider/utils";
 import { get, set, clone, castArray } from "lodash-es";
 import state from "../../global/store";
-import { isFunction, nextFrame, ReactiveObject } from "../../utils";
+import { hasRawParent, isFunction, nextFrame, ReactiveObject } from "../../utils";
 import type { RuleItem } from "async-validator";
 import AsyncValidator from "async-validator";
 import classNames from "classnames";
@@ -114,6 +114,11 @@ export class ZaneFormItem {
   private removeInputId = (id: string) => {
     this.inputIds = this.inputIds.filter((listId) => listId !== id);
   };
+
+  @Method()
+  async getContext() {
+    return this.context;
+  }
 
   @Method()
   async resetField() {
@@ -332,7 +337,10 @@ export class ZaneFormItem {
   }
 
   disconnectedCallback() {
-    formItemContexts.delete(this.el);
+    if (!hasRawParent(this.el)) {
+      formItemContexts.delete(this.el);
+      this.context = null;
+    }
   }
 
   @Watch("error", { immediate: true })

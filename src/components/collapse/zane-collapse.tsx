@@ -26,9 +26,11 @@ import {
   isPromise,
   throwError,
   ReactiveObject,
+  hasRawParent,
 } from '../../utils';
 import type { Awaitable } from '../../types';
 import { castArray} from 'lodash-es';
+import classNames from 'classnames';
 
 const ns = useNamespace('collapse');
 
@@ -59,8 +61,19 @@ export class ZaneCollapse {
 
   private context: ReactiveObject<CollapseContext>;
 
-  get rootKls() {
-    return [ns.b(), ns.b(`icon-position-${this.expandIconPosition}`)].join(' ');
+  @Method()
+  async getContext() {
+    return this.context;
+  }
+
+  @Method()
+  async setActiveNames(_activeNames: CollapseActiveName[]) {
+    this.activeNames = _activeNames;
+    const value = this.accordion ? this.activeNames[0] : this.activeNames;
+    this.zaneUpdate.emit(value);
+    this.zaneChange.emit(value);
+
+    this.context.value.activeNames = this.activeNames;
   }
 
   componentWillLoad() {
@@ -75,7 +88,10 @@ export class ZaneCollapse {
   }
 
   disconnectedCallback() {
-    collapseContexts.delete(this.el);
+    if (!hasRawParent(this.el)) {
+      collapseContexts.delete(this.el);
+      this.context = null;
+    }
   }
 
   handleChange = (name: CollapseActiveName) => {
@@ -135,19 +151,9 @@ export class ZaneCollapse {
 
   render() {
     return (
-      <Host class={this.rootKls}>
+      <Host class={classNames(ns.b(), ns.b(`icon-position-${this.expandIconPosition}`))}>
         <slot></slot>
       </Host>
     );
-  }
-
-  @Method()
-  async setActiveNames(_activeNames: CollapseActiveName[]) {
-    this.activeNames = _activeNames;
-    const value = this.accordion ? this.activeNames[0] : this.activeNames;
-    this.zaneUpdate.emit(value);
-    this.zaneChange.emit(value);
-
-    this.context.value.activeNames = this.activeNames;
   }
 }

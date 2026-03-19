@@ -6,6 +6,7 @@ import {
   Event,
   h,
   Host,
+  Method,
   Prop,
   State,
   Watch,
@@ -13,7 +14,7 @@ import {
 
 import { splitterRootContexts } from "./constants";
 import { useNamespace } from "../../hooks";
-import { ReactiveObject } from "../../utils";
+import { hasRawParent, ReactiveObject } from "../../utils";
 import type { PanelItemState, SplitterRootContext } from "./types";
 import { getPct, getPx, isPct, isPx } from "./utils";
 import { nextTick } from "@zanejs/utils";
@@ -79,6 +80,11 @@ export class ZaneSplitter {
   private cacheCollapsedSize: number[] = [];
 
   private context: ReactiveObject<SplitterRootContext>;
+
+  @Method()
+  async getContext() {
+    return this.context;
+  }
 
   private updatePanelSizes: () => void = () => {};
 
@@ -274,7 +280,10 @@ export class ZaneSplitter {
       this.resizeObserver = null;
     }
 
-    splitterRootContexts.delete(this.el);
+    if (!hasRawParent(this.el)) {
+      splitterRootContexts.delete(this.el);
+      this.context = null;
+    }
   }
 
   @Watch('panels')

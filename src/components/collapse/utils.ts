@@ -3,14 +3,14 @@ import type { CollapseContext } from "./types";
 import { collapseContexts } from "./constants";
 
 export const getCollapseContext = (el: HTMLElement): ReactiveObject<CollapseContext> | null => {
-  let parent = el.parentElement;
+  let parent: any = el.parentElement;
   let context = null;
   while (parent) {
     if (parent.tagName === 'ZANE-COLLAPSE') {
       context = collapseContexts.get(parent);
       break;
     }
-    parent = parent.parentElement;
+    parent = parent.rawParent ?? parent.parentElement;
   }
   return context;
 }

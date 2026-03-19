@@ -22,7 +22,7 @@ import {
 
 import { useNamespace } from "../../hooks";
 import { formContexts } from "./constants";
-import { debugWarn, isFunction, ReactiveObject } from "../../utils";
+import { debugWarn, hasRawParent, isFunction, ReactiveObject } from "../../utils";
 import { filterFields } from "./utils";
 import type { ValidateFieldsError } from "async-validator";
 
@@ -170,7 +170,10 @@ export class ZaneForm {
   }
 
   disconnectedCallback() {
-    formContexts.delete(this.el);
+    if (!hasRawParent(this.el)) {
+      formContexts.delete(this.el);
+      this.context = null;
+    }
   }
 
   @Watch("rules")
@@ -178,6 +181,11 @@ export class ZaneForm {
     if (this.validateOnRuleChange) {
       this.validate();
     }
+  }
+
+  @Method()
+  async getContext() {
+    return this.context;
   }
 
   @Method()

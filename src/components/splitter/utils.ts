@@ -56,14 +56,14 @@ export function getPct(str: string) {
 }
 
 export const getSplitterContext = (el: HTMLElement): ReactiveObject<SplitterRootContext> | null => {
-  let parent = el.parentElement;
+  let parent: any = el.parentElement;
   let context = null;
   while (parent) {
     if (parent.tagName === "ZANE-SPLITTER") {
       context = splitterRootContexts.get(parent);
       break;
     }
-    parent = parent.parentElement;
+    parent = parent.rawParent ?? parent.parentElement;
   }
   return context;
 };

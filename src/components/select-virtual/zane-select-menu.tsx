@@ -258,6 +258,9 @@ export class ZaneSelectMenu {
           ns.b('dropdown'),
           ns.is('multiple', this.multiple)
         )}
+        style={{
+          width: `${this.width}px`
+        }}
       >
         <slot name='header'></slot>
         {

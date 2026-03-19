@@ -1,9 +1,9 @@
-import { Component, Element, h, Host, Prop } from '@stencil/core';
+import { Component, Element, h, Host, Method, Prop } from '@stencil/core';
 
 import { rowContexts } from './constants';
 import { useNamespace } from '../../hooks';
 import type { RowAlignType, RowContext, RowJustifyType } from './types';
-import { ReactiveObject } from '../../utils';
+import { hasRawParent, ReactiveObject } from '../../utils';
 import classNames from 'classnames';
 
 const ns = useNamespace('row');
@@ -26,6 +26,11 @@ export class ZaneRow {
 
   private context: ReactiveObject<RowContext>;
 
+  @Method()
+  async getContext() {
+    return this.context;
+  }
+
   componentWillLoad() {
     this.context = new ReactiveObject<RowContext>({
       gutter: this.gutter
@@ -34,7 +39,10 @@ export class ZaneRow {
   }
 
   disconnectedCallback() {
-    rowContexts.delete(this.el);
+    if (!hasRawParent(this.el)) {
+      rowContexts.delete(this.el);
+      this.context = null;
+    }
   }
 
   render() {

@@ -1,6 +1,6 @@
-import { Component, Host, Prop, h, Element, Watch } from '@stencil/core';
+import { Component, Host, Prop, h, Element, Watch, Method } from '@stencil/core';
 import type { ThemeTokens, ChatContext } from './types';
-import { ReactiveObject } from '../../utils';
+import { hasRawParent, ReactiveObject } from '../../utils';
 import { chatContexts, defaultTheme } from './constants';
 import { useNamespace } from '../../hooks';
 import merge from 'lodash-es/merge';
@@ -25,6 +25,11 @@ export class ZaneChat {
     this.updateTheme();
   }
 
+  @Method()
+  async getContext() {
+    return this.context;
+  }
+
   componentWillLoad() {
     this.context = new ReactiveObject<ChatContext>({
       theme: merge({}, defaultTheme, this.theme),
@@ -36,8 +41,10 @@ export class ZaneChat {
   }
 
   disconnectedCallback() {
-    chatContexts.delete(this.el);
-    this.context = undefined;
+    if (!hasRawParent(this.el)) {
+      chatContexts.delete(this.el);
+      this.context = undefined;
+    }
   }
 
   updateTheme() {

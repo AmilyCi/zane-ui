@@ -20,3 +20,4 @@ export * from './isSelectable';
 export * from './isType';
 export * from './obtainAllFocusableElements';
 export * from './scrollIntoView';
+export * from './hasRawParent'

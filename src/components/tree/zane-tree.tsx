@@ -12,7 +12,7 @@ import type {
   TreeOptionProps
 } from './types';
 import { useNamespace } from '../../hooks';
-import { isFunction, isObject, nextFrame } from '../../utils';
+import { hasRawParent, isFunction, isObject, nextFrame } from '../../utils';
 import { treeContexts } from './constants';
 import classNames from 'classnames';
 import type { CheckboxValueType } from '../checkbox/types';
@@ -33,7 +33,7 @@ export class ZaneTree {
 
   @Prop() emptyText: string;
 
-  @Prop() height: number;
+  @Prop() height: number = 200;
 
   @Prop() props: TreeOptionProps = {
     children: 'children',
@@ -74,6 +74,13 @@ export class ZaneTree {
   @Prop() perfMode: boolean = true;
 
   @Prop() scrollbarAlwaysOn: boolean = false;
+
+  @Prop() itemRender: (data: {
+    data: any[];
+    index: number;
+    isScrolling: boolean;
+    style: Record<string, any>;
+  }) => any
 
   @Event({ eventName: 'zNodeClick', bubbles: false })
   nodeClickEvent: EventEmitter<{
@@ -210,6 +217,11 @@ export class ZaneTree {
   @Watch('flattenTree')
   watchFlattenTreeHandler() {
     this.isNotEmpty = this.flattenTree.length > 0;
+  }
+
+  @Method()
+  async getContext() {
+    return this.context;
   }
 
   @Method()
@@ -404,7 +416,10 @@ export class ZaneTree {
   }
 
   disconnectedCallback() {
-    treeContexts.delete(this.el);
+    if (!hasRawParent(this.el)) {
+      treeContexts.delete(this.el);
+      this.context = null;
+    }
   }
 
   private updateCheckedKeys = () => {
@@ -747,12 +762,16 @@ export class ZaneTree {
     });
   }
 
-  private itemRender = ({ data, index, style }: {
+  private handleItemRender = (params: {
     data: any[];
     index: number;
     isScrolling: boolean;
     style: Record<string, any>;
   }) => {
+    if (this.itemRender) {
+      return this.itemRender(params);
+    }
+    const { data, index, style } = params;
     const treeNode = data[index];
     return (<zane-tree-node
       key={treeNode.key}
@@ -797,7 +816,7 @@ export class ZaneTree {
                 itemSize={this.itemSize}
                 perfMode={this.perfMode}
                 scrollbarAlwaysOn={this.scrollbarAlwaysOn}
-                itemRender={this.itemRender}
+                itemRender={this.handleItemRender}
               ></zane-virtual-list>
             )
             : (

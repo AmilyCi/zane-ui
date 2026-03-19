@@ -27,7 +27,7 @@ import type {
 import { ReactiveObject } from "../../utils/reactive/ReactiveObject";
 import classNames from "classnames";
 import Store from "./store";
-import { focusNode, getEventCode, getSibling, isClient, isEmpty, nextFrame, scrollIntoView } from "../../utils";
+import { focusNode, getEventCode, getSibling, hasRawParent, isClient, isEmpty, nextFrame, scrollIntoView } from "../../utils";
 import { isEqual, uniq, flattenDeep, castArray, cloneDeep } from "lodash-es";
 import { checkNode, getMenuIndex, sortByOriginalOrder } from "./utils";
 import { EVENT_CODE } from "../../constants";
@@ -220,6 +220,11 @@ export class ZaneCascaderPanel {
     this.context.value.expandingNode = this.expandingNode;
   }
 
+  @Method()
+  async getContext() {
+    return this.context;
+  }
+
   private initStore = () => {
     const cfg = this.config
 
@@ -342,7 +347,9 @@ export class ZaneCascaderPanel {
   }
 
   disconnectedCallback() {
-    // cascaderPanelContexts.delete(this.el);
+    if (!hasRawParent(this.el)) {
+      cascaderPanelContexts.delete(this.el);
+    }
   }
 
   private handleKeyDown = (e: KeyboardEvent) => {

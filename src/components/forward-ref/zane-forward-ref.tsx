@@ -1,9 +1,9 @@
 import type { ForwardRefContext, ForwardRefSetter } from './types';
 
-import { Component, Element, h, Prop } from '@stencil/core';
+import { Component, Element, h, Method, Prop } from '@stencil/core';
 
 import { forwardRefContexts } from './constants';
-import { ReactiveObject } from '../../utils';
+import { hasRawParent, ReactiveObject } from '../../utils';
 
 @Component({
   shadow: false,
@@ -17,6 +17,11 @@ export class ZaneForwardRef {
 
   private context: ReactiveObject<ForwardRefContext>
 
+  @Method()
+  async getContext() {
+    return this.context;
+  }
+
   componentWillLoad() {
     this.context = new ReactiveObject<ForwardRefContext>({
       setForwardRef: this.setForwardRef
@@ -25,7 +30,10 @@ export class ZaneForwardRef {
   }
 
   disconnectedCallback() {
-    forwardRefContexts.delete(this.el);
+    if (!hasRawParent(this.el)) {
+      forwardRefContexts.delete(this.el);
+      this.context = null;
+    }
   }
 
   render() {

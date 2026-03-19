@@ -265,6 +265,7 @@ export class ZaneTippy {
       if (!this.contentEl) {
         this.contentEl = div();
       }
+      (this.contentEl as any).rawParent = contentSlot.parentElement;
       // 更新 class
       this.contentEl.className = this.contentClass || '';
       // 清空旧内容

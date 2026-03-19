@@ -5,14 +5,14 @@ import type { CascaderNode } from "./node";
 import type { CascaderPanelContext } from "./types";
 
 export const getCascaderPanelContext = (el: HTMLElement): ReactiveObject<CascaderPanelContext> | null => {
-  let parent = el.parentElement;
+  let parent: any = el.parentElement;
   let context = null;
   while (parent) {
     if (parent.tagName === "ZANE-CASCADER-PANEL") {
       context = cascaderPanelContexts.get(parent);
       break;
     }
-    parent = parent.parentElement;
+    parent = parent.rawParent ?? parent.parentElement;
   }
   return context;
 }

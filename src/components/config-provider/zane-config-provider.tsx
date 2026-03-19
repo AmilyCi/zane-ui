@@ -1,8 +1,9 @@
-import { Component, Element, h, Host, Prop, Watch } from '@stencil/core';
+import { Component, Element, h, Host, Method, Prop, Watch } from '@stencil/core';
 import { configProviderContexts } from './constants';
 import { ReactiveObject } from '../../utils/reactive/ReactiveObject';
 import type { ButtonConfig, CardConfig, ConfigProviderContext } from './types';
 import type { ComponentSize } from '../../types';
+import { hasRawParent } from '../../utils';
 import state from '../../global/store';
 
 @Component({
@@ -50,6 +51,11 @@ export class ZaneConfigProvider {
     this.context.value.valueOnClear = this.valueOnClear;
   }
 
+  @Method()
+  async getContext() {
+    return this.context;
+  }
+
   componentWillLoad() {
     this.context = new ReactiveObject<ConfigProviderContext>({
       button: this.button,
@@ -64,7 +70,10 @@ export class ZaneConfigProvider {
   }
 
   disconnectedCallback() {
-    configProviderContexts.delete(this.el);
+    if (!hasRawParent(this.el)) {
+      configProviderContexts.delete(this.el);
+      this.context = null;
+    }
   }
 
   render() {

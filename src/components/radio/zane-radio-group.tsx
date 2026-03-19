@@ -3,6 +3,7 @@ import {
   Element,
   Event,
   h,
+  Method,
   Prop,
   Watch,
   type EventEmitter,
@@ -10,7 +11,7 @@ import {
 import type { ComponentSize } from "../../types";
 import type { RadioGroupContext, RadioOption, RadioOptionProp } from "./types";
 import type { FormItemContext } from "../form/types";
-import { debugWarn, nextFrame, ReactiveObject } from "../../utils";
+import { debugWarn, hasRawParent, nextFrame, ReactiveObject } from "../../utils";
 import { radioDefaultProps, radioGroupContexts } from "./constants";
 import { useNamespace } from "../../hooks";
 import { getFormItemContext } from "../form/utils";
@@ -80,6 +81,11 @@ export class ZaneRadioGroup {
     this.context.value.value = newVal;
   }
 
+  @Method()
+  async getContext() {
+    return this.context;
+  }
+
   private isLabeledByFormItem = () => {
     return !!(
       !(this.label || this.ariaLabel) &&
@@ -120,6 +126,13 @@ export class ZaneRadioGroup {
     const firstLabel = radios[0];
     if (!Array.from(radios).some((radio) => radio.checked) && firstLabel) {
       firstLabel.tabIndex = 0;
+    }
+  }
+
+  disconnectedCallback() {
+    if (!hasRawParent(this.el)) {
+      radioGroupContexts.delete(this.el);
+      this.context = null;
     }
   }
 
