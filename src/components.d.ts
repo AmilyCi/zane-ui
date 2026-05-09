@@ -211,6 +211,48 @@ export namespace Components {
         "src": string;
         "srcSet": string;
     }
+    interface ZaneBadge {
+        /**
+          * @default ''
+         */
+        "badgeClass": string;
+        /**
+          * @default {}
+         */
+        "badgeStyle": Record<string, string>;
+        /**
+          * @default ''
+         */
+        "color": string;
+        /**
+          * @default false
+         */
+        "hidden": boolean;
+        /**
+          * @default false
+         */
+        "isDot": boolean;
+        /**
+          * @default 99
+         */
+        "max": number;
+        /**
+          * @default [0, 0]
+         */
+        "offset": number[] | string;
+        /**
+          * @default true
+         */
+        "showZero": boolean;
+        /**
+          * @default 'danger'
+         */
+        "type": 'primary' | 'success' | 'warning' | 'info' | 'danger';
+        /**
+          * @default ''
+         */
+        "value": string | number;
+    }
     interface ZaneBar {
         "always": boolean;
         "handleScroll": (wrap: HTMLDivElement) => Promise<void>;
@@ -2072,7 +2114,7 @@ export namespace Components {
         /**
           * @default tippy.defaultProps.followCursor
          */
-        "followCursor": boolean | "initial" | "horizontal" | "vertical";
+        "followCursor": boolean | "horizontal" | "vertical" | "initial";
         /**
           * @default tippy.defaultProps.getReferenceClientRect
          */
@@ -2123,7 +2165,7 @@ export namespace Components {
         /**
           * @default tippy.defaultProps.placement
          */
-        "placement": BasePlacement | VariationPlacement | AutoPlacement;
+        "placement": AutoPlacement | BasePlacement | VariationPlacement;
         /**
           * @default tippy.defaultProps.plugins
          */
@@ -2979,6 +3021,12 @@ declare global {
     var HTMLZaneAvatarElement: {
         prototype: HTMLZaneAvatarElement;
         new (): HTMLZaneAvatarElement;
+    };
+    interface HTMLZaneBadgeElement extends Components.ZaneBadge, HTMLStencilElement {
+    }
+    var HTMLZaneBadgeElement: {
+        prototype: HTMLZaneBadgeElement;
+        new (): HTMLZaneBadgeElement;
     };
     interface HTMLZaneBarElement extends Components.ZaneBar, HTMLStencilElement {
     }
@@ -4159,6 +4207,7 @@ declare global {
         "zane-aside": HTMLZaneAsideElement;
         "zane-autocomplete": HTMLZaneAutocompleteElement;
         "zane-avatar": HTMLZaneAvatarElement;
+        "zane-badge": HTMLZaneBadgeElement;
         "zane-bar": HTMLZaneBarElement;
         "zane-button": HTMLZaneButtonElement;
         "zane-button-group": HTMLZaneButtonGroupElement;
@@ -4381,6 +4430,48 @@ declare namespace LocalJSX {
          */
         "src"?: string;
         "srcSet"?: string;
+    }
+    interface ZaneBadge {
+        /**
+          * @default ''
+         */
+        "badgeClass"?: string;
+        /**
+          * @default {}
+         */
+        "badgeStyle"?: Record<string, string>;
+        /**
+          * @default ''
+         */
+        "color"?: string;
+        /**
+          * @default false
+         */
+        "hidden"?: boolean;
+        /**
+          * @default false
+         */
+        "isDot"?: boolean;
+        /**
+          * @default 99
+         */
+        "max"?: number;
+        /**
+          * @default [0, 0]
+         */
+        "offset"?: number[] | string;
+        /**
+          * @default true
+         */
+        "showZero"?: boolean;
+        /**
+          * @default 'danger'
+         */
+        "type"?: 'primary' | 'success' | 'warning' | 'info' | 'danger';
+        /**
+          * @default ''
+         */
+        "value"?: string | number;
     }
     interface ZaneBar {
         "always"?: boolean;
@@ -6302,7 +6393,7 @@ declare namespace LocalJSX {
         /**
           * @default tippy.defaultProps.followCursor
          */
-        "followCursor"?: boolean | "initial" | "horizontal" | "vertical";
+        "followCursor"?: boolean | "horizontal" | "vertical" | "initial";
         /**
           * @default tippy.defaultProps.getReferenceClientRect
          */
@@ -6369,7 +6460,7 @@ declare namespace LocalJSX {
         /**
           * @default tippy.defaultProps.placement
          */
-        "placement"?: BasePlacement | VariationPlacement | AutoPlacement;
+        "placement"?: AutoPlacement | BasePlacement | VariationPlacement;
         /**
           * @default tippy.defaultProps.plugins
          */
@@ -7105,6 +7196,7 @@ declare namespace LocalJSX {
         "zane-aside": ZaneAside;
         "zane-autocomplete": ZaneAutocomplete;
         "zane-avatar": ZaneAvatar;
+        "zane-badge": ZaneBadge;
         "zane-bar": ZaneBar;
         "zane-button": ZaneButton;
         "zane-button-group": ZaneButtonGroup;
@@ -7192,6 +7284,7 @@ declare module "@stencil/core" {
             "zane-aside": LocalJSX.ZaneAside & JSXBase.HTMLAttributes<HTMLZaneAsideElement>;
             "zane-autocomplete": LocalJSX.ZaneAutocomplete & JSXBase.HTMLAttributes<HTMLZaneAutocompleteElement>;
             "zane-avatar": LocalJSX.ZaneAvatar & JSXBase.HTMLAttributes<HTMLZaneAvatarElement>;
+            "zane-badge": LocalJSX.ZaneBadge & JSXBase.HTMLAttributes<HTMLZaneBadgeElement>;
             "zane-bar": LocalJSX.ZaneBar & JSXBase.HTMLAttributes<HTMLZaneBarElement>;
             "zane-button": LocalJSX.ZaneButton & JSXBase.HTMLAttributes<HTMLZaneButtonElement>;
             "zane-button-group": LocalJSX.ZaneButtonGroup & JSXBase.HTMLAttributes<HTMLZaneButtonGroupElement>;
