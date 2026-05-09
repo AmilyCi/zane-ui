@@ -50,6 +50,22 @@
     </style>
   </head>
   <body>
+    <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light); display:flex;gap:40px">
+      <zane-badge is-dot type="primary">query</zane-badge>
+      <zane-badge type="primary" value="200" max="99">
+        <zane-button type="success" >测试</zane-button>
+      </zane-badge>
+      <zane-badge value="hot" max="10" type="success">
+        <zane-button>messages</zane-button>
+        <div slot="content" class="custom-content">
+          <zane-icon name="star-line"></zane-icon>
+          <span data-badge-value></span>
+        </div>
+      </zane-badge>
+      <zane-badge value="0" show-zero="false">
+        <zane-button>hide zero</zane-button>
+      </zane-badge>
+    </div>
     <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light); width: 400px">
       <zane-space fill fill-ratio="70" direction="vertical" style="width: 100%">
         <button>按钮1</button>
