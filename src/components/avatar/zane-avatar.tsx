@@ -47,34 +47,27 @@ export class ZaneAvatar {
   @Prop({ attribute: 'srcSet', reflect: true })
   srcSet: string | undefined;
 
-  get avatarClass(): string {
-    const classList = [ns.b()];
-    if (isString(this.size)) classList.push(ns.m(this.size as string));
-    if (this.icon) classList.push(ns.m('icon'));
-    if (this.shape) classList.push(ns.m(this.shape));
-    return classList.join(' ');
-  }
-
-  get fitStyle() {
-    return { objectFit: this.fit };
-  }
-
-  get sizeStyle() {
-    return isNumber(this.size)
-      ? ns.cssVarBlock({
-          size: addUnit(this.size) || '',
-        })
-      : undefined;
-  }
-
   handleError(e: Event) {
     this.hasLoadError = true;
     this.imgError?.emit(e);
   }
 
   render() {
+    const classList = [ns.b()];
+    if (isString(this.size)) classList.push(ns.m(this.size as string));
+    if (this.icon) classList.push(ns.m('icon'));
+    if (this.shape) classList.push(ns.m(this.shape));
+
+    const avatarClass = classList.join(' ');
+
+    const sizeStyle = isNumber(this.size)
+      ? ns.cssVarBlock({
+          size: addUnit(this.size) || '',
+        })
+      : undefined;
+
     return (
-      <Host class={this.avatarClass} style={this.sizeStyle}>
+      <Host class={avatarClass} style={sizeStyle}>
         {this.renderContent()}
       </Host>
     );
@@ -87,13 +80,14 @@ export class ZaneAvatar {
 
   private renderContent() {
     if ((this.src || this.srcSet) && !this.hasLoadError) {
+      const fitStyle = { objectFit: this.fit };
       return (
         <img
           alt={this.alt}
           onError={(e) => this.handleError(e)}
           src={this.src}
           srcset={this.srcSet}
-          style={this.fitStyle}
+          style={fitStyle}
         />
       );
     }

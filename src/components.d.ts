@@ -8,6 +8,7 @@ import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { AutocompleteData, AutocompleteFetchFunc, AutocompleteFetchSuggestions } from "./components/autocomplete/types";
 import { AnyNormalFunction, Arrayable, Awaitable, ComponentSize } from "./types";
 import { Element, Event, VNode } from "@stencil/core";
+import { Instance, Props } from "tippy.js";
 import { ButtonGroupContext, ButtonNativeType, ButtonType } from "./components/button/types";
 import { ReactiveObject } from "./utils";
 import { CascaderNode } from "./components/cascader/node";
@@ -23,7 +24,6 @@ import { ValidateFieldsError } from "async-validator";
 import { ForwardRefContext, ForwardRefSetter } from "./components/forward-ref/types";
 import { InputAutoSize, InputMode, InputModelModifiers, InputType } from "./components/input/types";
 import { MentionOption, MentionOptionProps } from "./components/mention/types";
-import { Instance, Props } from "tippy.js";
 import { RadioGroupContext, RadioOption, RadioOptionProp } from "./components/radio/types";
 import { RowAlignType, RowContext, RowJustifyType } from "./components/row/types";
 import { ScrollbarDirection } from "./components/scrollbar/types";
@@ -39,6 +39,7 @@ import { Alignment, GridItemKeyGetter, Indices, ItemSize } from "./components/vi
 export { AutocompleteData, AutocompleteFetchFunc, AutocompleteFetchSuggestions } from "./components/autocomplete/types";
 export { AnyNormalFunction, Arrayable, Awaitable, ComponentSize } from "./types";
 export { Element, Event, VNode } from "@stencil/core";
+export { Instance, Props } from "tippy.js";
 export { ButtonGroupContext, ButtonNativeType, ButtonType } from "./components/button/types";
 export { ReactiveObject } from "./utils";
 export { CascaderNode } from "./components/cascader/node";
@@ -54,7 +55,6 @@ export { ValidateFieldsError } from "async-validator";
 export { ForwardRefContext, ForwardRefSetter } from "./components/forward-ref/types";
 export { InputAutoSize, InputMode, InputModelModifiers, InputType } from "./components/input/types";
 export { MentionOption, MentionOptionProps } from "./components/mention/types";
-export { Instance, Props } from "tippy.js";
 export { RadioGroupContext, RadioOption, RadioOptionProp } from "./components/radio/types";
 export { RowAlignType, RowContext, RowJustifyType } from "./components/row/types";
 export { ScrollbarDirection } from "./components/scrollbar/types";
@@ -210,6 +210,46 @@ export namespace Components {
          */
         "src": string;
         "srcSet": string | undefined;
+    }
+    interface ZaneAvatarGroup {
+        "avatars"?: string[];
+        /**
+          * @default false
+         */
+        "collapseAvatars": boolean;
+        /**
+          * @default false
+         */
+        "collapseAvatarsTooltip": boolean;
+        "collapseClass": string | undefined;
+        "collapseStyle": Record<string, any> | undefined;
+        /**
+          * @default 'light'
+         */
+        "effect": 'dark' | 'light';
+        /**
+          * @default 1
+         */
+        "maxCollapseAvatars": number;
+        /**
+          * @default 'bottom-start'
+         */
+        "placement": Props['placement'];
+        "popperBoxClass": string | undefined;
+        "popperContentClass": string | undefined;
+        /**
+          * @default {}
+         */
+        "popperOptions": Props['popperOptions'];
+        "popperTheme": string | undefined;
+        /**
+          * @default 'circle'
+         */
+        "shape": 'circle' | 'square';
+        /**
+          * @default 'default'
+         */
+        "size": 'default' | 'large' | 'small' | number;
     }
     interface ZaneBadge {
         /**
@@ -587,41 +627,41 @@ export namespace Components {
         "content": string;
     }
     interface ZaneCheckbox {
-        "ariaControls": string;
-        "ariaLabel": string;
-        "border": boolean;
-        "checked": boolean;
+        "ariaControls"?: string;
+        "ariaLabel"?: string;
+        "border"?: boolean;
+        "checked"?: boolean;
         /**
           * @default undefined
          */
-        "disabled": boolean;
+        "disabled"?: boolean;
         /**
           * @default undefined
          */
-        "falseLabel": string | number;
+        "falseLabel"?: string | number;
         /**
           * @default undefined
          */
-        "falseValue": string | number;
-        "indeterminate": boolean;
+        "falseValue"?: string | number;
+        "indeterminate"?: boolean;
         "label": any;
-        "name": string;
-        "size": ComponentSize;
+        "name"?: string;
+        "size"?: ComponentSize;
         /**
           * @default undefined
          */
-        "trueLabel": string | number;
+        "trueLabel"?: string | number;
         /**
           * @default undefined
          */
-        "trueValue": string | number;
+        "trueValue"?: string | number;
         /**
           * @default true
          */
         "validateEvent": boolean;
-        "value": number | string | boolean;
-        "zId": string;
-        "zTabIndex": number;
+        "value"?: number | string | boolean;
+        "zId"?: string;
+        "zTabIndex"?: number;
     }
     interface ZaneCheckboxButton {
         "ariaControls": string;
@@ -913,7 +953,13 @@ export namespace Components {
         "validateStatus": FormItemValidateState;
     }
     interface ZaneFormLabelWrap {
+        /**
+          * @default false
+         */
         "isAutoWidth": boolean;
+        /**
+          * @default false
+         */
         "updateAll": boolean;
     }
     interface ZaneForwardRef {
@@ -1961,7 +2007,7 @@ export namespace Components {
           * @default 'small'
          */
         "size": string;
-        "spacer": string;
+        "spacer": string | undefined;
         /**
           * @default false
          */
@@ -3051,6 +3097,12 @@ declare global {
     var HTMLZaneAvatarElement: {
         prototype: HTMLZaneAvatarElement;
         new (): HTMLZaneAvatarElement;
+    };
+    interface HTMLZaneAvatarGroupElement extends Components.ZaneAvatarGroup, HTMLStencilElement {
+    }
+    var HTMLZaneAvatarGroupElement: {
+        prototype: HTMLZaneAvatarGroupElement;
+        new (): HTMLZaneAvatarGroupElement;
     };
     interface HTMLZaneBadgeElement extends Components.ZaneBadge, HTMLStencilElement {
     }
@@ -4233,6 +4285,7 @@ declare global {
         "zane-aside": HTMLZaneAsideElement;
         "zane-autocomplete": HTMLZaneAutocompleteElement;
         "zane-avatar": HTMLZaneAvatarElement;
+        "zane-avatar-group": HTMLZaneAvatarGroupElement;
         "zane-badge": HTMLZaneBadgeElement;
         "zane-bar": HTMLZaneBarElement;
         "zane-button": HTMLZaneButtonElement;
@@ -4456,6 +4509,46 @@ declare namespace LocalJSX {
          */
         "src"?: string;
         "srcSet"?: string | undefined;
+    }
+    interface ZaneAvatarGroup {
+        "avatars"?: string[];
+        /**
+          * @default false
+         */
+        "collapseAvatars"?: boolean;
+        /**
+          * @default false
+         */
+        "collapseAvatarsTooltip"?: boolean;
+        "collapseClass"?: string | undefined;
+        "collapseStyle"?: Record<string, any> | undefined;
+        /**
+          * @default 'light'
+         */
+        "effect"?: 'dark' | 'light';
+        /**
+          * @default 1
+         */
+        "maxCollapseAvatars"?: number;
+        /**
+          * @default 'bottom-start'
+         */
+        "placement"?: Props['placement'];
+        "popperBoxClass"?: string | undefined;
+        "popperContentClass"?: string | undefined;
+        /**
+          * @default {}
+         */
+        "popperOptions"?: Props['popperOptions'];
+        "popperTheme"?: string | undefined;
+        /**
+          * @default 'circle'
+         */
+        "shape"?: 'circle' | 'square';
+        /**
+          * @default 'default'
+         */
+        "size"?: 'default' | 'large' | 'small' | number;
     }
     interface ZaneBadge {
         /**
@@ -5164,7 +5257,13 @@ declare namespace LocalJSX {
         "validateStatus"?: FormItemValidateState;
     }
     interface ZaneFormLabelWrap {
+        /**
+          * @default false
+         */
         "isAutoWidth"?: boolean;
+        /**
+          * @default false
+         */
         "updateAll"?: boolean;
     }
     interface ZaneForwardRef {
@@ -6247,7 +6346,7 @@ declare namespace LocalJSX {
           * @default 'small'
          */
         "size"?: string;
-        "spacer"?: string;
+        "spacer"?: string | undefined;
         /**
           * @default false
          */
@@ -7248,6 +7347,7 @@ declare namespace LocalJSX {
         "zane-aside": ZaneAside;
         "zane-autocomplete": ZaneAutocomplete;
         "zane-avatar": ZaneAvatar;
+        "zane-avatar-group": ZaneAvatarGroup;
         "zane-badge": ZaneBadge;
         "zane-bar": ZaneBar;
         "zane-button": ZaneButton;
@@ -7336,6 +7436,7 @@ declare module "@stencil/core" {
             "zane-aside": LocalJSX.ZaneAside & JSXBase.HTMLAttributes<HTMLZaneAsideElement>;
             "zane-autocomplete": LocalJSX.ZaneAutocomplete & JSXBase.HTMLAttributes<HTMLZaneAutocompleteElement>;
             "zane-avatar": LocalJSX.ZaneAvatar & JSXBase.HTMLAttributes<HTMLZaneAvatarElement>;
+            "zane-avatar-group": LocalJSX.ZaneAvatarGroup & JSXBase.HTMLAttributes<HTMLZaneAvatarGroupElement>;
             "zane-badge": LocalJSX.ZaneBadge & JSXBase.HTMLAttributes<HTMLZaneBadgeElement>;
             "zane-bar": LocalJSX.ZaneBar & JSXBase.HTMLAttributes<HTMLZaneBarElement>;
             "zane-button": LocalJSX.ZaneButton & JSXBase.HTMLAttributes<HTMLZaneButtonElement>;
