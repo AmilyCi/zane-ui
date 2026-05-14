@@ -52,6 +52,10 @@
 </head>
 
 <body>
+  <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light); display: flex;  flex-direction: column; gap: 12px; align-items: flex-start">
+    <zane-segmented id="segmented-custom-props" value="1" size="large"></zane-segmented>
+    <zane-segmented id="segmented-icons-vertical" value="list"></zane-segmented>
+  </div>
   <!-- Timeline 时间线 -->
   <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light);">
     <zane-a2ui id="myA2ui" surfaceId="@default"></zane-a2ui>
@@ -413,6 +417,44 @@
   </div>
 
   <script>
+    // ------ start segmented ----------------------------------
+      var segmentedCustomProps = document.querySelector('#segmented-custom-props')
+      if (segmentedCustomProps) {
+        segmentedCustomProps.props = { label: 'name', value: 'id', disabled: 'isDisabled' }
+        segmentedCustomProps.options = [
+          { name: 'Custom1', id: '1' },
+          { name: 'Custom2', id: '2' },
+          { name: 'Custom3', id: '3' , isDisabled: true},
+          { name: 'Custom4', id: '4' },
+          { name: 'Custom5', id: '5' , isDisabled: true},
+        ]
+      }
+
+      var segmentedIconsVertical = document.querySelector('#segmented-icons-vertical')
+      if (segmentedIconsVertical) {
+        segmentedIconsVertical.options = [
+          { label: 'List', value: 'list', icon: 'list-ordered' },
+          { label: 'Grid', value: 'grid', icon: 'grid-line' },
+          { label: 'Table', value: 'table', icon: 'table-line' },
+          { label: 'Settings', value: 'settings', icon: 'settings-3-line' },
+        ]
+        segmentedIconsVertical.renderItem = (item) => {
+          var div = document.createElement('div')
+          div.style.display = 'flex'
+          div.style.flexDirection = 'column'
+          div.style.alignItems = 'center'
+          div.style.gap = '2px'
+          div.style.padding = '4px 0'
+          var icon = document.createElement('zane-icon')
+          icon.setAttribute('name', item.icon)
+          var span = document.createElement('span')
+          span.style.fontSize = '12px'
+          span.textContent = item.label
+          div.appendChild(icon)
+          div.appendChild(span)
+          return div
+        }
+      }
 
     // ------ start progress ----------------------------------
     var dashboardColors = [
