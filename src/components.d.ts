@@ -1945,7 +1945,7 @@ export namespace Components {
         "hoveringIndex": number;
         "isItemDisabled": (value: any, selected: any) => Promise<boolean>;
         "isItemHovering": (target: any) => Promise<boolean>;
-        "isItemSelected": (value: any, target: any) => Promise<any>;
+        "isItemSelected": (value: any, target: any) => Promise<boolean>;
         "loading": boolean;
         "resetScrollTop": () => Promise<void>;
         "width": number;
