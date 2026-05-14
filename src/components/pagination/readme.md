@@ -44,11 +44,14 @@
 ### Depends on
 
 - [zane-icon](../icon)
+- [zane-input](../input)
 
 ### Graph
 ```mermaid
 graph TD;
   zane-pagination --> zane-icon
+  zane-pagination --> zane-input
+  zane-input --> zane-icon
   style zane-pagination fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
