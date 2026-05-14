@@ -5,6 +5,8 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
+import { ServerToClientMessage } from "./components/a2ui/types";
+import { A2UiActionEvent } from "./components/a2ui/zane-a2ui";
 import { AutocompleteData, AutocompleteFetchFunc, AutocompleteFetchSuggestions } from "./components/autocomplete/types";
 import { AnyNormalFunction, Arrayable, Awaitable, ComponentSize } from "./types";
 import { Instance, Props } from "tippy.js";
@@ -28,6 +30,7 @@ import { PaginationPageSize } from "./components/pagination/types";
 import { RadioGroupContext, RadioOption, RadioOptionProp } from "./components/radio/types";
 import { RowAlignType, RowContext, RowJustifyType } from "./components/row/types";
 import { ScrollbarDirection } from "./components/scrollbar/types";
+import { RenderItemFunction, SegmentedDirection, SegmentedOption, SegmentedOptionProps, SegmentedOptionValue } from "./components/segmented/types";
 import { Option, SelectContext, SelectGroupContext, SelectOptionProps, SelectOptionValue, TagTooltipProps } from "./components/select/types";
 import { Option as Option1, OptionType, SelectContext as SelectContext1, SelectProps } from "./components/select-virtual/types";
 import { Placement } from "@popperjs/core";
@@ -40,6 +43,8 @@ import { CheckedInfo, FilterMethod, TreeContext, TreeData, TreeKey, TreeNode, Tr
 import { FilterMethod as FilterMethod1, TagTooltipProps as TagTooltipProps1, TreeData as TreeData1, TreeKey as TreeKey1, TreeNode as TreeNode1, TreeNodeData as TreeNodeData1, TreeSelectOptionProps, TreeSelectOptionValue } from "./components/tree-select/types";
 import { UploadChangeOptions, UploadFile, UploadListType, UploadRequestOptions } from "./components/upload/types";
 import { Alignment, GridItemKeyGetter, Indices, ItemSize } from "./components/virtual-list/types";
+export { ServerToClientMessage } from "./components/a2ui/types";
+export { A2UiActionEvent } from "./components/a2ui/zane-a2ui";
 export { AutocompleteData, AutocompleteFetchFunc, AutocompleteFetchSuggestions } from "./components/autocomplete/types";
 export { AnyNormalFunction, Arrayable, Awaitable, ComponentSize } from "./types";
 export { Instance, Props } from "tippy.js";
@@ -63,6 +68,7 @@ export { PaginationPageSize } from "./components/pagination/types";
 export { RadioGroupContext, RadioOption, RadioOptionProp } from "./components/radio/types";
 export { RowAlignType, RowContext, RowJustifyType } from "./components/row/types";
 export { ScrollbarDirection } from "./components/scrollbar/types";
+export { RenderItemFunction, SegmentedDirection, SegmentedOption, SegmentedOptionProps, SegmentedOptionValue } from "./components/segmented/types";
 export { Option, SelectContext, SelectGroupContext, SelectOptionProps, SelectOptionValue, TagTooltipProps } from "./components/select/types";
 export { Option as Option1, OptionType, SelectContext as SelectContext1, SelectProps } from "./components/select-virtual/types";
 export { Placement } from "@popperjs/core";
@@ -78,6 +84,27 @@ export { Alignment, GridItemKeyGetter, Indices, ItemSize } from "./components/vi
 export namespace Components {
     interface ZaneA2ui {
         /**
+          * Clear all surfaces and reset state.
+         */
+        "clear": () => Promise<void>;
+        /**
+          * Read data from the data model at the given path relative to a node.
+         */
+        "getData": (nodeId: string, path: string) => Promise<any>;
+        /**
+          * Get all current surfaces (for debugging/inspection).
+         */
+        "getSurfaces": () => Promise<ReadonlyMap<string, any>>;
+        /**
+          * @default []
+         */
+        "messages": ServerToClientMessage[];
+        /**
+          * Write data to the data model at the given path relative to a node.
+         */
+        "setData": (nodeId: string, path: string, value: any) => Promise<void>;
+        /**
+          * Identifier for the surface this instance renders
           * @default null
          */
         "surfaceId": string | null;
@@ -1909,6 +1936,53 @@ export namespace Components {
          */
         "wrapStyle": Record<string, string>;
     }
+    interface ZaneSegmented {
+        /**
+          * @default undefined
+         */
+        "ariaLabel"?: string;
+        /**
+          * @default false
+         */
+        "block": boolean;
+        /**
+          * @default 'horizontal'
+         */
+        "direction": SegmentedDirection;
+        /**
+          * @default undefined
+         */
+        "disabled"?: boolean;
+        /**
+          * @default undefined
+         */
+        "name"?: string;
+        /**
+          * @default undefined
+         */
+        "options"?: SegmentedOption[];
+        /**
+          * @default { ...segmentedDefaultProps }
+         */
+        "props": SegmentedOptionProps;
+        "renderItem"?: RenderItemFunction;
+        /**
+          * @default ''
+         */
+        "size": ComponentSize;
+        /**
+          * @default true
+         */
+        "validateEvent": boolean;
+        /**
+          * @default undefined
+         */
+        "value"?: SegmentedOptionValue;
+        /**
+          * @default undefined
+         */
+        "zId"?: string;
+    }
     interface ZaneSelect {
         /**
           * @default false
@@ -2471,11 +2545,14 @@ export namespace Components {
         "type": 'danger' | 'info' | 'primary' | 'success' | 'warning';
     }
     interface ZaneText {
-        "lineClamp": string;
+        "lineClamp"?: string;
         /**
           * @default ''
          */
         "size": ComponentSize;
+        /**
+          * @default false
+         */
         "truncated": boolean;
         /**
           * @default ''
@@ -3369,6 +3446,10 @@ export namespace Components {
         "wrapperClass": string;
     }
 }
+export interface ZaneA2uiCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneA2uiElement;
+}
 export interface ZaneAutocompleteCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLZaneAutocompleteElement;
@@ -3477,6 +3558,10 @@ export interface ZaneScrollbarCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLZaneScrollbarElement;
 }
+export interface ZaneSegmentedCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneSegmentedElement;
+}
 export interface ZaneSelectCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLZaneSelectElement;
@@ -3558,7 +3643,18 @@ export interface ZaneVirtualScrollbarCustomEvent<T> extends CustomEvent<T> {
     target: HTMLZaneVirtualScrollbarElement;
 }
 declare global {
+    interface HTMLZaneA2uiElementEventMap {
+        "zAction": A2UiActionEvent;
+    }
     interface HTMLZaneA2uiElement extends Components.ZaneA2ui, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneA2uiElementEventMap>(type: K, listener: (this: HTMLZaneA2uiElement, ev: ZaneA2uiCustomEvent<HTMLZaneA2uiElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneA2uiElementEventMap>(type: K, listener: (this: HTMLZaneA2uiElement, ev: ZaneA2uiCustomEvent<HTMLZaneA2uiElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLZaneA2uiElement: {
         prototype: HTMLZaneA2uiElement;
@@ -4295,6 +4391,23 @@ declare global {
         prototype: HTMLZaneScrollbarElement;
         new (): HTMLZaneScrollbarElement;
     };
+    interface HTMLZaneSegmentedElementEventMap {
+        "zChange": SegmentedOptionValue;
+    }
+    interface HTMLZaneSegmentedElement extends Components.ZaneSegmented, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneSegmentedElementEventMap>(type: K, listener: (this: HTMLZaneSegmentedElement, ev: ZaneSegmentedCustomEvent<HTMLZaneSegmentedElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneSegmentedElementEventMap>(type: K, listener: (this: HTMLZaneSegmentedElement, ev: ZaneSegmentedCustomEvent<HTMLZaneSegmentedElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneSegmentedElement: {
+        prototype: HTMLZaneSegmentedElement;
+        new (): HTMLZaneSegmentedElement;
+    };
     interface HTMLZaneSelectElementEventMap {
         "zChange": any;
         "zRemoveTag": any;
@@ -4982,6 +5095,7 @@ declare global {
         "zane-rate": HTMLZaneRateElement;
         "zane-row": HTMLZaneRowElement;
         "zane-scrollbar": HTMLZaneScrollbarElement;
+        "zane-segmented": HTMLZaneSegmentedElement;
         "zane-select": HTMLZaneSelectElement;
         "zane-select-dropdown": HTMLZaneSelectDropdownElement;
         "zane-select-group-item": HTMLZaneSelectGroupItemElement;
@@ -5021,6 +5135,15 @@ declare global {
 declare namespace LocalJSX {
     interface ZaneA2ui {
         /**
+          * @default []
+         */
+        "messages"?: ServerToClientMessage[];
+        /**
+          * Emitted when a user interaction event occurs in the rendered tree
+         */
+        "onZAction"?: (event: ZaneA2uiCustomEvent<A2UiActionEvent>) => void;
+        /**
+          * Identifier for the surface this instance renders
           * @default null
          */
         "surfaceId"?: string | null;
@@ -6912,6 +7035,54 @@ declare namespace LocalJSX {
          */
         "wrapStyle"?: Record<string, string>;
     }
+    interface ZaneSegmented {
+        /**
+          * @default undefined
+         */
+        "ariaLabel"?: string;
+        /**
+          * @default false
+         */
+        "block"?: boolean;
+        /**
+          * @default 'horizontal'
+         */
+        "direction"?: SegmentedDirection;
+        /**
+          * @default undefined
+         */
+        "disabled"?: boolean;
+        /**
+          * @default undefined
+         */
+        "name"?: string;
+        "onZChange"?: (event: ZaneSegmentedCustomEvent<SegmentedOptionValue>) => void;
+        /**
+          * @default undefined
+         */
+        "options"?: SegmentedOption[];
+        /**
+          * @default { ...segmentedDefaultProps }
+         */
+        "props"?: SegmentedOptionProps;
+        "renderItem"?: RenderItemFunction;
+        /**
+          * @default ''
+         */
+        "size"?: ComponentSize;
+        /**
+          * @default true
+         */
+        "validateEvent"?: boolean;
+        /**
+          * @default undefined
+         */
+        "value"?: SegmentedOptionValue;
+        /**
+          * @default undefined
+         */
+        "zId"?: string;
+    }
     interface ZaneSelect {
         /**
           * @default false
@@ -7497,6 +7668,9 @@ declare namespace LocalJSX {
           * @default ''
          */
         "size"?: ComponentSize;
+        /**
+          * @default false
+         */
         "truncated"?: boolean;
         /**
           * @default ''
@@ -8568,6 +8742,7 @@ declare namespace LocalJSX {
         "zane-rate": ZaneRate;
         "zane-row": ZaneRow;
         "zane-scrollbar": ZaneScrollbar;
+        "zane-segmented": ZaneSegmented;
         "zane-select": ZaneSelect;
         "zane-select-dropdown": ZaneSelectDropdown;
         "zane-select-group-item": ZaneSelectGroupItem;
@@ -8669,6 +8844,7 @@ declare module "@stencil/core" {
             "zane-rate": LocalJSX.ZaneRate & JSXBase.HTMLAttributes<HTMLZaneRateElement>;
             "zane-row": LocalJSX.ZaneRow & JSXBase.HTMLAttributes<HTMLZaneRowElement>;
             "zane-scrollbar": LocalJSX.ZaneScrollbar & JSXBase.HTMLAttributes<HTMLZaneScrollbarElement>;
+            "zane-segmented": LocalJSX.ZaneSegmented & JSXBase.HTMLAttributes<HTMLZaneSegmentedElement>;
             "zane-select": LocalJSX.ZaneSelect & JSXBase.HTMLAttributes<HTMLZaneSelectElement>;
             "zane-select-dropdown": LocalJSX.ZaneSelectDropdown & JSXBase.HTMLAttributes<HTMLZaneSelectDropdownElement>;
             "zane-select-group-item": LocalJSX.ZaneSelectGroupItem & JSXBase.HTMLAttributes<HTMLZaneSelectGroupItemElement>;
