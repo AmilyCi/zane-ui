@@ -26,6 +26,7 @@ import { ValidateFieldsError } from "async-validator";
 import { ForwardRefContext, ForwardRefSetter } from "./components/forward-ref/types";
 import { InputAutoSize, InputMode, InputModelModifiers, InputType } from "./components/input/types";
 import { MentionOption, MentionOptionProps } from "./components/mention/types";
+import { NotificationPosition, NotificationType } from "./components/notification/types";
 import { PaginationPageSize } from "./components/pagination/types";
 import { RadioGroupContext, RadioOption, RadioOptionProp } from "./components/radio/types";
 import { RowAlignType, RowContext, RowJustifyType } from "./components/row/types";
@@ -64,6 +65,7 @@ export { ValidateFieldsError } from "async-validator";
 export { ForwardRefContext, ForwardRefSetter } from "./components/forward-ref/types";
 export { InputAutoSize, InputMode, InputModelModifiers, InputType } from "./components/input/types";
 export { MentionOption, MentionOptionProps } from "./components/mention/types";
+export { NotificationPosition, NotificationType } from "./components/notification/types";
 export { PaginationPageSize } from "./components/pagination/types";
 export { RadioGroupContext, RadioOption, RadioOptionProp } from "./components/radio/types";
 export { RowAlignType, RowContext, RowJustifyType } from "./components/row/types";
@@ -1567,6 +1569,74 @@ export namespace Components {
          */
         "options": MentionOption[];
         "selectHoverOption": () => Promise<void>;
+    }
+    interface ZaneNotification {
+        "close": () => Promise<void>;
+        /**
+          * 自定义关闭图标
+          * @default 'close'
+         */
+        "closeIcon": string;
+        /**
+          * 自定义类名
+          * @default ''
+         */
+        "customClass": string;
+        /**
+          * 是否将 message 作为 HTML 字符串渲染
+          * @default false
+         */
+        "dangerouslyUseHTMLString": boolean;
+        /**
+          * 自动关闭延迟时间（毫秒），设为 0 则不自动关闭
+          * @default 4500
+         */
+        "duration": number;
+        /**
+          * 自定义图标
+          * @default ''
+         */
+        "icon": string;
+        /**
+          * 描述文本
+          * @default ''
+         */
+        "message": string;
+        /**
+          * 通知 DOM id
+          * @default ''
+         */
+        "notificationId": string;
+        /**
+          * 标题文字
+          * @default ''
+         */
+        "notificationTitle": string;
+        /**
+          * 距离屏幕边缘的基础偏移量（由外部动态覆盖）
+          * @default 0
+         */
+        "offset": number;
+        /**
+          * 通知位置
+          * @default 'top-right'
+         */
+        "position": NotificationPosition;
+        /**
+          * 是否显示关闭按钮
+          * @default true
+         */
+        "showClose": boolean;
+        /**
+          * 通知类型
+          * @default ''
+         */
+        "type": NotificationType;
+        /**
+          * 初始 z-index 层级
+          * @default 2000
+         */
+        "zIndex": number;
     }
     interface ZaneOnlyChild {
         /**
@@ -3534,6 +3604,10 @@ export interface ZaneMentionDropdownCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLZaneMentionDropdownElement;
 }
+export interface ZaneNotificationCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneNotificationElement;
+}
 export interface ZanePaginationCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLZanePaginationElement;
@@ -4259,6 +4333,23 @@ declare global {
     var HTMLZaneMentionDropdownElement: {
         prototype: HTMLZaneMentionDropdownElement;
         new (): HTMLZaneMentionDropdownElement;
+    };
+    interface HTMLZaneNotificationElementEventMap {
+        "destroy": void;
+    }
+    interface HTMLZaneNotificationElement extends Components.ZaneNotification, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneNotificationElementEventMap>(type: K, listener: (this: HTMLZaneNotificationElement, ev: ZaneNotificationCustomEvent<HTMLZaneNotificationElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneNotificationElementEventMap>(type: K, listener: (this: HTMLZaneNotificationElement, ev: ZaneNotificationCustomEvent<HTMLZaneNotificationElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneNotificationElement: {
+        prototype: HTMLZaneNotificationElement;
+        new (): HTMLZaneNotificationElement;
     };
     interface HTMLZaneOnlyChildElement extends Components.ZaneOnlyChild, HTMLStencilElement {
     }
@@ -5086,6 +5177,7 @@ declare global {
         "zane-main": HTMLZaneMainElement;
         "zane-mention": HTMLZaneMentionElement;
         "zane-mention-dropdown": HTMLZaneMentionDropdownElement;
+        "zane-notification": HTMLZaneNotificationElement;
         "zane-only-child": HTMLZaneOnlyChildElement;
         "zane-pagination": HTMLZanePaginationElement;
         "zane-progress": HTMLZaneProgressElement;
@@ -6641,6 +6733,77 @@ declare namespace LocalJSX {
           * @default []
          */
         "options"?: MentionOption[];
+    }
+    interface ZaneNotification {
+        /**
+          * 自定义关闭图标
+          * @default 'close'
+         */
+        "closeIcon"?: string;
+        /**
+          * 自定义类名
+          * @default ''
+         */
+        "customClass"?: string;
+        /**
+          * 是否将 message 作为 HTML 字符串渲染
+          * @default false
+         */
+        "dangerouslyUseHTMLString"?: boolean;
+        /**
+          * 自动关闭延迟时间（毫秒），设为 0 则不自动关闭
+          * @default 4500
+         */
+        "duration"?: number;
+        /**
+          * 自定义图标
+          * @default ''
+         */
+        "icon"?: string;
+        /**
+          * 描述文本
+          * @default ''
+         */
+        "message"?: string;
+        /**
+          * 通知 DOM id
+          * @default ''
+         */
+        "notificationId"?: string;
+        /**
+          * 标题文字
+          * @default ''
+         */
+        "notificationTitle"?: string;
+        /**
+          * 距离屏幕边缘的基础偏移量（由外部动态覆盖）
+          * @default 0
+         */
+        "offset"?: number;
+        /**
+          * 销毁事件
+         */
+        "onDestroy"?: (event: ZaneNotificationCustomEvent<void>) => void;
+        /**
+          * 通知位置
+          * @default 'top-right'
+         */
+        "position"?: NotificationPosition;
+        /**
+          * 是否显示关闭按钮
+          * @default true
+         */
+        "showClose"?: boolean;
+        /**
+          * 通知类型
+          * @default ''
+         */
+        "type"?: NotificationType;
+        /**
+          * 初始 z-index 层级
+          * @default 2000
+         */
+        "zIndex"?: number;
     }
     interface ZaneOnlyChild {
         /**
@@ -8733,6 +8896,7 @@ declare namespace LocalJSX {
         "zane-main": ZaneMain;
         "zane-mention": ZaneMention;
         "zane-mention-dropdown": ZaneMentionDropdown;
+        "zane-notification": ZaneNotification;
         "zane-only-child": ZaneOnlyChild;
         "zane-pagination": ZanePagination;
         "zane-progress": ZaneProgress;
@@ -8835,6 +8999,7 @@ declare module "@stencil/core" {
             "zane-main": LocalJSX.ZaneMain & JSXBase.HTMLAttributes<HTMLZaneMainElement>;
             "zane-mention": LocalJSX.ZaneMention & JSXBase.HTMLAttributes<HTMLZaneMentionElement>;
             "zane-mention-dropdown": LocalJSX.ZaneMentionDropdown & JSXBase.HTMLAttributes<HTMLZaneMentionDropdownElement>;
+            "zane-notification": LocalJSX.ZaneNotification & JSXBase.HTMLAttributes<HTMLZaneNotificationElement>;
             "zane-only-child": LocalJSX.ZaneOnlyChild & JSXBase.HTMLAttributes<HTMLZaneOnlyChildElement>;
             "zane-pagination": LocalJSX.ZanePagination & JSXBase.HTMLAttributes<HTMLZanePaginationElement>;
             "zane-progress": LocalJSX.ZaneProgress & JSXBase.HTMLAttributes<HTMLZaneProgressElement>;
