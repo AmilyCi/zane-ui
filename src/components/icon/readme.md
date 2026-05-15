@@ -35,6 +35,7 @@
  - [zane-input-number](../input-number)
  - [zane-input-tag](../input-tag)
  - [zane-link](../link)
+ - [zane-notification](../notification)
  - [zane-pagination](../pagination)
  - [zane-progress](../progress)
  - [zane-rate](../rate)
@@ -63,6 +64,7 @@ graph TD;
   zane-input-number --> zane-icon
   zane-input-tag --> zane-icon
   zane-link --> zane-icon
+  zane-notification --> zane-icon
   zane-pagination --> zane-icon
   zane-progress --> zane-icon
   zane-rate --> zane-icon
