@@ -326,6 +326,20 @@ export namespace Components {
         "minSize": number;
         "update": () => Promise<void>;
     }
+    interface ZaneBreadcrumb {
+        /**
+          * @default '/'
+         */
+        "separator": string;
+        "separatorIcon"?: string;
+    }
+    interface ZaneBreadcrumbItem {
+        /**
+          * @default false
+         */
+        "replace": boolean;
+        "to"?: string | Record<string, unknown>;
+    }
     interface ZaneButton {
         /**
           * @default undefined
@@ -3458,6 +3472,10 @@ export interface ZaneAvatarCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLZaneAvatarElement;
 }
+export interface ZaneBreadcrumbItemCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZaneBreadcrumbItemElement;
+}
 export interface ZaneButtonCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLZaneButtonElement;
@@ -3722,6 +3740,29 @@ declare global {
     var HTMLZaneBarElement: {
         prototype: HTMLZaneBarElement;
         new (): HTMLZaneBarElement;
+    };
+    interface HTMLZaneBreadcrumbElement extends Components.ZaneBreadcrumb, HTMLStencilElement {
+    }
+    var HTMLZaneBreadcrumbElement: {
+        prototype: HTMLZaneBreadcrumbElement;
+        new (): HTMLZaneBreadcrumbElement;
+    };
+    interface HTMLZaneBreadcrumbItemElementEventMap {
+        "zClick": { to?: string; replace: boolean };
+    }
+    interface HTMLZaneBreadcrumbItemElement extends Components.ZaneBreadcrumbItem, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZaneBreadcrumbItemElementEventMap>(type: K, listener: (this: HTMLZaneBreadcrumbItemElement, ev: ZaneBreadcrumbItemCustomEvent<HTMLZaneBreadcrumbItemElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZaneBreadcrumbItemElementEventMap>(type: K, listener: (this: HTMLZaneBreadcrumbItemElement, ev: ZaneBreadcrumbItemCustomEvent<HTMLZaneBreadcrumbItemElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZaneBreadcrumbItemElement: {
+        prototype: HTMLZaneBreadcrumbItemElement;
+        new (): HTMLZaneBreadcrumbItemElement;
     };
     interface HTMLZaneButtonElementEventMap {
         "zClick": any;
@@ -5041,6 +5082,8 @@ declare global {
         "zane-avatar-group": HTMLZaneAvatarGroupElement;
         "zane-badge": HTMLZaneBadgeElement;
         "zane-bar": HTMLZaneBarElement;
+        "zane-breadcrumb": HTMLZaneBreadcrumbElement;
+        "zane-breadcrumb-item": HTMLZaneBreadcrumbItemElement;
         "zane-button": HTMLZaneButtonElement;
         "zane-button-group": HTMLZaneButtonGroupElement;
         "zane-card": HTMLZaneCardElement;
@@ -5362,6 +5405,21 @@ declare namespace LocalJSX {
     interface ZaneBar {
         "always"?: boolean;
         "minSize"?: number;
+    }
+    interface ZaneBreadcrumb {
+        /**
+          * @default '/'
+         */
+        "separator"?: string;
+        "separatorIcon"?: string;
+    }
+    interface ZaneBreadcrumbItem {
+        "onZClick"?: (event: ZaneBreadcrumbItemCustomEvent<{ to?: string; replace: boolean }>) => void;
+        /**
+          * @default false
+         */
+        "replace"?: boolean;
+        "to"?: string | Record<string, unknown>;
     }
     interface ZaneButton {
         /**
@@ -8688,6 +8746,8 @@ declare namespace LocalJSX {
         "zane-avatar-group": ZaneAvatarGroup;
         "zane-badge": ZaneBadge;
         "zane-bar": ZaneBar;
+        "zane-breadcrumb": ZaneBreadcrumb;
+        "zane-breadcrumb-item": ZaneBreadcrumbItem;
         "zane-button": ZaneButton;
         "zane-button-group": ZaneButtonGroup;
         "zane-card": ZaneCard;
@@ -8790,6 +8850,8 @@ declare module "@stencil/core" {
             "zane-avatar-group": LocalJSX.ZaneAvatarGroup & JSXBase.HTMLAttributes<HTMLZaneAvatarGroupElement>;
             "zane-badge": LocalJSX.ZaneBadge & JSXBase.HTMLAttributes<HTMLZaneBadgeElement>;
             "zane-bar": LocalJSX.ZaneBar & JSXBase.HTMLAttributes<HTMLZaneBarElement>;
+            "zane-breadcrumb": LocalJSX.ZaneBreadcrumb & JSXBase.HTMLAttributes<HTMLZaneBreadcrumbElement>;
+            "zane-breadcrumb-item": LocalJSX.ZaneBreadcrumbItem & JSXBase.HTMLAttributes<HTMLZaneBreadcrumbItemElement>;
             "zane-button": LocalJSX.ZaneButton & JSXBase.HTMLAttributes<HTMLZaneButtonElement>;
             "zane-button-group": LocalJSX.ZaneButtonGroup & JSXBase.HTMLAttributes<HTMLZaneButtonGroupElement>;
             "zane-card": LocalJSX.ZaneCard & JSXBase.HTMLAttributes<HTMLZaneCardElement>;
