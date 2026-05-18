@@ -52,6 +52,61 @@
 </head>
 
 <body>
+  <!-- Page Header 页头 -->
+  <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light);">
+    <h3 style="margin: 0 0 16px; font-size: 18px;">Page Header 页头</h3>
+
+    <div style="padding: 12px; margin-bottom: 16px; border: 1px solid var(--zane-border-color-extra-light); border-radius: 4px;">
+      <h4 style="margin-bottom: 16px;">基础用法</h4>
+      <zane-page-header id="page-header-basic" content="Detail" />
+      <p id="page-header-log" style="font-size: 13px; color: var(--zane-text-color-secondary); margin-top: 8px;">
+        Click the back button to trigger zBack event
+      </p>
+    </div>
+
+    <div style="padding: 12px; margin-bottom: 16px; border: 1px solid var(--zane-border-color-extra-light); border-radius: 4px;">
+      <h4 style="margin-bottom: 16px;">自定义图标与返回文字</h4>
+      <zane-page-header content="编辑页面" back-title="back" icon="arrow-left-fill" />
+    </div>
+
+    <div style="padding: 12px; margin-bottom: 16px;  border: 1px solid var(--zane-border-color-extra-light); border-radius: 4px;">
+      <h4 style="margin-bottom: 16px;">完整示例</h4>
+      <zane-page-header id="page-header-complete">
+        <zane-breadcrumb slot="breadcrumb" separator="/">
+          <zane-breadcrumb-item to='{"path":"./page-header.html"}'>homepage</zane-breadcrumb-item>
+          <zane-breadcrumb-item><a href="./page-header.html">route 1</a></zane-breadcrumb-item>
+          <zane-breadcrumb-item>route 2</zane-breadcrumb-item>
+        </zane-breadcrumb>
+        <div slot="content" style="display: flex; align-items: center;">
+          <zane-avatar size="32" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
+          <span style="font-size: 18px; font-weight: 600; margin: 0 12px;">Title</span>
+          <span style="font-size: 14px; margin-right: 8px; color: var(--zane-text-color-regular);">Sub title</span>
+          <zane-tag>Default</zane-tag>
+        </div>
+        <div slot="extra" style="display: flex; align-items: center; gap: 8px;">
+          <zane-button>Print</zane-button>
+          <zane-button type="primary">Edit</zane-button>
+        </div>
+
+        <zane-descriptions column="3" size="small" border style="margin-top: 16px;">
+          <zane-descriptions-item label="Username">kooriookami</zane-descriptions-item>
+          <zane-descriptions-item label="Telephone">18100000000</zane-descriptions-item>
+          <zane-descriptions-item label="Place">Suzhou</zane-descriptions-item>
+          <zane-descriptions-item label="Remarks">
+            <zane-tag size="small">School</zane-tag>
+          </zane-descriptions-item>
+          <zane-descriptions-item label="Address">
+            No.1188, Wuzhong Avenue, Wuzhong District, Suzhou, Jiangsu Province
+          </zane-descriptions-item>
+        </zane-descriptions>
+        <p style="margin-top: 16px; font-size: 14px;">
+          Element Plus team uses <b>weekly</b> release strategy under normal
+          circumstance, but critical bug fixes would require hotfix so the actual
+          release number <b>could be</b> more than 1 per week.
+        </p>
+      </zane-page-header>
+    </div>
+  </div>
   <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light); display: flex; flex-direction: column; gap:10px">
     <zane-breadcrumb separator="/">
       <zane-breadcrumb-item to='{"path":"/"}'>首页</zane-breadcrumb-item>
@@ -976,6 +1031,26 @@
 
     }
 
+
+    // ---- start page-header demo ----
+    var pageHeaderBasic = document.querySelector('#page-header-basic');
+    var pageHeaderLog = document.querySelector('#page-header-log');
+    if (pageHeaderBasic && pageHeaderLog) {
+      pageHeaderBasic.addEventListener('zBack', () => {
+        pageHeaderLog.textContent = 'zBack event triggered at ' + new Date().toLocaleTimeString();
+      });
+    }
+
+    // ---- start page-header complete demo ----
+    var pageHeaderComplete = document.querySelector('#page-header-complete');
+    if (pageHeaderComplete) {
+      pageHeaderComplete.addEventListener('zBack', () => {
+        var notify = document.createElement('zane-notification');
+        notify.setAttribute('message', 'Back');
+        notify.setAttribute('type', 'primary');
+        document.body.appendChild(notify);
+      });
+    }
 
     // ---- start pagination ------------------
     var pagination04El = document.querySelector('#pagination04');
