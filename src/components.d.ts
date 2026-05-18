@@ -1664,6 +1664,20 @@ export namespace Components {
          */
         "strict": boolean;
     }
+    interface ZanePageHeader {
+        /**
+          * @default '返回'
+         */
+        "backTitle": string;
+        /**
+          * @default ''
+         */
+        "content": string;
+        /**
+          * @default 'arrow-left-line'
+         */
+        "icon": string;
+    }
     interface ZanePagination {
         /**
           * 是否带背景色
@@ -3626,6 +3640,10 @@ export interface ZaneNotificationCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLZaneNotificationElement;
 }
+export interface ZanePageHeaderCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLZanePageHeaderElement;
+}
 export interface ZanePaginationCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLZanePaginationElement;
@@ -4397,6 +4415,23 @@ declare global {
     var HTMLZaneOnlyChildElement: {
         prototype: HTMLZaneOnlyChildElement;
         new (): HTMLZaneOnlyChildElement;
+    };
+    interface HTMLZanePageHeaderElementEventMap {
+        "zBack": void;
+    }
+    interface HTMLZanePageHeaderElement extends Components.ZanePageHeader, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLZanePageHeaderElementEventMap>(type: K, listener: (this: HTMLZanePageHeaderElement, ev: ZanePageHeaderCustomEvent<HTMLZanePageHeaderElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLZanePageHeaderElementEventMap>(type: K, listener: (this: HTMLZanePageHeaderElement, ev: ZanePageHeaderCustomEvent<HTMLZanePageHeaderElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLZanePageHeaderElement: {
+        prototype: HTMLZanePageHeaderElement;
+        new (): HTMLZanePageHeaderElement;
     };
     interface HTMLZanePaginationElementEventMap {
         "zSizeChange": number;
@@ -5222,6 +5257,7 @@ declare global {
         "zane-mention-dropdown": HTMLZaneMentionDropdownElement;
         "zane-notification": HTMLZaneNotificationElement;
         "zane-only-child": HTMLZaneOnlyChildElement;
+        "zane-page-header": HTMLZanePageHeaderElement;
         "zane-pagination": HTMLZanePaginationElement;
         "zane-progress": HTMLZaneProgressElement;
         "zane-radio": HTMLZaneRadioElement;
@@ -6874,6 +6910,21 @@ declare namespace LocalJSX {
           * @default false
          */
         "strict"?: boolean;
+    }
+    interface ZanePageHeader {
+        /**
+          * @default '返回'
+         */
+        "backTitle"?: string;
+        /**
+          * @default ''
+         */
+        "content"?: string;
+        /**
+          * @default 'arrow-left-line'
+         */
+        "icon"?: string;
+        "onZBack"?: (event: ZanePageHeaderCustomEvent<void>) => void;
     }
     interface ZanePagination {
         /**
@@ -8958,6 +9009,7 @@ declare namespace LocalJSX {
         "zane-mention-dropdown": ZaneMentionDropdown;
         "zane-notification": ZaneNotification;
         "zane-only-child": ZaneOnlyChild;
+        "zane-page-header": ZanePageHeader;
         "zane-pagination": ZanePagination;
         "zane-progress": ZaneProgress;
         "zane-radio": ZaneRadio;
@@ -9063,6 +9115,7 @@ declare module "@stencil/core" {
             "zane-mention-dropdown": LocalJSX.ZaneMentionDropdown & JSXBase.HTMLAttributes<HTMLZaneMentionDropdownElement>;
             "zane-notification": LocalJSX.ZaneNotification & JSXBase.HTMLAttributes<HTMLZaneNotificationElement>;
             "zane-only-child": LocalJSX.ZaneOnlyChild & JSXBase.HTMLAttributes<HTMLZaneOnlyChildElement>;
+            "zane-page-header": LocalJSX.ZanePageHeader & JSXBase.HTMLAttributes<HTMLZanePageHeaderElement>;
             "zane-pagination": LocalJSX.ZanePagination & JSXBase.HTMLAttributes<HTMLZanePaginationElement>;
             "zane-progress": LocalJSX.ZaneProgress & JSXBase.HTMLAttributes<HTMLZaneProgressElement>;
             "zane-radio": LocalJSX.ZaneRadio & JSXBase.HTMLAttributes<HTMLZaneRadioElement>;
