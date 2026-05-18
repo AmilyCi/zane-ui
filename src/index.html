@@ -91,58 +91,94 @@
       <zane-breadcrumb-item>promotion detail</zane-breadcrumb-item>
     </zane-breadcrumb>
   </div>
-<!-- Pagination 分页 -->
+  <!-- Notification 通知 -->
   <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light);">
-    <h4 style="margin-bottom: 16px;">完整分页布局</h4>
-    <zane-pagination id="pagination02" total="500" page-sizes="[10,20,50,100]"
-      layout="sizes, prev, pager, next, jumper, ->, total" background></zane-pagination>
-  </div>
-  <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light);">
-    <h4 style="margin-bottom: 16px;">小型分页 + 自定义图标文字</h4>
-    <zane-pagination id="pagination03" total="50" size="small" prev-text="上一页" next-text="下一页"></zane-pagination>
-  </div>
-  <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light);">
-    <h4 style="margin-bottom: 16px;">事件监听分页</h4>
-    <p id="pagination-log" style="font-size: 13px; color: var(--zane-text-color-secondary); min-height: 40px;">
-      当前页: 1, 每页条数: 10
-    </p>
-    <zane-pagination id="pagination04" total="200" layout="prev, pager, next, sizes, jumper"
-      background></zane-pagination>
+    <h3 style="margin: 0 0 16px; font-size: 18px;">Notification 通知</h3>
+
+    <div style="padding: 12px; margin-bottom: 16px; border: 1px solid var(--zane-border-color-extra-light); border-radius: 4px;">
+      <h4 style="margin-bottom: 16px;">基础用法</h4>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <zane-button id="notify-basic" type="primary">基础通知</zane-button>
+        <zane-button id="notify-success" type="success">成功通知</zane-button>
+        <zane-button id="notify-warning" type="warning">警告通知</zane-button>
+        <zane-button id="notify-info">信息通知</zane-button>
+        <zane-button id="notify-error" type="danger">错误通知</zane-button>
+      </div>
+    </div>
+
+    <div style="padding: 12px; margin-bottom: 16px; border: 1px solid var(--zane-border-color-extra-light); border-radius: 4px;">
+      <h4 style="margin-bottom: 16px;">自定义位置与标题</h4>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <zane-button id="notify-title">带标题通知</zane-button>
+        <zane-button id="notify-top-left">左上角</zane-button>
+        <zane-button id="notify-bottom-right">右下角</zane-button>
+        <zane-button id="notify-bottom-left">左下角</zane-button>
+      </div>
+    </div>
+
+    <div style="padding: 12px; border: 1px solid var(--zane-border-color-extra-light); border-radius: 4px;">
+      <h4 style="margin-bottom: 16px;">高级用法 (关闭所有 / 自定义时长)</h4>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <zane-button id="notify-duration-0">不自动关闭</zane-button>
+        <zane-button id="notify-close-all" type="danger">关闭全部</zane-button>
+      </div>
+    </div>
   </div>
 
-  <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light); display: flex;  flex-direction: column; gap: 12px; align-items: flex-start">
-    <zane-segmented id="segmented-custom-props" value="1" size="large"></zane-segmented>
-    <zane-segmented id="segmented-icons-vertical" value="list"></zane-segmented>
-  </div>
-  <!-- Timeline 时间线 -->
+  <!-- Pagination 分页 -->
   <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light);">
-    <zane-a2ui id="myA2ui" surfaceId="@default"></zane-a2ui>
+    <h3 style="margin: 0 0 16px; font-size: 18px;">Pagination 分页</h3>
+
+    <div style="padding: 12px; margin-bottom: 16px; border: 1px solid var(--zane-border-color-extra-light); border-radius: 4px;">
+      <h4 style="margin-bottom: 16px;">完整分页布局</h4>
+      <zane-pagination id="pagination02" total="500" page-sizes="[10,20,50,100]"
+        layout="sizes, prev, pager, next, jumper, ->, total" background></zane-pagination>
+    </div>
+
+    <div style="padding: 12px; margin-bottom: 16px; border: 1px solid var(--zane-border-color-extra-light); border-radius: 4px;">
+      <h4 style="margin-bottom: 16px;">小型分页 + 自定义图标文字</h4>
+      <zane-pagination id="pagination03" total="50" size="small" prev-text="上一页" next-text="下一页"></zane-pagination>
+    </div>
+
+    <div style="padding: 12px; border: 1px solid var(--zane-border-color-extra-light); border-radius: 4px;">
+      <h4 style="margin-bottom: 16px;">事件监听分页</h4>
+      <p id="pagination-log" style="font-size: 13px; color: var(--zane-text-color-secondary); min-height: 40px;">
+        当前页: 1, 每页条数: 10
+      </p>
+      <zane-pagination id="pagination04" total="200" layout="prev, pager, next, sizes, jumper"
+        background></zane-pagination>
+    </div>
   </div>
+
+    <!-- Timeline 时间线 -->
   <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light);">
-    <h4 style="margin-bottom: 16px;">基础用法</h4>
-    <zane-timeline>
+    <h3 style="margin: 0 0 16px; font-size: 18px;">Timeline 时间线</h3>
+
+    <div style="padding: 12px; margin-bottom: 16px; border: 1px solid var(--zane-border-color-extra-light); border-radius: 4px;">
+      <h4 style="margin-bottom: 16px;">基础用法</h4>
+      <zane-timeline>
       <zane-timeline-item timestamp="2018-04-15">Event start</zane-timeline-item>
       <zane-timeline-item timestamp="2018-04-13">Approved</zane-timeline-item>
       <zane-timeline-item timestamp="2018-04-11">Success</zane-timeline-item>
     </zane-timeline>
-  </div>
+    </div>
 
-  <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light);">
-    <h4 style="margin-bottom: 16px;">自定义节点样式</h4>
-    <zane-timeline>
-      <zane-timeline-item timestamp="2018-04-12 20:46" size="large" type="primary" icon="more-fill">Custom
-        icon</zane-timeline-item>
+    <div style="padding: 12px; margin-bottom: 16px; border: 1px solid var(--zane-border-color-extra-light); border-radius: 4px;">
+      <h4 style="margin-bottom: 16px;">自定义节点样式</h4>
+      <zane-timeline>
+        <zane-timeline-item timestamp="2018-04-12 20:46" size="large" type="primary" icon="more-fill">Custom
+          icon</zane-timeline-item>
       <zane-timeline-item timestamp="2018-04-03 20:46" color="#0bbd87">Custom color</zane-timeline-item>
       <zane-timeline-item timestamp="2018-04-03 20:46" size="large">Custom size</zane-timeline-item>
       <zane-timeline-item timestamp="2018-04-03 20:46" type="primary" hollow>Custom hollow</zane-timeline-item>
       <zane-timeline-item timestamp="2018-04-03 20:46">Default node</zane-timeline-item>
     </zane-timeline>
-  </div>
+    </div>
 
-  <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light);">
-    <h4 style="margin-bottom: 16px;">自定义时间戳 (placement="top")</h4>
-    <zane-timeline>
-      <zane-timeline-item timestamp="2018/4/12" placement="top">
+    <div style="padding: 12px; margin-bottom: 16px; border: 1px solid var(--zane-border-color-extra-light); border-radius: 4px;">
+      <h4 style="margin-bottom: 16px;">自定义时间戳 (placement="top")</h4>
+      <zane-timeline>
+        <zane-timeline-item timestamp="2018/4/12" placement="top">
         <div
           style="border: 1px solid var(--zane-border-color); padding: 12px; border-radius: 4px; background: var(--zane-bg-color-blank);">
           <h4 style="margin: 0 0 8px 0; font-size: 14px;">Update Github template</h4>
@@ -167,11 +203,11 @@
         </div>
       </zane-timeline-item>
     </zane-timeline>
-  </div>
+    </div>
 
 
-  <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light);">
-    <h4 style="margin-bottom: 16px;">反向排序 (reverse)</h4>
+    <div style="padding: 12px; margin-bottom: 16px; border: 1px solid var(--zane-border-color-extra-light); border-radius: 4px;">
+      <h4 style="margin-bottom: 16px;">反向排序 (reverse)</h4>
     <div style="margin-bottom: 16px;">
       <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
         <input type="checkbox" id="timelineReverseBtn" /> reverse
@@ -185,8 +221,8 @@
   </div>
 
 
-  <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light);">
-    <h4 style="margin-bottom: 16px;">自定义 dot 节点插槽</h4>
+    <div style="padding: 12px; margin-bottom: 16px; border: 1px solid var(--zane-border-color-extra-light); border-radius: 4px;">
+      <h4 style="margin-bottom: 16px;">自定义 dot 节点插槽</h4>
     <zane-timeline>
       <zane-timeline-item timestamp="2018-04-15">
         <span slot="dot"
@@ -212,9 +248,9 @@
     </zane-timeline>
   </div>
 
- 
-  <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light);">
-    <h4 style="margin-bottom: 16px;">所有类型节点 (type)</h4>
+
+    <div style="padding: 12px; margin-bottom: 16px; border: 1px solid var(--zane-border-color-extra-light); border-radius: 4px;">
+      <h4 style="margin-bottom: 16px;">所有类型节点 (type)</h4>
     <zane-timeline>
       <zane-timeline-item timestamp="Primary" type="primary">Primary</zane-timeline-item>
       <zane-timeline-item timestamp="Success" type="success">Success</zane-timeline-item>
@@ -224,7 +260,7 @@
       <zane-timeline-item timestamp="Default">Default</zane-timeline-item>
     </zane-timeline>
   </div>
-   
+
 
   <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light);">
     <h4 style="margin-bottom: 16px;">隐藏时间戳 (hideTimestamp)</h4>
@@ -235,9 +271,12 @@
     </zane-timeline>
   </div>
 
+  </div>
+
   <!-- upload 上传 -->
   <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light);">
-    <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light);">
+    <h3 style="margin: 0 0 16px; font-size: 18px;">Upload 上传</h3>
+    <div style="padding: 12px; border: 1px solid var(--zane-border-color-extra-light); border-radius: 4px;">
       <h4>上传组件</h4>
       <zane-upload action="https://jsonplaceholder.typicode.com/posts" drag>
         <zane-icon name="upload-line"></zane-icon>
@@ -249,6 +288,17 @@
       </div>
     </div>
   </div>
+
+  <div
+    style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light); display: flex;  flex-direction: column; gap: 12px; align-items: flex-start">
+    <zane-segmented id="segmented-custom-props" value="1" size="large"></zane-segmented>
+    <zane-segmented id="segmented-icons-vertical" value="list"></zane-segmented>
+  </div>
+
+  <div style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light);">
+    <zane-a2ui id="myA2ui" surfaceId="@default"></zane-a2ui>
+  </div>
+  
   <div
     style="padding: 20px; margin-top: 24px; border: 1px solid var(--zane-border-color-extra-light); display: flex; flex-direction: column; gap: 16px; max-width: 600px">
     <zane-progress percentage="50" status="exception"></zane-progress>
@@ -457,43 +507,43 @@
 
   <script>
     // ------ start segmented ----------------------------------
-      var segmentedCustomProps = document.querySelector('#segmented-custom-props')
-      if (segmentedCustomProps) {
-        segmentedCustomProps.props = { label: 'name', value: 'id', disabled: 'isDisabled' }
-        segmentedCustomProps.options = [
-          { name: 'Custom1', id: '1' },
-          { name: 'Custom2', id: '2' },
-          { name: 'Custom3', id: '3' , isDisabled: true},
-          { name: 'Custom4', id: '4' },
-          { name: 'Custom5', id: '5' , isDisabled: true},
-        ]
-      }
+    var segmentedCustomProps = document.querySelector('#segmented-custom-props')
+    if (segmentedCustomProps) {
+      segmentedCustomProps.props = { label: 'name', value: 'id', disabled: 'isDisabled' }
+      segmentedCustomProps.options = [
+        { name: 'Custom1', id: '1' },
+        { name: 'Custom2', id: '2' },
+        { name: 'Custom3', id: '3', isDisabled: true },
+        { name: 'Custom4', id: '4' },
+        { name: 'Custom5', id: '5', isDisabled: true },
+      ]
+    }
 
-      var segmentedIconsVertical = document.querySelector('#segmented-icons-vertical')
-      if (segmentedIconsVertical) {
-        segmentedIconsVertical.options = [
-          { label: 'List', value: 'list', icon: 'list-ordered' },
-          { label: 'Grid', value: 'grid', icon: 'grid-line' },
-          { label: 'Table', value: 'table', icon: 'table-line' },
-          { label: 'Settings', value: 'settings', icon: 'settings-3-line' },
-        ]
-        segmentedIconsVertical.renderItem = (item) => {
-          var div = document.createElement('div')
-          div.style.display = 'flex'
-          div.style.flexDirection = 'column'
-          div.style.alignItems = 'center'
-          div.style.gap = '2px'
-          div.style.padding = '4px 0'
-          var icon = document.createElement('zane-icon')
-          icon.setAttribute('name', item.icon)
-          var span = document.createElement('span')
-          span.style.fontSize = '12px'
-          span.textContent = item.label
-          div.appendChild(icon)
-          div.appendChild(span)
-          return div
-        }
+    var segmentedIconsVertical = document.querySelector('#segmented-icons-vertical')
+    if (segmentedIconsVertical) {
+      segmentedIconsVertical.options = [
+        { label: 'List', value: 'list', icon: 'list-ordered' },
+        { label: 'Grid', value: 'grid', icon: 'grid-line' },
+        { label: 'Table', value: 'table', icon: 'table-line' },
+        { label: 'Settings', value: 'settings', icon: 'settings-3-line' },
+      ]
+      segmentedIconsVertical.renderItem = (item) => {
+        var div = document.createElement('div')
+        div.style.display = 'flex'
+        div.style.flexDirection = 'column'
+        div.style.alignItems = 'center'
+        div.style.gap = '2px'
+        div.style.padding = '4px 0'
+        var icon = document.createElement('zane-icon')
+        icon.setAttribute('name', item.icon)
+        var span = document.createElement('span')
+        span.style.fontSize = '12px'
+        span.textContent = item.label
+        div.appendChild(icon)
+        div.appendChild(span)
+        return div
       }
+    }
 
     // ------ start progress ----------------------------------
     var dashboardColors = [
@@ -951,7 +1001,7 @@
     // ---- start a2ui component -----
     var a2uiEl = document.querySelector('#myA2ui');
     if (a2uiEl) {
-       console.log(a2uiEl.messages);
+      console.log(a2uiEl.messages);
 
       // 推送服务端消息驱动渲染
       a2uiEl.messages = [
@@ -971,14 +1021,14 @@
               }
             }, {
               id: 'textNode1',
-              component: { "zane-text": { child: 'textNode1Text'} }
+              component: { "zane-text": { child: 'textNode1Text' } }
             }, {
               id: 'textNode1Text',
-              component: {Text: { text: { literalString: 'Hello A2UI' } } }
+              component: { Text: { text: { literalString: 'Hello A2UI' } } }
             }, {
               id: 'btnNode1',
               component: {
-                "zane-button": { 
+                "zane-button": {
                   type: 'primary',
                   child: 'btnNode1Text'
                 }
@@ -996,6 +1046,145 @@
         console.log('Event from node:', e.detail.nodeId, e.detail.eventName);
       });
     }
+
+    // ---- start notification demo ----
+    (function () {
+      // 动态导入 notify 模块
+      let ZaneNotify = null;
+
+      // 由于 Stencil 构建后是 ESM 模块，这里通过全局方式获取
+      // 在 dev 环境下，notify 会暴露在 window 上或通过组件实例调用
+
+      function getNotify() {
+        if (!ZaneNotify) {
+          // 尝试从构建产物中获取，或者创建一个简单的通知容器管理器
+          // 这里使用 zane-notification 组件的 DOM API 方式调用
+          const container = document.createElement('div');
+          document.body.appendChild(container);
+
+          ZaneNotify = function (options) {
+            const el = document.createElement('zane-notification');
+
+            if (typeof options === 'string') {
+              el.setAttribute('message', options);
+            } else {
+              if (options.message) el.setAttribute('message', options.message);
+              if (options.title) el.setAttribute('notification-title', options.title);
+              if (options.type) el.setAttribute('type', options.type);
+              if (options.position) el.setAttribute('position', options.position);
+              if (options.duration !== undefined) el.setAttribute('duration', String(options.duration));
+              if (options.showClose === false) el.setAttribute('show-close', 'false');
+              if (options.dangerouslyUseHTMLString) el.setAttribute('dangerously-use-html-string', 'true');
+            }
+
+            document.body.appendChild(el);
+
+            const instance = {
+              close: () => {
+                // 通过 @Method() 调用组件内置的 close()，触发完整关闭流程：
+                // 1. visible=false 退场动画 → 2. 从队列移除 → 3. 重排剩余通知
+                // → 4. setTimeout 后 emit('destroy') + el.remove()
+                if (el.close) el.close();
+              },
+              _el: el,
+            };
+
+            // 注册到实例队列，供 closeAll 使用
+            instances.push(instance);
+
+            // 关闭后自动从队列移除（监听 destroy 事件）
+            el.addEventListener('destroy', () => {
+              const idx = instances.indexOf(instance);
+              if (idx > -1) instances.splice(idx, 1);
+            });
+
+            return instance;
+          };
+
+          ['success', 'warning', 'info', 'error'].forEach(type => {
+            ZaneNotify[type] = function (message, title) {
+              return ZaneNotify({ message, title, type });
+            };
+          });
+
+          const instances = [];
+          ZaneNotify.closeAll = function () {
+            instances.forEach(inst => inst.close());
+            instances.length = 0;
+          };
+        }
+
+        return ZaneNotify;
+      }
+
+      var Notify = getNotify();
+
+      document.querySelector('#notify-basic')?.addEventListener('click', function () {
+        Notify({ message: '这是一条基础通知消息', type: 'primary' });
+      });
+
+      document.querySelector('#notify-success')?.addEventListener('click', function () {
+        Notify.success('恭喜你，操作成功！');
+      });
+
+      document.querySelector('#notify-warning')?.addEventListener('click', function () {
+        Notify.warning('请注意，这是一个警告提示');  
+      });
+
+      document.querySelector('#notify-info')?.addEventListener('click', function () {
+        Notify.info('这是一条信息提示');
+      });
+
+      document.querySelector('#notify-error')?.addEventListener('click', function () {
+        Notify.error('出错了！请稍后再试');
+      });
+
+      document.querySelector('#notify-title')?.addEventListener('click', function () {
+        Notify({
+          title: '自定义标题',
+          message: '这是带有标题和内容的通知消息',
+          type: 'primary',
+        });
+      });
+
+      document.querySelector('#notify-top-left')?.addEventListener('click', function () {
+        Notify({
+          message: '这条通知出现在左上角',
+          position: 'top-left',
+          type: 'success',
+        });
+      });
+
+      document.querySelector('#notify-bottom-right')?.addEventListener('click', function () {
+        Notify({
+          message: '这条通知出现在右下角',
+          position: 'bottom-right',
+          type: 'warning',
+        });
+      });
+
+      document.querySelector('#notify-bottom-left')?.addEventListener('click', function () {
+        Notify({
+          message: '这条通知出现在左下角',
+          position: 'bottom-left',
+          type: 'error',
+        });
+      });
+
+      document.querySelector('#notify-duration-0')?.addEventListener('click', function () {
+        Notify({
+          title: '手动关闭',
+          message: '这条消息不会自动关闭，需要点击关闭按钮',
+          duration: 0,
+          type: 'info',
+        });
+      });
+
+      document.querySelector('#notify-close-all')?.addEventListener('click', function () {
+        console.log('关闭全部================')
+        Notify.closeAll();
+      });
+    })();
   </script>
 
 </body>

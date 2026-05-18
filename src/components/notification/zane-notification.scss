@@ -1,0 +1,151 @@
+@use 'sass:map';
+@use '../../styles/config' as *;
+@use '../../styles/mixins/var' as *;
+@use '../../styles/mixins/bem' as *;
+@use '../../styles/mixins/function' as *;
+@use '../../global/theme/vars/component' as *;
+
+@include b(notification) {
+  @include set-component-css-var('notification', $notification);
+}
+
+// .zane-notification 内部容器 — position:fixed 在此元素上
+@include b(notification) {
+  display: flex;
+  width: var(--zane-notification-width, 330px);
+  padding: var(--zane-notification-padding, 14px 26px 14px 13px);
+  border-radius: var(--zane-notification-radius, 8px);
+  box-sizing: border-box;
+  border: 1px solid var(--zane-notification-border-color, #ebeef5);
+  position: fixed;
+  background-color: var(--zane-bg-color-overlay, #fff);
+  box-shadow: var(--zane-notification-shadow, 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05));
+  transition:
+    opacity var(--zane-transition-duration, 0.3s),
+    transform var(--zane-transition-duration, 0.3s),
+    left var(--zane-transition-duration, 0.3s),
+    right var(--zane-transition-duration, 0.3s),
+    top 0.4s,
+    bottom var(--zane-transition-duration, 0.3s);
+  overflow-wrap: break-word;
+  overflow: hidden;
+  z-index: 2000;
+
+  // ---- 入场/退场动画 ----
+  // 初始状态：不可见 + 移出屏幕外
+  opacity: 0;
+  // 默认从右滑入（.right 方向）
+  transform: translateX(100%);
+
+  // 显示状态：可见 + 归位
+  &.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  // 水平位置 + 对应滑入方向（非可见状态时）
+  &.right:not(.is-visible) {
+    right: 16px;
+    transform: translateX(100%);   // 从右边滑入
+  }
+  &.right.is-visible {
+    right: 16px;
+  }
+
+  &.left:not(.is-visible) {
+    left: 16px;
+    transform: translateX(-100%);  // 从左边滑入
+  }
+  &.left.is-visible {
+    left: 16px;
+  }
+
+  @include e(group) {
+    flex: 1;
+    min-width: 0;
+    margin-left: var(--zane-notification-group-margin-left, 13px);
+    margin-right: var(--zane-notification-group-margin-right, 8px);
+    position: relative;
+  }
+
+  @include e(title) {
+    font-weight: bold;
+    font-size: var(--zane-notification-title-font-size, 16px);
+    line-height: var(--zane-notification-icon-size, 24px);
+    color: var(--zane-notification-title-color, #303133);
+    margin: 0;
+  }
+
+  @include e(content) {
+    font-size: var(--zane-notification-content-font-size, 14px);
+    line-height: 24px;
+    margin: 6px 0 0;
+    color: var(--zane-notification-content-color, #606266);
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .#{$namespace}-notification__icon {
+    flex-shrink: 0;
+    height: var(--zane-notification-icon-size, 24px);
+    width: var(--zane-notification-icon-size, 24px);
+    font-size: var(--zane-notification-icon-size, 24px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @include e(closeBtn) {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    cursor: pointer;
+    color: var(--zane-notification-close-color, #909399);
+    font-size: var(--zane-notification-close-font-size, 12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: none;
+    outline: none;
+    z-index: 10;
+
+    &:hover {
+      color: var(--zane-notification-close-hover-color, #606266);
+    }
+  }
+
+  // 类型颜色
+  &--primary {
+    .#{$namespace}-notification__icon {
+      color: var(--zane-color-primary, #409eff);
+    }
+  }
+
+  &--success {
+    .#{$namespace}-notification__icon {
+      color: var(--zane-color-success, #67c23a);
+    }
+  }
+
+  &--info {
+    .#{$namespace}-notification__icon {
+      color: var(--zane-color-info, #909399);
+    }
+  }
+
+  &--warning {
+    .#{$namespace}-notification__icon {
+      color: var(--zane-color-warning, #e6a23c);
+    }
+  }
+
+  &--error {
+    .#{$namespace}-notification__icon {
+      color: var(--zane-color-error, #f56c6c);
+    }
+  }
+}
