@@ -1,0 +1,70 @@
+@use '../../styles/mixins/function' as *;
+@use '../../styles/mixins/bem' as *;
+@use '../../global/theme/vars/component' as *;
+
+@include b(breadcrumb) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 14px;
+
+  @include e(item) {
+    display: inline-flex;
+    align-items: center;
+
+    @include e(inner) {
+      color: getCssVar('text-color', 'regular');
+
+      @include when(link) {
+        color: getCssVar('text-color', 'primary');
+        font-weight: 600;
+        cursor: pointer;
+        transition: color getCssVar('transition-duration', 'fast')
+          getCssVar('transition-function', 'ease-in-out-bezier');
+
+        &:hover {
+          color: getCssVar('color-primary');
+        }
+      }
+
+      a {
+        font-weight: bold;
+        text-decoration: none;
+        color: getCssVar('text-color', 'primary');
+        transition: color getCssVar('transition-duration', 'fast')
+          getCssVar('transition-function', 'ease-in-out-bezier');
+
+        &:hover {
+          color: getCssVar('color-primary');
+          cursor: pointer;
+        }
+      }
+    }
+
+    @include e(separator) {
+      margin: 0 9px;
+      color: getCssVar('text-color', 'placeholder');
+      font-weight: bold;
+    }
+  }
+
+  // 最后一项样式（使用 :last-child 选择器，渲染时立即生效，无闪烁）
+  // 注意：不能使用 @include e(inner) / @include e(separator) 嵌套，
+  // 因为 BEM mixin 的 @at-root 会破坏嵌套关系，导致样式被提升到全局根级别。
+  .#{$B}__item:last-child {
+    .#{$B}__inner,
+    .#{$B}__inner.is-link,
+    .#{$B}__inner a {
+      &,
+      &:hover {
+        font-weight: normal;
+        color: getCssVar('text-color', 'regular');
+        cursor: text;
+      }
+    }
+
+    .#{$B}__separator {
+      display: none;
+    }
+  }
+}
